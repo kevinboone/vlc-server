@@ -1,0 +1,155 @@
+.\" Copyright (C) 2020 Kevin Boone 
+.\" Permission is granted to any individual or institution to use, copy, or
+.\" redistribute this software so long as all of the original files are
+.\" included, that it is not sold for profit, and that this copyright notice
+.\" is retained.
+.\"
+.TH vlc-server 1 "June 2022"
+.SH NAME
+vlc-server-client -- a command-line client for the vlc-server  media player 
+
+.SH SYNOPSIS
+.B vlc-server-client\ [options] {command} {arguments}
+.PP
+
+.SH DESCRIPTION
+
+\fIvlc-server-client\fR is a command-line client for the  
+\fIvlc-server\fR media player, which is itself an HTTP interface to the VLC
+player. The client allows all features of the server to be exercised, and
+uses the same HTTP REST interface that any other client would use
+(including the web interface). Its main function is to test the server,
+but it can be used as a rather crude, command-line media player. 
+
+.SH "OPTIONS"
+
+.TP
+.BI -h,\-\-host={hostname]
+.LP
+Specify the hostname or IP number of the \fIvlc-server\fR host.
+Default: localhost.
+
+.TP
+.BI -p,\-\-port={number]
+.LP
+Specify the IP port number of the \fIvlc-server\fR instance.
+Default: 30000.
+
+.SH COMMANDS
+
+.TP
+.BI add\ {item1}\ [item2]... 
+.LP
+Add one or more items to the server's playlist. These items can be
+full URLs, or local files. Since the client probably does not know the
+locations of local files on the server, the server accepts the token
+"@" in a filename as referring to its media root directory. Suitable 
+filenames can be seen by running the \fIlist-files\fR and  \fIlist-dirs\fR 
+commands, whose output is always relative to the media root.
+
+The items to be added can be local directories, in which case the 
+server will add all files in the specified directory, whose names match
+the allowed filename patterns.
+
+.TP
+.BI clear 
+.LP
+Clear the server's playlist. Anything that is currently playing will
+be allowed to finish.
+
+.TP
+.BI index 
+.LP
+Select a specific item in the playlist to play. The first playlist
+item is 0.
+
+.TP
+.BI list-dirs\ [path] 
+.LP
+List the directories under \fIpath\fR, or the server's media root if
+no path is given. The directories will be full paths, relative to the
+media root. The specified path may begin with '/', but need not.
+The "@" token, indicating the media root, cannot be used here, because
+these paths are always relative to the media root.
+
+If the server is running with specified allowed filename patterns, then
+the list operation only returns files whose names match those patterns;
+it would be pointless to return files that cannot be played.
+
+.TP
+.BI list-files\ [path] 
+.LP
+List the files under \fIpath\fR, or the server's media root if
+no path is given. 
+
+.TP
+.BI next 
+.LP
+Move to the next item in the playlist.
+
+.TP
+.BI pause 
+.LP
+Pause playback. Use \fIstart\fR to resume.
+
+.TP
+.BI play\ {item1}\ [item2]... 
+.LP
+
+As \fIadd\fR, except that the server's playlist if first cleared,
+and then playback starts with the first of the new items.
+See \fIadd\fR for more details.
+
+.TP
+.BI playlist
+.LP
+
+Display the server's playlist. Items that represent local files,
+and that can be reached relative to the server's media root, will
+have a "@" in place of the media root. In other cases, the list
+will be of full URLs.
+
+.TP
+.BI start 
+.LP
+Resumes playback, if it is paused. Otherwise, start playing at the
+beginning of the playlist, if there is one.
+
+.TP
+.BI prev
+.LP
+Move to the previous item in the playlist. This does not skip back
+to the beginning if playback is well advanced in the current item --
+it always goes to the previous item, if there is one. 
+
+.TP
+.BI shutdown 
+.LP
+Shut the server down, immediately, with no warnings.
+
+.TP
+.BI stat 
+.LP
+Show the server status, including the transport status (playing, buffering...)
+and the current playlist item.
+
+.TP
+.BI stop
+.LP
+Stop playback immediately, and reset the current playlist index to 
+0 (not the beginning of the current item).
+
+.TP
+.BI volume {0..100}
+.LP
+
+Set or get the server's playback volume. Note that this is the VLC
+volume, and does not refer to any platform-level mixer or volume control
+that may be in effect. The range is nominally 0..100, but VLC may
+accept higher volume levels. Of course, it's only meaningful to use
+a level greater than 100 if the source audio is recorded badly, and
+too quiet. With properly recorded material the volume cannot be
+increased above 100%, and the output will just clip, and sound horrible.
+
+
+.\" end of file

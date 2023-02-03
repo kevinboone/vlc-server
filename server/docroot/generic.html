@@ -1,0 +1,69 @@
+<html>
+  <head>
+    <title>%%TITLE%%</title>
+    <link rel="stylesheet" type="text/css" href="/file/main.css"/>
+    <link rel="icon" type="image/x-icon" href="/file/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/file/favicon.ico">
+    <script type="text/javascript" src="/file/functions.js"></script>
+  </head>
+  <body onload="onload_generic()">
+
+    <header>
+      <div id="captionmenu">
+	<!--img src="/file/caption_logo.png"/-->
+        
+        <div id="transport_buttons">
+	<a href="javascript:cmd_prev()"><img class="transportbuttonimage" src="/file/prevbutton.png" alt="Prev"/></a>
+	<a href="javascript:cmd_stop()"><img class="transportbuttonimage" src="/file/stopbutton.png" alt="Stop"/></a>
+	<a href="javascript:cmd_pause()"><img class="transportbuttonimage" src="/file/pausebutton.png" alt="Pause"/></a>
+	<a href="javascript:cmd_start()"><img class="transportbuttonimage" src="/file/playbutton.png" alt="Play"/></a>
+	<a href="javascript:cmd_next()"><img class="transportbuttonimage" src="/file/nextbutton.png" alt="Next"/></a>
+	<span id="positioncell"></span>
+	<span id="durationcell"></span>
+        <input type="range" min="1" max="100" value="50" id="volumeslider"/>
+        <img src="/file/spk.png"/>
+        <br/>
+        <span id="transportstatuscell"></span>&nbsp;
+        <span id="titlecell"></span>&nbsp;
+        <span id="indexcell"></span>&nbsp;
+        </div>
+
+	<nav>
+	<a href="#" id="menu-icon"></a>
+	<ul class="main_menu">
+	<li class="main_menu_item"><a href="/gui/files?covers=1">Files (with covers)</a></li>
+	<li class="main_menu_item"><a href="/gui/files">Files (no covers)</a></li>
+	<li class="main_menu_item"><a href="/gui/playlist">Playlist</a></li>
+	<li class="main_menu_item"><a href="javascript:url_form_open()">URL...</a></li>
+	</ul>
+	</nav>
+      </div>
+    </header>
+
+    <div id="urlformwrapper">
+      <form id="urlform" onsubmit="javascript:url_form_process();return false">
+        <h2>Enter URL</h2>
+	<label for="url"><b>URL:</b></label>
+	<input type="text" placeholder="Enter URL" name="url_form_url" 
+	  id="url_form_url" required/>
+	<br/>
+	<div id="urlformbuttons">
+	<button type="button" id="urlform_submit" autofocus
+	  onclick="url_form_process()">OK</button>
+	<button type="button" id="urlform_cancel" 
+	  onclick="url_form_close()">Close</button>
+	</div>
+      <form>
+    </div>
+
+    <section>
+
+      <div class="messageline">
+	<span id="messagecell"></span>&nbsp;
+      </div>
+
+      %%BODY%%
+    </section>
+  </body>
+</html>
+
