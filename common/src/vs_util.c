@@ -38,6 +38,8 @@ const char *vs_util_strerror (VSApiError e)
       return "volume level out of range";
     case VSAPI_ERR_INIT_VLC:
       return "can't initialize the VLC library";
+    case VSAPI_ERR_INIT_DB:
+      return "media database is not initialized";
     default:
       return "unknown error";
     }

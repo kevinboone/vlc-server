@@ -145,6 +145,31 @@ section
   margin: 5px;
   }
 
+.resulttable
+  {
+  margin: 0px;
+  border-spacing: 0px;
+  }
+
+.resulttable td
+  {
+  vertical-align: top;
+  padding-right: 1em;
+  padding-left: 1em;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  }
+
+.resulttable tr:nth-child(odd) 
+  {
+  background-color: #F0F0F0;
+  }
+
+.resulttable tr:nth-child(even) 
+  {
+  background-color: #E0E0E0;
+  }
+
 #urlformwrapper
   {
   display: none;

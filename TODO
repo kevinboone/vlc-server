@@ -1,30 +1,4 @@
 Everything is still to do :)
 
-Obviously, indexing by metadata needs to be implemented, along with the
-additional capabilities in the web UI
-
-Seek within file/stream
-
-Split path components in files/directories display, to make navigation easier.
-
-Put an "up" link in the files/directories display
- 
-Radio stream list (how do we maintain this?)
-
-Search in files/folders (but perhaps this can be deferred until indexing
-is implemented -- an exhaustive filesystem search in response to an
-HTTP request is a little dodgy)
-
-Read RC file at server start (rather than needing to specify a long command line).
- 
-"vlc-server-client stat" shows real media file location, because the "stat"
-API call does. We should really substitute "@" for the media root if the
-file is relative to the media root. However, this leads to a broker
-URL -- file:///@/something. This won't easily parse in the JavaScript
-method response_callback_refresh_status, so no URL will be displayed.
-
-The Web interface doesn't show the file part of the media URL in the interface
-at all, if it contains an "#" character. This is an oddity of the rather
-ugly parse_uri() function.
-
+Please see the TODO files in the specific sub-modules for details.
 

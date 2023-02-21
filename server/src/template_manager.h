@@ -24,6 +24,7 @@
 #define TEMPLATE_DEFAULT_COVER_PNG   10
 #define TEMPLATE_MENU_ICON_PNG       11
 #define TEMPLATE_SPK_PNG             12
+#define TEMPLATE_HOME_HTML           13 
 
 BEGIN_CDECLS
 

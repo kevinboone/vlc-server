@@ -33,6 +33,8 @@ extern BOOL http_util_fetch_from_filesystem (const char *file, BYTE **buff,
     int *len);
 extern const char *http_util_mime_from_path (const char *url);
 
+extern VSString *http_util_encode_for_js (const char *file);
+
 END_CDECLS
 
 

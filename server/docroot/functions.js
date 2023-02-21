@@ -14,6 +14,18 @@ function cmd_add (path)
   make_fn_request (apiFn, response_callback_gen_status);
   }
 
+function cmd_add_album (album)
+  {
+  var apiFn = API_BASE + "add_album/" + encodeURIComponent (album); 
+  make_fn_request (apiFn, response_callback_gen_status);
+  }
+
+function cmd_play_album (album)
+  {
+  var apiFn = API_BASE + "play_album/" + encodeURIComponent (album); 
+  make_fn_request (apiFn, response_callback_gen_status);
+  }
+
 function cmd_index (number)
   {
   var apiFn = API_BASE + "index/" + encodeURIComponent (number); 
@@ -41,6 +53,12 @@ function cmd_play(path)
 function cmd_prev()
   {
   var apiFn = API_BASE + "prev?dummy";
+  make_fn_request (apiFn, response_callback_gen_status);
+  }
+
+function cmd_scan()
+  {
+  var apiFn = API_BASE + "scan";
   make_fn_request (apiFn, response_callback_gen_status);
   }
 

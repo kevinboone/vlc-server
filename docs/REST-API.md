@@ -119,6 +119,14 @@ there could well be unplayable files in a directory (cover art, for
 example), so indiscriminate adding of a directory's contents should
 be avoided. 
 
+### add\_album
+
+    /api/add_album/{album-name}
+
+Adds all the tracks from the specified album to the playlist. This
+API function only works if the media database is enabled and the 
+media root has been scanned.
+
 ### clear
 
     /api/clear
@@ -126,6 +134,27 @@ be avoided.
 Clear the playlist. If something is playing, it will contine to play
 until the end. The playback will continue from the start of any
 new playlist items.
+
+## list-albums
+
+    /api/list-albums?where=[where clause]
+
+List all albums in the database that match the where clause. If there is
+no where clause, return a list of all albums.
+
+## list-artists
+
+    /api/list-artists?where=[where clause]
+
+List all artists in the database that match the where clause. If there is
+no where clause, return a list of all artists.
+
+## list-composers
+
+    /api/list-composers?where=[where clause]
+
+List all composers in the database that match the where clause. If there is
+no where clause, return a list of all composers.
 
 ## list-dirs
 
@@ -157,6 +186,20 @@ The format of the JSON response is:
     {"status": 0, "list": [
      "path/to/file1", "path/to/file2", ... ] }
 
+## list-genres
+
+    /api/list-genres?where=[where clause]
+
+List all genres in the database that match the where clause. If there is
+no where clause, return a list of all genres.
+
+## list-tracks
+
+    /api/list-tracks?where=[where clause]
+
+List all tracks in the database that match the where clause. If there is
+no where clause, return a list of all tracks.
+
 ## next
 
     /api/next
@@ -183,6 +226,15 @@ be played, that won't become apparent until after the current playlist
 has been cleared. `/api/play` will stop the current playback and clear
 the playlist anyway.
 
+### play\_album
+
+    /api/play_album/{album-name}
+
+Plays the specified album immediately. That is, clear the playlist,
+add the tracks from the album, and start playback. This
+API function only works if the media database is enabled and the 
+media root has been scanned.
+
 ### playlist
 
 Returns the current playlist as a JSON array.
@@ -203,6 +255,11 @@ Start playback from the previous playlist item. It isn't considered an
 error if there is nothing earlier in the playlist. Playback always
 goes to the previous item (if there is one) even if the playback position
 is only a few seconds into the current one.
+
+### scan
+
+Start a scan of the media root, and a database update. This is a 'quick' 
+scan -- items that are in the database already will not be scanned again.
 
 ### shutdown
 

@@ -67,7 +67,9 @@ typedef enum _VSApiError
   // Volume out of range 
   VSAPI_ERR_VOL_RANGE = 9, 
   // Can't initialize the VLC library 
-  VSAPI_ERR_INIT_VLC = 10 
+  VSAPI_ERR_INIT_VLC = 10,
+  // The media database was not initialized
+  VSAPI_ERR_INIT_DB = 11
   } VSApiError;
 
 typedef enum _VSApiTransportStatus

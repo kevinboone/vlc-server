@@ -1,6 +1,6 @@
 /*======================================================================
   
-  vlc-rest-server
+  vlc-server
 
   server/src/gui_playlist.c
 
@@ -43,6 +43,7 @@ VSString *gui_playlist_get_body (const Player *player,
             const char *media_root, const char *path, BOOL covers)
   {
   IN
+  (void)media_root; (void)covers; (void)path;
   vs_log_debug ("GUI playlist");
   VSString *body = vs_string_create ("");
   vs_string_append (body, "<h1>Playlist</h1>\n");

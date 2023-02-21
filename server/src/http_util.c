@@ -1,6 +1,6 @@
 /*======================================================================
   
-  vlc-rest-server
+  vlc-server
 
   server/src/http_util.c
 
@@ -87,6 +87,22 @@ const char *http_util_mime_from_path (const char *url)
   OUT
   vs_log_debug ("MIME type for %s is %s", url, mime);
   return mime;
+  }
+
+/*======================================================================
+  
+  http_util_encode_for_js
+
+======================================================================*/
+VSString *http_util_encode_for_js (const char *file)
+  {
+  IN
+  VSString *s = vs_string_create(file);
+  vs_string_substitute_all_in_place (s, "\'", "\\'");
+  VSString *ret = vs_string_encode_url (vs_string_cstr (s));
+  vs_string_destroy (s);
+  OUT
+  return ret;
   }
 
 

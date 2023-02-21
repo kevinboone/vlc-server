@@ -1,6 +1,6 @@
 /*======================================================================
   
-  vlc-rest-server
+  vlc-server
 
   api.c
 
@@ -13,14 +13,17 @@
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <vlc-server/vs_string.h>
 #include <vlc-server/vs_log.h>
 #include <vlc-server/vs_util.h>
 #include <vlc-server/libvlc_server_stat.h>
+#include <vlc-server/libvlc_media_database.h>
 #include "http_server.h"
 #include "player.h"
+#include "media_database.h"
 
 #define OK_MSG "{\"status\": 0}\r\n"
 #define MAX(a,b) ((a > b) ? a : b)
@@ -108,6 +111,105 @@ char *api_add_js (Player *player, const char *path)
     {
     asprintf (&ret, "{\"status\": %d, \"message\": \"Added %d items\"}\r\n", 
       ret2, added);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+ api_add_album_js
+
+======================================================================*/
+VSApiError api_add_album (Player *player, MediaDatabase *mdb, 
+     const char *album, int *added)
+  {
+  VSApiError ret = 0;
+  MediaDatabaseConstraints *mdc = media_database_constraints_new ();
+  mdc->start = 0;
+  mdc->count = -1;
+  char *where;
+  asprintf (&where, "album='%s'", album);
+  media_database_constraints_set_where (mdc, where); 
+  free (where);
+  VSList *list = api_list_tracks (mdb, 
+     mdc, &ret);
+  media_database_constraints_destroy (mdc);
+
+  if (list)
+    {
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      const char *path = vs_list_get (list, i);
+      char *rel_path;
+      asprintf (&rel_path, "@/%s", path);
+      int this_added = 0;
+      if (player_add (player, rel_path, &this_added) == 0)
+        (*added) += this_added;
+      free (rel_path);
+      } 
+    vs_list_destroy (list);
+    }
+
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+ api_add_album_js
+
+======================================================================*/
+char *api_add_album_js (Player *player, MediaDatabase *mdb, 
+        const char *album)
+  {
+  IN
+  char *ret;
+  int added = 0;
+  VSApiError e = api_add_album (player, mdb, album, &added);
+  if (e)
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  else
+    {
+    asprintf (&ret, "{\"status\": %d, \"message\": \"Added %d items\"}\r\n", 
+      0, added);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+ api_play_album_js
+
+======================================================================*/
+char *api_play_album_js (Player *player, MediaDatabase *mdb, 
+        const char *album)
+  {
+  IN
+  char *ret;
+  int added = 0;
+  player_clear (player);
+  player_stop (player);
+  VSApiError e = api_add_album (player, mdb, album, &added);
+  if (e)
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  else
+    {
+    player_start (player);
+    asprintf (&ret, "{\"status\": %d, \"message\": \"Added %d items\"}\r\n", 
+      0, added);
     }
   OUT
   return ret;
@@ -458,6 +560,7 @@ char *api_playlist_js (Player *player)
 ======================================================================*/
 static int api_sort_strings (const void *a, const void *b, void *user_data)
   {
+  (void)user_data;
   const char **_a = (const char **)a;
   const char **_b = (const char **)b;
   return strcmp (*_a, *_b);
@@ -652,7 +755,452 @@ char *api_list_dirs_js (Player *player, const char *media_root,
   return ret;
   }
 
+/*======================================================================
+
+  api_list_albums
+
+======================================================================*/
+VSList *api_list_albums (MediaDatabase *mdb, 
+     const MediaDatabaseConstraints *mdc, VSApiError *e)
+  {
+  VSList *ret = NULL;
+  if (media_database_is_init (mdb))
+    {
+    VSList *albums = vs_list_create (free);
+    char *error = NULL;
+    media_database_search (mdb, MDB_COL_ALBUM, albums, mdc, &error);
+    ret = albums;
+    }
+  else
+   *e = VSAPI_ERR_INIT_DB;
+  return ret;
+  }
 
 
+/*======================================================================
+
+  api_list_albums_js
+
+======================================================================*/
+char *api_list_albums_js (MediaDatabase *mdb, 
+        const VSProps *arguments)
+  {
+  IN
+  char *ret; 
+  VSApiError e;
+  MediaDatabaseConstraints *mdc = media_database_constraints_new();
+  mdc->start = 0;
+  mdc->count = -1;
+  const char *where = vs_props_get (arguments, "where");
+  if (where)
+    media_database_constraints_set_where (mdc, where);
+  VSList *list = api_list_albums (mdb, mdc, &e);
+  media_database_constraints_destroy (mdc);
+  if (list)
+    {
+    VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      char *j_file = api_escape_json (vs_list_get (list, i));
+      vs_string_append (s, "\"");
+      vs_string_append (s, j_file);
+      vs_string_append (s, "\"");
+      free (j_file);
+      if (i != l - 1) 
+        vs_string_append (s, ",");
+      }
+
+    vs_list_destroy (list);
+    vs_string_append (s, "]}\r\n");
+    ret = strdup (vs_string_cstr (s));
+    vs_string_destroy (s);
+    }
+  else
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+  api_list_genres
+
+======================================================================*/
+VSList *api_list_genres (MediaDatabase *mdb, 
+     const MediaDatabaseConstraints *mdc, VSApiError *e)
+  {
+  VSList *ret = NULL;
+  if (media_database_is_init (mdb))
+    {
+    VSList *genres = vs_list_create (free);
+    char *error = NULL;
+    media_database_search (mdb, MDB_COL_GENRE, genres, mdc, &error);
+    ret = genres;
+    }
+  else
+   *e = VSAPI_ERR_INIT_DB;
+  return ret;
+  }
+
+
+/*======================================================================
+
+  api_list_genres_js
+
+======================================================================*/
+char *api_list_genres_js (MediaDatabase *mdb, 
+        const VSProps *arguments)
+  {
+  IN
+  char *ret; 
+  VSApiError e;
+  MediaDatabaseConstraints *mdc = media_database_constraints_new();
+  mdc->start = 0;
+  mdc->count = -1;
+  const char *where = vs_props_get (arguments, "where");
+  if (where)
+    media_database_constraints_set_where (mdc, where);
+  VSList *list = api_list_genres (mdb, mdc, &e);
+  media_database_constraints_destroy (mdc);
+  if (list)
+    {
+    VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      char *j_file = api_escape_json (vs_list_get (list, i));
+      vs_string_append (s, "\"");
+      vs_string_append (s, j_file);
+      vs_string_append (s, "\"");
+      free (j_file);
+      if (i != l - 1) 
+        vs_string_append (s, ",");
+      }
+
+    vs_list_destroy (list);
+    vs_string_append (s, "]}\r\n");
+    ret = strdup (vs_string_cstr (s));
+    vs_string_destroy (s);
+    }
+  else
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+  api_list_composers
+
+======================================================================*/
+VSList *api_list_composers (MediaDatabase *mdb, 
+     const MediaDatabaseConstraints *mdc, VSApiError *e)
+  {
+  VSList *ret = NULL;
+  if (media_database_is_init (mdb))
+    {
+    VSList *composers = vs_list_create (free);
+    char *error = NULL;
+    media_database_search (mdb, MDB_COL_COMPOSER, composers, mdc, &error);
+    ret = composers;
+    }
+  else
+   *e = VSAPI_ERR_INIT_DB;
+  return ret;
+  }
+
+
+/*======================================================================
+
+  api_list_composers_js
+
+======================================================================*/
+char *api_list_composers_js (MediaDatabase *mdb, 
+        const VSProps *arguments)
+  {
+  IN
+  char *ret; 
+  VSApiError e;
+  MediaDatabaseConstraints *mdc = media_database_constraints_new();
+  mdc->start = 0;
+  mdc->count = -1;
+  const char *where = vs_props_get (arguments, "where");
+  if (where)
+    media_database_constraints_set_where (mdc, where);
+  VSList *list = api_list_composers (mdb, mdc, &e);
+  media_database_constraints_destroy (mdc);
+  if (list)
+    {
+    VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      char *j_file = api_escape_json (vs_list_get (list, i));
+      vs_string_append (s, "\"");
+      vs_string_append (s, j_file);
+      vs_string_append (s, "\"");
+      free (j_file);
+      if (i != l - 1) 
+        vs_string_append (s, ",");
+      }
+
+    vs_list_destroy (list);
+    vs_string_append (s, "]}\r\n");
+    ret = strdup (vs_string_cstr (s));
+    vs_string_destroy (s);
+    }
+  else
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+  api_list_artists
+
+======================================================================*/
+VSList *api_list_artists (MediaDatabase *mdb, 
+     const MediaDatabaseConstraints *mdc, VSApiError *e)
+  {
+  VSList *ret = NULL;
+  if (media_database_is_init (mdb))
+    {
+    VSList *artists = vs_list_create (free);
+    char *error = NULL;
+    media_database_search (mdb, MDB_COL_ARTIST, artists, mdc, &error);
+    ret = artists;
+    }
+  else
+   *e = VSAPI_ERR_INIT_DB;
+  return ret;
+  }
+
+
+/*======================================================================
+
+  api_list_artists_js
+
+======================================================================*/
+char *api_list_artists_js (MediaDatabase *mdb, 
+        const VSProps *arguments)
+  {
+  IN
+  char *ret; 
+  VSApiError e;
+  MediaDatabaseConstraints *mdc = media_database_constraints_new();
+  mdc->start = 0;
+  mdc->count = -1;
+  const char *where = vs_props_get (arguments, "where");
+  if (where)
+    media_database_constraints_set_where (mdc, where);
+  VSList *list = api_list_artists (mdb, mdc, &e);
+  media_database_constraints_destroy (mdc);
+  if (list)
+    {
+    VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      char *j_file = api_escape_json (vs_list_get (list, i));
+      vs_string_append (s, "\"");
+      vs_string_append (s, j_file);
+      vs_string_append (s, "\"");
+      free (j_file);
+      if (i != l - 1) 
+        vs_string_append (s, ",");
+      }
+
+    vs_list_destroy (list);
+    vs_string_append (s, "]}\r\n");
+    ret = strdup (vs_string_cstr (s));
+    vs_string_destroy (s);
+    }
+  else
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+  api_list_tracks
+
+======================================================================*/
+VSList *api_list_tracks (MediaDatabase *mdb, 
+     const MediaDatabaseConstraints *mdc, VSApiError *e)
+  {
+  VSList *ret = NULL;
+  if (media_database_is_init (mdb))
+    {
+    VSList *tracks = vs_list_create (free);
+    char *error = NULL;
+    media_database_search (mdb, MDB_COL_PATH, tracks, mdc, &error);
+    ret = tracks;
+    }
+  else
+   *e = VSAPI_ERR_INIT_DB;
+  return ret;
+  }
+
+
+/*======================================================================
+
+  api_list_tracks_js
+
+======================================================================*/
+char *api_list_tracks_js (MediaDatabase *mdb, 
+        const VSProps *arguments)
+  {
+  IN
+  char *ret; 
+  VSApiError e;
+  MediaDatabaseConstraints *mdc = media_database_constraints_new();
+  mdc->start = 0;
+  mdc->count = -1;
+  const char *where = vs_props_get (arguments, "where");
+  if (where)
+    media_database_constraints_set_where (mdc, where);
+  VSList *list = api_list_tracks (mdb, mdc, &e);
+  media_database_constraints_destroy (mdc);
+  if (list)
+    {
+    VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      char *j_file = api_escape_json (vs_list_get (list, i));
+      vs_string_append (s, "\"");
+      vs_string_append (s, j_file);
+      vs_string_append (s, "\"");
+      free (j_file);
+      if (i != l - 1) 
+        vs_string_append (s, ",");
+      }
+
+    vs_list_destroy (list);
+    vs_string_append (s, "]}\r\n");
+    ret = strdup (vs_string_cstr (s));
+    vs_string_destroy (s);
+    }
+  else
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+  api_get_image_for_album
+
+======================================================================*/
+char *api_get_dir_for_album (MediaDatabase *mdb, const char *album)
+  {
+  char *ret = NULL;
+  if (media_database_is_init (mdb))
+    {
+    MediaDatabaseConstraints *mdc = media_database_constraints_new();
+    mdc->start = 0;
+    mdc->count = 1;
+    VSString *where = vs_string_create ("album='");
+    char *enc_album = media_database_escape_sql (album); 
+    vs_string_append (where, enc_album); 
+    free (enc_album);
+    vs_string_append (where, "'");
+    media_database_constraints_set_where (mdc, vs_string_cstr (where));
+    VSList *list = vs_list_create (free);
+    char *error = NULL;
+    //printf ("where=%s\n", vs_string_cstr (where));
+    media_database_search (mdb, MDB_COL_PATH, list, mdc, &error);
+    if (error)
+      {
+      //printf ("track=%s\n", file);
+      // TODO
+      free (error);
+      }
+    else 
+      {
+      int l = vs_list_length (list);
+      if (l > 0)
+        {
+        const char *file = vs_list_get (list, 0);
+        if (file[0])
+          {
+          char *spos = strchr (file + 1, '/');
+          if (spos)
+            {
+            ret = strdup (file);
+            int l = spos - file;
+            ret[l] = 0;
+            }
+          }
+        }
+      }
+    vs_list_destroy (list);
+    media_database_constraints_destroy (mdc);
+    vs_string_destroy (where);
+    }
+  return ret;
+  }
+
+/*======================================================================
+
+  api_scan
+
+======================================================================*/
+VSApiError api_scan (MediaDatabase *mdb, const char *media_root)
+  {
+  const char *filename = media_database_get_filename (mdb);
+  char exec[PATH_MAX];
+  readlink ("/proc/self/exe", exec, sizeof (exec) - 1);
+  char *cmd;
+  asprintf (&cmd, "%s -q -d '%s' -r '%s'", exec, filename, media_root); 
+  vs_log_info ("Running command '%s'", cmd);
+  system (cmd);
+  free (cmd);
+  return 0;
+  }
+
+/*======================================================================
+
+  api_scan_js
+
+======================================================================*/
+char *api_scan_js (MediaDatabase *mdb, const char *media_root)
+  {
+  char *ret;
+  int ret2 = api_scan (mdb, media_root); 
+  char *j_error = api_escape_json (vs_util_strerror (ret2));
+  asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+    ret2, j_error);
+  free (j_error);
+  return ret;
+  }
 
 

@@ -12,6 +12,7 @@
 
 #include <vlc-server/vs_defs.h> 
 #include "player.h"
+#include "media_database.h"
 
 struct _HttpServer;
 
@@ -20,7 +21,8 @@ typedef struct _HttpServer HttpServer;
 BEGIN_CDECLS
 
 extern HttpServer *http_server_new (int port, const char *media_root, 
-                     int matches_per_page);
+                     int matches_per_page, MediaDatabase *mdb,
+                     const char *instance_name);
 extern void        http_server_destroy (HttpServer *self);
 extern void        http_server_stop (HttpServer *self);
 extern void        http_server_set_player (HttpServer *self, 

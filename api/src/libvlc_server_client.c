@@ -281,10 +281,10 @@ void libvlc_server_client_clear (LibVlcServerClient *self,
 
 /*======================================================================
 
-  libvlc_server_client_add
+  libvlc_server_client_add_url
 
 ======================================================================*/
-void libvlc_server_client_add (LibVlcServerClient *self, 
+void libvlc_server_client_add_url (LibVlcServerClient *self, 
         VSApiError *err_code, char **msg, const char *mrl)
   {
   IN
@@ -394,6 +394,39 @@ void libvlc_server_client_start (LibVlcServerClient *self,
   IN
   char *response = libvlc_server_client_request (self, "start", 
       err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+        // Nothing to do
+        }
+
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  OUT
+  }
+
+/*======================================================================
+
+  libvlc_server_client_scan
+
+======================================================================*/
+void libvlc_server_client_scan (LibVlcServerClient *self, 
+        VSApiError *err_code, char **msg)
+  {
+  IN
+  char *response = libvlc_server_client_request 
+   (self, "scan", err_code, msg); 
   if (*err_code == 0)
     {
     cJSON *root = cJSON_Parse (response);
@@ -731,6 +764,281 @@ VSList *libvlc_server_client_list_dirs
   VSString *enc_path = vs_string_encode_url (path);
   asprintf (&request, "list-dirs/%s", vs_string_cstr (enc_path)); 
   vs_string_destroy (enc_path);
+  char *response = libvlc_server_client_request (self, request, 
+    err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+  	cJSON *j = cJSON_GetObjectItem (root, "list"); 
+        if (j)
+          {
+          int len = cJSON_GetArraySize (j);
+          list = vs_list_create_strings ();
+          for (int i = 0; i < len; i++)
+            {
+            cJSON *jj = cJSON_GetArrayItem (j, i);
+            vs_list_append (list, strdup (jj->valuestring));
+            }
+          }
+        }
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  free (request);
+  OUT
+  return list;
+  }
+
+/*======================================================================
+
+  libvlc_server_client_list_albums
+
+======================================================================*/
+VSList *libvlc_server_client_list_albums (const LibVlcServerClient *self, 
+          const char *where, VSApiError *err_code, char **msg)
+  {
+  IN
+  VSList *list = NULL;
+  char *request;
+  if (where)
+    {
+    VSString *enc_where = vs_string_encode_url (where);
+    asprintf (&request, "list-albums?where=%s", vs_string_cstr (enc_where));
+    vs_string_destroy (enc_where);
+    }
+  else
+    asprintf (&request, "list-albums");
+  //vs_string_destroy (enc_path);
+  char *response = libvlc_server_client_request (self, request, 
+    err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+  	cJSON *j = cJSON_GetObjectItem (root, "list"); 
+        if (j)
+          {
+          int len = cJSON_GetArraySize (j);
+          list = vs_list_create_strings ();
+          for (int i = 0; i < len; i++)
+            {
+            cJSON *jj = cJSON_GetArrayItem (j, i);
+            vs_list_append (list, strdup (jj->valuestring));
+            }
+          }
+        }
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  free (request);
+  OUT
+  return list;
+  }
+
+/*======================================================================
+
+  libvlc_server_client_list_composers
+
+======================================================================*/
+VSList *libvlc_server_client_list_composers (const LibVlcServerClient *self, 
+          const char *where, VSApiError *err_code, char **msg)
+  {
+  IN
+  VSList *list = NULL;
+  char *request;
+  if (where)
+    {
+    VSString *enc_where = vs_string_encode_url (where);
+    asprintf (&request, "list-composers?where=%s", vs_string_cstr (enc_where));
+    vs_string_destroy (enc_where);
+    }
+  else
+    asprintf (&request, "list-composers");
+  //vs_string_destroy (enc_path);
+  char *response = libvlc_server_client_request (self, request, 
+    err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+  	cJSON *j = cJSON_GetObjectItem (root, "list"); 
+        if (j)
+          {
+          int len = cJSON_GetArraySize (j);
+          list = vs_list_create_strings ();
+          for (int i = 0; i < len; i++)
+            {
+            cJSON *jj = cJSON_GetArrayItem (j, i);
+            vs_list_append (list, strdup (jj->valuestring));
+            }
+          }
+        }
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  free (request);
+  OUT
+  return list;
+  }
+
+/*======================================================================
+
+  libvlc_server_client_list_artists
+
+======================================================================*/
+VSList *libvlc_server_client_list_artists (const LibVlcServerClient *self, 
+          const char *where, VSApiError *err_code, char **msg)
+  {
+  IN
+  VSList *list = NULL;
+  char *request;
+  if (where)
+    {
+    VSString *enc_where = vs_string_encode_url (where);
+    asprintf (&request, "list-artists?where=%s", vs_string_cstr (enc_where));
+    vs_string_destroy (enc_where);
+    }
+  else
+    asprintf (&request, "list-artists");
+  //vs_string_destroy (enc_path);
+  char *response = libvlc_server_client_request (self, request, 
+    err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+  	cJSON *j = cJSON_GetObjectItem (root, "list"); 
+        if (j)
+          {
+          int len = cJSON_GetArraySize (j);
+          list = vs_list_create_strings ();
+          for (int i = 0; i < len; i++)
+            {
+            cJSON *jj = cJSON_GetArrayItem (j, i);
+            vs_list_append (list, strdup (jj->valuestring));
+            }
+          }
+        }
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  free (request);
+  OUT
+  return list;
+  }
+
+/*======================================================================
+
+  libvlc_server_client_list_genres
+
+======================================================================*/
+VSList *libvlc_server_client_list_genres (const LibVlcServerClient *self, 
+          const char *where, VSApiError *err_code, char **msg)
+  {
+  IN
+  VSList *list = NULL;
+  char *request;
+  if (where)
+    {
+    VSString *enc_where = vs_string_encode_url (where);
+    asprintf (&request, "list-genres?where=%s", vs_string_cstr (enc_where));
+    vs_string_destroy (enc_where);
+    }
+  else
+    asprintf (&request, "list-genres");
+  //vs_string_destroy (enc_path);
+  char *response = libvlc_server_client_request (self, request, 
+    err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+  	cJSON *j = cJSON_GetObjectItem (root, "list"); 
+        if (j)
+          {
+          int len = cJSON_GetArraySize (j);
+          list = vs_list_create_strings ();
+          for (int i = 0; i < len; i++)
+            {
+            cJSON *jj = cJSON_GetArrayItem (j, i);
+            vs_list_append (list, strdup (jj->valuestring));
+            }
+          }
+        }
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  free (request);
+  OUT
+  return list;
+  }
+
+/*======================================================================
+
+  libvlc_server_client_list_tracks
+
+======================================================================*/
+VSList *libvlc_server_client_list_tracks (const LibVlcServerClient *self, 
+          const char *where, VSApiError *err_code, char **msg)
+  {
+  IN
+  VSList *list = NULL;
+  char *request;
+  if (where)
+    {
+    VSString *enc_where = vs_string_encode_url (where);
+    asprintf (&request, "list-tracks?where=%s", vs_string_cstr (enc_where));
+    vs_string_destroy (enc_where);
+    }
+  else
+    asprintf (&request, "list-tracks");
+  //vs_string_destroy (enc_path);
   char *response = libvlc_server_client_request (self, request, 
     err_code, msg); 
   if (*err_code == 0)

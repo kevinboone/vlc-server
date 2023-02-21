@@ -14,6 +14,7 @@
 #include <string.h>
 #include <errno.h>
 #include <vlc-server/api-client.h>
+#include <vlc-server/media_database_constraints.h>
 #include "cmd.h"
  
 /*======================================================================
@@ -30,19 +31,30 @@ typedef struct
 
 static CmdEntry cmd_table[] = 
   {
-  { "add", cmd_add, "add one or more items to the playlist" },
+  { "add-urls", cmd_add_urls, "add one or more URLs or files to the playlist" },
   { "clear", cmd_clear , "clear the playlist" },
   { "index", cmd_index , "selects a specific item in the playlist" },
+  { "list-albums", cmd_list_albums, 
+       "list albums in media database" },
+  { "list-artists", cmd_list_artists, 
+       "list artists in media database" },
+  { "list-composers", cmd_list_composers, 
+       "list composers in media database" },
   { "list-dirs", cmd_list_dirs, 
        "list directories, relative to media root" },
   { "list-files", cmd_list_files, 
        "list files, relative to media root" },
+  { "list-genres", cmd_list_genres, 
+       "list genres in media database" },
+  { "list-tracks", cmd_list_tracks, 
+       "list tracks in media database" },
   { "next", cmd_next , "skip to next item in playlist" },
   { "pause", cmd_pause , "pause playback" },
   { "play", cmd_play , "play the items immediately" },
   { "playlist", cmd_playlist , "show the playlist" },
   { "prev", cmd_prev , "skip to previous item in the playlist" },
   { "shutdown", cmd_shutdown , "shut down the server" },
+  { "scan", cmd_scan , "start a rescan of the media directory" },
   { "start", cmd_start , "play from start, or resume if paused" },
   { "stat", cmd_stat , "show the current player status" },
   { "stop", cmd_stop , "stop playback, reset to start of playlist" },
@@ -59,9 +71,9 @@ static CmdEntry cmd_table[] =
 void show_help (void)
   {
   printf ("Usage: " NAME " [options] {command} [arguments]\n");
-  printf ("  -v                     show version\n");
-  printf ("  -h,--host {hostname}   VLC server host (localhost)\n");
-  printf ("  -p,--port {number}     VLC server port (30000)\n");
+  printf ("  -v                      show version\n");
+  printf ("  -h,--host {hostname}    VLC server host (localhost)\n");
+  printf ("  -p,--port {number}      VLC server port (30000)\n");
   printf ("\nCommands:\n");
   int i = 0;
   BOOL found = FALSE;
@@ -115,7 +127,7 @@ int main (int argc, char **argv)
   while (ret == 0)
     {
     int option_index = 0;
-    opt = getopt_long (argc, argv, "?h:l:vp:", long_options, &option_index);
+    opt = getopt_long (argc, argv, "?h:l:vp:w:", long_options, &option_index);
 
     if (opt == -1) break;
 
@@ -175,7 +187,10 @@ int main (int argc, char **argv)
           CmdContext context;
           context.host = host;
           context.port = port;
+          MediaDatabaseConstraints *mdc = media_database_constraints_new();
+          context.mdc = mdc;
           ret = e->fn (e->name, new_argc, new_argv, &context);
+          media_database_constraints_destroy (mdc);
           found = TRUE;
           }
         i++;

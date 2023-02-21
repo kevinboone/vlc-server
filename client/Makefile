@@ -1,9 +1,9 @@
 NAME    := vlc-server-client
-VERSION := 0.1a
+VERSION := 0.1b
 CC      := gcc
 LIBPATH1 := ../api
 LIBPATH2 := ../common
-LIBS    := ${EXTRA_LIBS} -lvlc -lcurl -lvlc-server-client -lvlc-server-common -lpthread
+LIBS    := ${EXTRA_LIBS} -lvlc -lvlc-server-client -lvlc-server-common -lcurl -lpthread
 TARGET	:= $(NAME)
 SOURCES := $(shell find src/ -type f -name *.c)
 OBJECTS := $(patsubst src/%,build/%,$(SOURCES:.c=.o))

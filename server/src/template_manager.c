@@ -1,8 +1,9 @@
 /*============================================================================
 
-  xine-server-x 
   template_manager.c
-  Copyright (c)2020 Kevin Boone
+
+  Copyright (c)2020-3 Kevin Boone
+
   Distributed under the terms of the GPL v3.0
 
 ============================================================================*/
@@ -26,6 +27,8 @@ extern uint8_t generic_html_end[] asm("_binary_docroot_generic_html_end");
 extern uint8_t functions_js_start[] asm("_binary_docroot_functions_js_start");
 extern uint8_t functions_js_end[] asm("_binary_docroot_functions_js_end");
 extern uint8_t stopbutton_png_start[] asm("_binary_docroot_stopbutton_png_start");
+extern uint8_t home_html_start[] asm("_binary_docroot_home_html_start");
+extern uint8_t home_html_end[] asm("_binary_docroot_home_html_end");
 extern uint8_t stopbutton_png_end[] asm("_binary_docroot_stopbutton_png_end");
 extern uint8_t playbutton_png_start[] asm("_binary_docroot_playbutton_png_start");
 extern uint8_t playbutton_png_end[] asm("_binary_docroot_playbutton_png_end");
@@ -67,6 +70,7 @@ TemplateData templateData[] =
   { TEMPLATE_MENU_ICON_PNG, "menu_icon.png", menu_icon_png_start, menu_icon_png_end },
   { TEMPLATE_SPK_PNG, "spk.png", spk_png_start, spk_png_end },
   { TEMPLATE_MAIN_CSS, "main.css", main_css_start, main_css_end },
+  { TEMPLATE_HOME_HTML, "home.html", home_html_start, home_html_end },
   { -1, NULL, NULL, NULL },
   };
 

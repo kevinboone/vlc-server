@@ -1,5 +1,9 @@
 # libvlc-server-client
 
+Version 0.2b, February 2023
+
+## What is this
+
 This is a simple command-line client that can exercise all the functionality
 of `libvlc-server`. Most the the communications logic, and handling the
 REST protocol, is embedded in a stand-alone library whose source is
@@ -18,14 +22,13 @@ To get a full list of commands, run
 
     $ libvlc-server-client --help
 
-The `add` and `play` commands take one or more URLs or files as 
-arguments. The difference between these commands is that `add` just
+The `add-url` and `play` commands take one or more URLs or files as 
+arguments. The difference between these commands is that `add-url` just
 adds to the playlist, whilst `play` replaces the playlist with new files.
 
-Both `add` and `play` can take a full URL (e.g., an `http://` URL) or
+Both `add-url` and `play` can take a full URL (e.g., an `http://` URL) or
 a local file or directory. If a local directory is specified, then
 all files in that directory will be added. The server should probably
 have been configured so tha non-media files are not accepted into
 the playlist -- but this is not under the control of the client.
-
 

@@ -1,0 +1,37 @@
+The metadata search/browser features in the web UI are incomplete, to
+put it mildly. Moreover, corresponding features in the REST API
+(and client library) are almost absent.
+
+Database scan progress needs to be written to disk, and details shown
+in the Web UI.
+
+We don't really have a good way to build the database from scratch 
+using the `vlc-server` server process, either through the web UI or
+the REST API. The server only opens the database when it starts, for
+reasons of speed. If there isn't a database, the server won't ever
+open it, even when it has been created. Currently the documentation
+recommends creating a database manually in the first instance. This is
+not ideal.
+
+Implement API for full scan (current /api/scan) only does a "quick" scan.
+
+Implement seek within file/stream. It would nice to do this in the 
+web UI using a slider (like the volume slide).
+
+Split path components in files/directories display, to make navigation easier.
+
+Put an "up" link in the files/directories display
+ 
+Implement radio stream list (how do we maintain this?)
+
+Search in files/folders -- this should be done using the media database:
+searching the whole media root in a Web UI action would be inappropriate.
+
+Read RC file at server start (rather than needing to specify a long command
+line).
+ 
+The Web interface doesn't show the file part of the media URL in the interface
+at all, if it contains an "#" character. This is an oddity of the rather
+ugly parse_uri() function. This won't be easy to fix.
+
+

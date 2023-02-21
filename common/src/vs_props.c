@@ -42,6 +42,7 @@ void vs_props_destroy (VSProps *self)
   IN
   if (self) 
     {
+    if (self->list) vs_list_destroy (self->list);
     free (self);
     }
   OUT

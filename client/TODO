@@ -1,0 +1,9 @@
+Combine list-dirs and list-files into one command, and show both files and
+directories.
+
+"vlc-server-client stat" shows real media file location, because the "stat"
+API call does. We should really substitute "@" for the media root if the
+file is relative to the media root. However, this leads to a broker
+URL -- file:///@/something. This won't easily parse in the JavaScript
+method response_callback_refresh_status, so no URL will be displayed.
+

@@ -1,7 +1,7 @@
 NAME    := vlc-server
-VERSION := 0.1a
+VERSION := 0.1b
 CC      := gcc
-LIBS    := ${EXTRA_LIBS} -lvlc -lmicrohttpd -lvlc-server-client -lvlc-server-common -lpthread
+LIBS    := ${EXTRA_LIBS} -ldl -lvlc -lmicrohttpd -lvlc-server-client -lvlc-server-common -lpthread
 LIBPATH1 := ../api
 LIBPATH2 := ../common
 TARGET	:= $(NAME)
@@ -16,7 +16,7 @@ PREFIX  := /usr
 MANDIR  := $(DESTDIR)/$(PREFIX)/share/man
 BINDIR  := $(DESTDIR)/$(PREFIX)/bin
 SHARE   := $(DESTDIR)/$(PREFIX)/share/$(TARGET)
-CFLAGS  := -g -fpie -fpic -Wall -Werror -DNAME=\"$(NAME)\" -DVERSION=\"$(VERSION)\" -DSHARE=\"$(SHARE)\" -DPREFIX=\"$(PREFIX)\" ${EXTRA_CFLAGS}
+CFLAGS  := -O3 -fpie -fpic -Wall -Wextra -DNAME=\"$(NAME)\" -DVERSION=\"$(VERSION)\" -DSHARE=\"$(SHARE)\" -DPREFIX=\"$(PREFIX)\" ${EXTRA_CFLAGS}
 LDFLAGS := -pie ${EXTRA_LDFLAGS}
 INCLUDE1 := ../api/include
 INCLUDE2 := ../common/include

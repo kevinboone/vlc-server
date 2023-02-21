@@ -38,14 +38,17 @@ Default: 30000.
 .SH COMMANDS
 
 .TP
-.BI add\ {item1}\ [item2]... 
+.BI add-urls\ {item1}\ [item2]... 
 .LP
-Add one or more items to the server's playlist. These items can be
+Add one or more URL items to the server's playlist. These items can be
 full URLs, or local files. Since the client probably does not know the
 locations of local files on the server, the server accepts the token
 "@" in a filename as referring to its media root directory. Suitable 
 filenames can be seen by running the \fIlist-files\fR and  \fIlist-dirs\fR 
-commands, whose output is always relative to the media root.
+commands, whose output is always relative to the media root. If
+there is a media database, the \fIlist-tracks\fR can also be useds. In
+the latter case, the results are also relative to the media database,
+and must be preceded by "@".
 
 The items to be added can be local directories, in which case the 
 server will add all files in the specified directory, whose names match
@@ -62,6 +65,25 @@ be allowed to finish.
 .LP
 Select a specific item in the playlist to play. The first playlist
 item is 0.
+
+.TP
+.BI list-albums\ [where] 
+.LP
+List albums whose names match the 'where' expression. If no expression
+is specified, then list all albums. See the section on 'where expressions'
+for more information about the expression syntax.
+
+.TP
+.BI list-artists\ [where] 
+.LP
+List artists whose names match the 'where' expression. If no expression
+is specified, then list all artists. 
+
+.TP
+.BI list-composers\ [where] 
+.LP
+List composers whose names match the 'where' expression. If no expression
+is specified, then list all composers. 
 
 .TP
 .BI list-dirs\ [path] 
@@ -83,6 +105,18 @@ List the files under \fIpath\fR, or the server's media root if
 no path is given. 
 
 .TP
+.BI list-genres\ [where] 
+.LP
+List genres whose names match the 'where' expression. If no expression
+is specified, then list all genres. 
+
+.TP
+.BI list-tracks\ [where] 
+.LP
+List tracks whose names match the 'where' expression. If no expression
+is specified, then list all tracks. 
+
+.TP
 .BI next 
 .LP
 Move to the next item in the playlist.
@@ -98,7 +132,8 @@ Pause playback. Use \fIstart\fR to resume.
 
 As \fIadd\fR, except that the server's playlist if first cleared,
 and then playback starts with the first of the new items.
-See \fIadd\fR for more details.
+See \fIadd\fR for more details. See the description of \fIadd-url\fR
+for description of the URL format.
 
 .TP
 .BI playlist
@@ -110,12 +145,6 @@ have a "@" in place of the media root. In other cases, the list
 will be of full URLs.
 
 .TP
-.BI start 
-.LP
-Resumes playback, if it is paused. Otherwise, start playing at the
-beginning of the playlist, if there is one.
-
-.TP
 .BI prev
 .LP
 Move to the previous item in the playlist. This does not skip back
@@ -123,9 +152,21 @@ to the beginning if playback is well advanced in the current item --
 it always goes to the previous item, if there is one. 
 
 .TP
+.BI scan
+.LP
+Start a rescan of the media root directory, and update the
+database.
+
+.TP
 .BI shutdown 
 .LP
 Shut the server down, immediately, with no warnings.
+
+.TP
+.BI start 
+.LP
+Resumes playback, if it is paused. Otherwise, start playing at the
+beginning of the playlist, if there is one.
 
 .TP
 .BI stat 
@@ -150,6 +191,37 @@ accept higher volume levels. Of course, it's only meaningful to use
 a level greater than 100 if the source audio is recorded badly, and
 too quiet. With properly recorded material the volume cannot be
 increased above 100%, and the output will just clip, and sound horrible.
+
+.SH WHERE EXPRESSIONS
+
+Some commands take an expression that limits the search in the media
+database. There expression take the form of SQL, and care has to be taken
+to ensure that the correct escape characters are used. For example
+
+$ vlc-server-client list-albums "composer like 'bach%'" 
+
+Here, the search text 'bach%' must be enclosed in single quotes, because
+that is what SQL syntax demands. However, the whole argument
+must be enclosed in double quotes, else "composer", "like", and
+"bach%" would be treated as separate arguments. On the Linux
+command line, single-quotes inside double-quotes keep their meanings
+as quotation marks.
+
+Because the where expression is SQL, it is necessary to escape 
+characters that have a specific meaning to SQL. So, for example,
+a single-quote character must be entered as two single-quote
+characters. 
+
+The following string ield names can be user in expressions: path,
+title, album, genre, composer, artist, track, comment, year.
+There are also numeric 'size' and 'mtime' (modification time)
+fields. The modification time is stored as a Unix epoch time. 
+
+.SH NOTES 
+
+\fIlist-dirs\fR and \fIlist-files\fR both list the contents of a specific
+directory. There are separate commands to list the files and the directories,
+because there are are separate API calls on the server. 
 
 
 .\" end of file

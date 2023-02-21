@@ -1,6 +1,6 @@
 /*======================================================================
   
-  vlc-rest-server
+  vlc-server
 
   http_server.c
 
@@ -22,6 +22,7 @@
 #include "gui.h"
 #include "http_util.h"
 #include "cover.h"
+#include "media_database.h"
 
 #define OK_MSG "{\"status\": 0, \"message\":\"OK\"}\r\n"
 
@@ -38,6 +39,8 @@ struct _HttpServer
   char *media_root;
   struct MHD_Daemon *mhd;
   int matches_per_page;
+  const char *instance_name;
+  MediaDatabase *mdb;
   };
 
 /*======================================================================
@@ -46,7 +49,8 @@ struct _HttpServer
 
 ======================================================================*/
 HttpServer *http_server_new (int port, const char *media_root, 
-             int matches_per_page)
+             int matches_per_page, MediaDatabase *mdb, 
+             const char *instance_name)
   {
   IN
   HttpServer *self = malloc (sizeof (HttpServer));
@@ -55,6 +59,9 @@ HttpServer *http_server_new (int port, const char *media_root,
   self->running = FALSE;
   self->media_root = strdup (media_root);
   self->matches_per_page = matches_per_page;
+  self->mdb = mdb;
+  self->player = NULL;
+  self->instance_name = strdup (instance_name);
   OUT
   return self;
   }
@@ -118,13 +125,33 @@ static enum MHD_Result http_server_make_response
 
 ======================================================================*/
 static enum MHD_Result http_server_handle_api (const HttpServer *self, 
-    struct MHD_Connection *connection, const char *url)
+    struct MHD_Connection *connection, const char *url, 
+    const VSProps *arguments)
   {
+  if (!self->player)
+    {
+    return http_server_make_response 
+     (connection, MHD_HTTP_BAD_REQUEST, strdup ("Not initialized\r\n"), 
+        0, TYPE_TEXT);
+    }
+
   enum MHD_Result ret;
   vs_log_debug ("API url is %s", url);
-  if (strncmp (url, "add/", 4) == 0)
+  if (strncmp (url, "add_album/", 10) == 0)
+    {
+    char *aret = api_add_album_js (self->player, self->mdb, url + 10);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strncmp (url, "add/", 4) == 0)
     {
     char *aret = api_add_js (self->player, url + 4);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strncmp (url, "play_album/", 11) == 0)
+    {
+    char *aret = api_play_album_js (self->player, self->mdb, url + 11);
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }
@@ -164,6 +191,36 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
     {
     char *aret = api_list_dirs_js (self->player, self->media_root, 
           url + 10);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strncmp (url, "list-albums", 11) == 0)
+    {
+    char *aret = api_list_albums_js (self->mdb, arguments);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strncmp (url, "list-artists", 12) == 0)
+    {
+    char *aret = api_list_artists_js (self->mdb, arguments);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strncmp (url, "list-composers", 12) == 0)
+    {
+    char *aret = api_list_composers_js (self->mdb, arguments);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strncmp (url, "list-genres", 12) == 0)
+    {
+    char *aret = api_list_genres_js (self->mdb, arguments);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strncmp (url, "list-tracks", 11) == 0)
+    {
+    char *aret = api_list_tracks_js (self->mdb, arguments);
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }
@@ -219,6 +276,12 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
   else if (strcmp (url, "prev") == 0) 
     {
     char *aret = api_prev_js (self->player);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strcmp (url, "scan") == 0) 
+    {
+    char *aret = api_scan_js (self->mdb, self->media_root);
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }
@@ -300,7 +363,8 @@ static enum MHD_Result http_server_handle_gui_request
   BYTE *buff;
   int len;
   if (gui_process_request (self->player, self->media_root, url, 
-            &buff, &len, arguments, self->matches_per_page))
+        &buff, &len, arguments, 
+          self->matches_per_page, self->mdb, self->instance_name))
     ret = http_server_make_response (connection, MHD_HTTP_OK, 
       (char *)buff, len, TYPE_HTML);
   else
@@ -319,6 +383,7 @@ static enum MHD_Result http_server_header_iterator (void *data,
          enum MHD_ValueKind kind, const char *key, const char *value)
   {
   IN
+  (void)data; (void)kind; (void)key; (void)value;
   //printf ("key = %s val = %s\n", key, value);
   OUT
   return MHD_YES;
@@ -333,6 +398,7 @@ static enum MHD_Result http_server_argument_iterator (void *data,
          enum MHD_ValueKind kind, const char *key, const char *value)
   {
   IN
+  (void)kind; 
   VSProps *arguments = (VSProps *)data;
   vs_props_add (arguments, key, value);
   OUT
@@ -350,7 +416,10 @@ static enum MHD_Result http_server_handle_request (void *_data,
       size_t *upload_data_size, void **con_cls)
   {
   IN
+  (void)method; (void)version; (void)upload_data; (void)upload_data_size;
+  (void)con_cls;
   HttpServer *self = (HttpServer *)_data;
+  //MediaDatabase *mdb = self->mdb;
   enum MHD_Result ret;
 
   vs_log_debug ("Request URL %s\n", url);
@@ -373,7 +442,8 @@ static enum MHD_Result http_server_handle_request (void *_data,
     }
   else if (strncmp (url, "/gui/", 5) == 0)
     {
-    ret = http_server_handle_gui_request (self, connection, url + 5, arguments); 
+    ret = http_server_handle_gui_request (self, connection, url + 5, 
+      arguments); 
     }
   else if (strncmp (url, "/cover/", 7) == 0)
     {
@@ -390,7 +460,7 @@ static enum MHD_Result http_server_handle_request (void *_data,
       }
     else
       {
-      ret = http_server_handle_api (self, connection, url + 5);
+      ret = http_server_handle_api (self, connection, url + 5, arguments);
       }
     }
   else

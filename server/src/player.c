@@ -1,6 +1,6 @@
 /*======================================================================
   
-  vlc-rest-server
+  vlc-server
 
   player.c
 
@@ -129,6 +129,7 @@ static void player_vlc_media_change_handler (const libvlc_event_t *p_event,
 static void player_vlc_log (void *data, int level, 
      const libvlc_log_t *ctx, const char *fmt, va_list args)
   {
+  (void)data; (void)ctx;
   int my_level = VSLOG_DEBUG;
   switch (level)
     {
@@ -197,9 +198,7 @@ Player *player_new (const char *patterns, const char *media_root,
   IN
   *e = 0;
   Player *self = malloc (sizeof (Player));
-  self->vlc_media_list = NULL;
-  self->mlp = NULL;
-  self->inst = NULL;
+  memset (self, 0, sizeof (Player));
   if (media_root == NULL || media_root[0] == 0)
     self->media_root = strdup (".");
   else
@@ -514,10 +513,13 @@ int player_get_playlist_length (const Player *self)
   {
   IN
   int ret = 0;
-  if (self->vlc_media_list != NULL)
+  if (self)
     {
-    ret = libvlc_media_list_count (self->vlc_media_list);
-    } 
+    if (self->vlc_media_list != NULL)
+      {
+      ret = libvlc_media_list_count (self->vlc_media_list);
+      } 
+    }
   OUT
   return ret;
   }
@@ -571,7 +573,7 @@ char *player_get_playlist_item (const Player *self, int index)
 VSApiTransportStatus player_get_transport_status (const Player *self)
   {
   IN
-  VSApiTransportStatus ret;
+  VSApiTransportStatus ret = VSAPI_TS_STOPPED;
   if (player_get_playlist_length (self) == 0)
     {
     ret = VSAPI_TS_STOPPED;
@@ -697,10 +699,13 @@ int player_get_volume (const Player *self)
   {
   IN
   int ret = -1;
-  libvlc_media_player_t* p = libvlc_media_list_player_get_media_player 
-    (self->mlp); 
-  float v = libvlc_audio_get_volume (p);
-  ret = (int)v;
+  if (self->mlp)
+    {
+    libvlc_media_player_t* p = libvlc_media_list_player_get_media_player 
+      (self->mlp); 
+    float v = libvlc_audio_get_volume (p);
+    ret = (int)v;
+    }
   OUT
   return ret;
   }

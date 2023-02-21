@@ -14,148 +14,202 @@ vlc-server -- an HTTP front-end for the VLC media player
 
 .SH DESCRIPTION
 
-\fIvlc-server\fR is an HTTP-enabled front 
-end to the VLC player. Although it does support video playback
-(if the host hardware does), it is mostly intended for audio use and,
-in particular, multi-room audio applications. 
+\fIvlc-server\fR is an HTTP-enabled front end to the VLC player. Although it
+does support video playback (if the host hardware does), it is mostly intended
+for audio use and, in particular, multi-room audio applications. 
 
-\fIvlc-server\fR provides a web user interface, and also a REST-like
-API that other clients can use. 
+\fIvlc-server\fR provides a web user interface, and also a REST-like API that
+other clients can use. 
 
-At present, \fIvlc-server\fR plays local files, which are expected to
-be grouped into directories under a common "media root" directory. The
-server does not expose any other part of the underlying filesystem to
-clients.
+At present, \fIvlc-server\fR plays local files, which are expected to be
+grouped into directories under a common "media root" directory. The server does
+not expose any other part of the underlying filesystem to clients.
 
 There is an accompanying \fIvlc-server-client\fR which provides a command-line
-interface to the media player. This client can select files to play,
-change the playback position, etc.
+interface to the media player. This client can select files to play, change the
+playback position, etc.
 
 .SH "OPTIONS"
+
+As well as the following options, \fIvlc-server\fR supports all the same
+options as the VLC command-line player. These can be specified on the command
+line after a "--" token.
 
 .TP
 .BI -a,\-\-patterns={patterns]
 .LP
 
-Specify a list of filename patterns that the server will accept as 
-playable files. This is important in situation where a user of the 
-web interface might use the "add all" function, to add all the files 
-in a directory to the playlist. Many potential files will not be
-playable, and that is not really a problem -- the server will just
-log an error and carry on. However, some files -- particularly image
-files (cover art, for example), can be "played", and will cause the 
-server to get stuck showing the image.
+Specify a list of filename patterns that the server will accept as playable
+files. This is important in situation where a user of the web interface might
+use the "add all" function, to add all the files in a directory to the
+playlist. Many potential files will not be playable, and that is not really a
+problem -- the server will just log an error and carry on. However, some files
+-- particularly image files (cover art, for example), can be "played", and will
+cause the server to get stuck showing the image.
 
-The file patterns should be separated by commas, with no spaces. For
-example
+The file patterns should be separated by commas, with no spaces. For example
 
 .BI \-\-patterns=*.flac,*.mp3,*.aac
 
-This pattern affects not just the files that the player will accept,
-but also the use of the REST API to browse files and directories
-under the media root. When listing a directory's content, only 
-those that match the specified patterns will be returned.
+This pattern affects not just the files that the player will accept, but also
+the use of the REST API to browse files and directories under the media root.
+When listing a directory's content, only those that match the specified
+patterns will be returned.
 
-If this option is not given, all file types are candidates for 
+If this option is not given, all common audio file types are candidates for
 playback.
+
+.TP
+.BI -d,\-\-database
+.LP
+Specify the media database file. If not give, the default is the file
+\fIvlc-server.sqlite\fR in the media root directory. However, this file
+will not be created if it does not exist -- the server will run without
+a media database, albeit with limited functionality.
+
+Please note that the media database must be writeable, in a writable directory.
+The main content directory (the media root) need not be writeable at all; this
+is why there is an option to specify the database directory separately.
+
+.TP
+.BI -e,\-\-entries={number}
+.LP
+The maximum number of items that will be shown on each page in the Web
+interface. Where there are more items than this, the interface will display
+navigation controls.
+
+This limit applies to albums, tracks, etc., as well as files and folders. The
+default is 30, which might be a little small. The reason for this limit is
+self-protection -- all the content on a given page is retrieved in a single
+request, with the response being built up in memory.
 
 .TP
 .BI -f,\-\-foreground
 .LP
-Do not detach the server from the console. Log messages are sent
-to standard out. This is not the default: normal operation is to
-run in the background, and send log messages to the system log.
+Do not detach the server from the console. Log messages are sent to standard
+out. This is not the default: normal operation is to run in the background, and
+send log messages to the system log.
+
+Note that this option also applies when \fIvlc-server\fR is being run only to
+scan and update the media database -- this also would be a background operation
+with \fI-f\fR.
 
 .TP
 .BI -l,\-\-log\-level={0..4}
 .LP
-Sets the system log level. 
-High (verbose) log levels will probably be
-meaningful only if examined alongside the program's source code.
-The default value is 2, which includes errors, warnings, and a few
-informational messages.
+Sets the system log level.  High (verbose) log levels will probably be
+meaningful only if examined alongside the program's source code.  The default
+value is 2, which includes errors, warnings, and a few informational messages.
 
 .TP
 .BI -l,\-\-list-devices
 .LP
-Lists the available audio output devices. The devices available depend
-on the platform, and the way in which VLC is installed. Use VLC 
-command-line options to select a playback device (see below).
+Lists the available audio output devices. The devices available depend on the
+platform, and the way in which VLC is installed. Use VLC command-line options
+to select a playback device (see below).
 
 .TP
-.BI -n,\-\-folders={number}
+.BI -n,\-\-name={string}
 .LP
-The maximum number of folders that will be shown on each page in
-the Web interface. Where there are more folders than this, the
-interface will display navigation controls.
+The name of the server, which is displayed in various places on the web
+interface. This setting is intended to distinguish different server instances
+in the same installation. The default is the system hostname. 
 
 .TP
 .BI -p,\-\-port={number}
 .LP
-The main HTTP port number for \fIvlc-server\fR, that will be 
-used by web browsers and REST API clients. The default is 30000.
+The main HTTP port number for \fIvlc-server\fR, that will be used by web
+browsers and REST API clients. The default is 30000.
+
+.TP
+.BI -q,\-\-quickscan
+.LP
+Start a 'quick' scan of the media root, to update the media database.  In a
+quick scan, files are not inspected if they already have entries in the
+database. In nearly all cases this is the kind of scan to use.
+
+If the media database does not exist, a 'quick' scan will actually turn into a
+full scan, and take just as long.
 
 .TP
 .BI -r,\-\-media-root={directory}
 .LP
 The top-level directory for local audio files. If audio files are in many
-disparate directories, it is fine to create a new directory and populate
-it with symbolic links to the real file locations. 
+disparate directories, it is fine to create a new directory and populate it
+with symbolic links to the real file locations. 
+
+.TP
+.BI -s,\-\-scan
+.LP
+Start a full scan of the media root, to update the media database.  In a full
+scan, files are inspected whether they have entries in the database or not. The
+only time such a scan is likely to be necessary is if files have been re-tagged
+while keeping the same names. 
 
 .SH NOTES
 
 .SS User privileges
 
 \fIvlc-server\fR is designed to run as an unprivileged user. It needs no
-special permissions -- a user account that can run VLC will be able
-to run this server. 
+special permissions -- a user account that can run VLC will be able to run this
+server. 
+
+Neither the media to be played, nor any directory in which it is contained,
+need to be writeable. However, the media database needs to be writeable.  This
+is why the `-d` switch is available, to set the media database outside the main
+content directory. If this switch is not given, then at least the top-level
+directory of the media content needs to be writeable.
+
+The media scanner, when it updates the database, will try to extract cover art
+files from audio files, and will write them into the same directory as the
+audio files. These files will be called "cover.XXX", where the XXX depends on
+the image type (PNG, JPG...). If the directories are not writeable, then these
+cover art files will not be extracted. However, this won't stop the scanner
+working.
 
 .SS Browser compatibility
 
 \fIvlc-server\fR requires a fairly modern web browser. It uses media queries to
-size the display to fit screens of different sizes, and 'flex' layout
-to create tables with dynamic numbers of columns. Most of the testing
-has been done using Firefox. However, any browser released since about
-2018 should be fine -- the server's demands are not stringent.
+size the display to fit screens of different sizes, and 'flex' layout to create
+tables with dynamic numbers of columns. Most of the testing has been done using
+Firefox. However, any browser released since about 2018 should be fine -- the
+server's demands are not stringent.
 
-The \fI--folders\fR setting exists to protect the browser from 
-receiving a huge amount of data in one request. To some extent it also
-protects the server from abusive clients. The webserver defaults to
-showing 30 folders (with cover art) in each page. With a modern browser
-and powerful server, there's no problem increasing this to 500 or more.
-However, if the server is a Raspberry Pi, more caution should be exercised.
+The \fI--folders\fR setting exists to protect the browser from receiving a huge
+amount of data in one request. To some extent it also protects the server from
+abusive clients. The webserver defaults to showing 30 folders (with cover art)
+in each page. With a modern browser and powerful server, there's no problem
+increasing this to 500 or more.  However, if the server is a Raspberry Pi, more
+caution should be exercised.
 
 .SS Cover art display 
 
-The web interface will attempt to display cover art images alongside
-local folders, if it can find a suitable image file in the folder. 
-Images will be scaled
-to 256x256 pixels. The server recognizes most of the common names
-for cover art:  (`folder.png`, `cover.jpg`, etc).
+The web interface will attempt to display cover art images alongside local
+folders, if it can find a suitable image file in the folder.  Images will be
+scaled to 256x256 pixels. The server recognizes most of the common names for
+cover art:  (`folder.png`, `cover.jpg`, etc).
 
 .SS VLC command-line switches
 
-\fIvlc-server\fR passes all command-line arguments after "--" to 
-the libvlc library. This library takes the same arguments as the
-command-line VLC player application, so you can run "vlc --help"
-to get a full list. No assurance is offered that all VLC options
-will work with \fIvlc-server\fR. One useful VLC option, in
-audio playback applications, is \fI--no-video\fR. Various options are 
-available to set the audio output device (e.g., \fI--alsa-audio-device\fR) 
+\fIvlc-server\fR passes all command-line arguments after "--" to the libvlc
+library. This library takes the same arguments as the command-line VLC player
+application, so you can run "vlc --help" to get a full list. No assurance is
+offered that all VLC options will work with \fIvlc-server\fR. One useful VLC
+option, in audio playback applications, is \fI--no-video\fR. Various options
+are available to set the audio output device (e.g., \fI--alsa-audio-device\fR)
 -- see the VLC manual for more details. 
 
 .SS Audio output
 
-\fIvlc-server\fR uses the default audio output of VLC. On systems that 
-have PulseAudio, that will almost certainly be used in preference to
-anything else, although this depends on how the libvlc library was 
-built. To change the audio output routing, it is necessary to use
-VLC command-line switches. 
+\fIvlc-server\fR uses the default audio output of VLC. On systems that have
+PulseAudio, that will almost certainly be used in preference to anything else,
+although this depends on how the libvlc library was built. To change the audio
+output routing, it is necessary to use VLC command-line switches.
 
 .SS Volume control
 
-The web interface exposes a volume control, as does the REST API. This
-volume control affects only VLC's output level -- whether it applies
-a \fIsystem\fR volume change depends on how VLC is set up.
+The web interface exposes a volume control, as does the REST API. This volume
+control affects only VLC's output level -- whether it applies a \fIsystem\fR
+volume change depends on how VLC is set up.
 
 .\" end of file

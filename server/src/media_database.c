@@ -1,0 +1,691 @@
+/*======================================================================
+  
+  vlc-server
+
+  server/src/media_database.c
+
+  Copyright (c)2022 Kevin Boone, GPL v3.0
+
+======================================================================*/
+
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <regex.h>
+#include <microhttpd.h>
+#include <vlc-server/vs_log.h> 
+#include <vlc-server/vs_util.h> 
+#include <vlc-server/vs_string.h> 
+#include <vlc-server/audio_metadata.h> 
+#include "media_database.h"
+#include "sqlite3.h"
+
+#define SAFE(x)((x) ? (x) : "")
+
+typedef struct _IteratePathsCallbackData
+  {
+  DBPathIteratorCallback callback;
+  void *user_data;
+  } IteratePathsCallbackData;
+
+struct _MediaDatabase
+  {
+  char *mdb_file;
+  sqlite3 *sqlite;
+  };
+
+#define SAFE(x)((x) ? (x) : "")
+
+/*======================================================================
+  media_database_regexp
+======================================================================*/
+void media_database_regexp (sqlite3_context* context, int argc,
+      sqlite3_value** values)
+  {
+  int ret;
+  regex_t regex;
+  char* reg = (char*)sqlite3_value_text(values[0]);
+  char* text = (char*)sqlite3_value_text(values[1]);
+
+  if ( argc != 2 || reg == 0 || text == 0)
+    {
+    sqlite3_result_error (context,
+      "SQL function regexp() called with invalid arguments.\n", -1);
+    return;
+    }
+
+  ret = regcomp (&regex, reg, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+  if (ret != 0)
+    {
+    sqlite3_result_error (context, "error compiling regular expression", -1);
+    return;
+    }
+
+  ret = regexec (&regex, text , 0, NULL, 0);
+  regfree(&regex);
+
+  sqlite3_result_int (context, (ret != REG_NOMATCH));
+  }
+
+/*======================================================================
+  media_database_create
+======================================================================*/
+MediaDatabase *media_database_create (const char *mdb_file)
+  {
+  IN
+  MediaDatabase *self = malloc (sizeof (MediaDatabase));
+  self->mdb_file = strdup (mdb_file);
+  return self;
+  OUT
+  }
+
+/*======================================================================
+  media_database_exec
+======================================================================*/
+static BOOL media_database_exec (MediaDatabase *self, 
+             const char *sql, char **error)
+  {
+  IN
+  BOOL ret = FALSE;
+  char *e = NULL;
+  vs_log_debug ("%s: executing SQL %s", __PRETTY_FUNCTION__, sql);
+  sqlite3_exec (self->sqlite, sql, NULL, 0, &e);
+  if (e)
+    {
+    if (error) (*error) = strdup (e);
+    sqlite3_free (e);
+    ret = FALSE;
+    }
+  else
+    {
+    ret = TRUE;
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+  media_database_exec_log_error
+======================================================================*/
+static void media_database_exec_log_error (MediaDatabase *self, 
+             const char *sql)
+  {
+  IN
+  char *error = NULL;
+  media_database_exec (self, sql, &error);
+  if (error)
+    {
+    vs_log_error ("Failed to execute '%s': %s", sql, error);
+    }
+  OUT
+  }
+
+/*======================================================================
+  media_database_create_tables
+======================================================================*/
+static void media_database_create_tables (MediaDatabase *self)
+  {
+  IN
+  vs_log_info ("Creating database tables");
+
+  media_database_exec_log_error (self, "create table files "
+       "(path varchar not null, size integer, mtime integer, "
+       "title varchar, album varchar, genre varchar, "
+       "composer varchar, artist varchar, track varchar, "
+       "comment varchar, year varchar, exist integer)");
+
+  media_database_exec_log_error (self, 
+       "create index albumindex on files (album)");
+  media_database_exec_log_error (self, 
+       "create index artistindex on files (artist)");
+  media_database_exec_log_error (self, 
+       "create index composerindex on files (composer)");
+  media_database_exec_log_error (self, 
+       "create index pathindex on files (path)");
+  media_database_exec_log_error (self, 
+       "create index genreindex on files (genre)");
+  OUT
+  }
+
+/*======================================================================
+  media_database_init
+======================================================================*/
+void media_database_init (MediaDatabase *self, BOOL create, char **error)
+  {
+  IN
+  vs_log_debug ("Opening database %s", self->mdb_file);
+  BOOL create_tables = FALSE;
+
+  if (access (self->mdb_file, R_OK) != 0)
+    {
+    // If there is no DB file at all, we will have to create tables in
+    //   it if we create the database.
+    create_tables = TRUE;
+    }
+
+  if ((access (self->mdb_file, W_OK) == 0) || create)
+    {
+    sqlite3 *sqlite = NULL;
+    int err = sqlite3_open (self->mdb_file, &sqlite);
+    if (err == 0)
+      {
+      sqlite3_create_function (sqlite, "regexp", 2, SQLITE_ANY, 0,
+          media_database_regexp, 0, 0);
+
+      self->sqlite = sqlite;
+
+      if (create_tables)
+        {
+        media_database_create_tables (self);
+        }
+      }
+    else
+      {
+      asprintf (error, "Can't open sqlite3 database '%s'", 
+         self->mdb_file);
+      }
+    }
+  else
+    {
+    asprintf (error, "Can't open database file '%s' in read/write mode", 
+       self->mdb_file);
+    }
+  OUT
+  }
+
+/*======================================================================
+  media_database_destroy
+======================================================================*/
+void media_database_destroy (MediaDatabase *self)
+  {
+  IN
+  if (self)
+    {
+    if (self->sqlite) sqlite3_close (self->sqlite);
+    if (self->mdb_file) free (self->mdb_file); 
+    free (self);
+    }
+  OUT
+  }
+
+/*======================================================================
+  media_database_col_name
+======================================================================*/
+static const char *media_database_col_name (MediaDatabaseColumn col)
+  {
+  IN
+  switch (col)
+    {
+    case MDB_COL_PATH: return "path";
+    case MDB_COL_ALBUM: return "album";
+    case MDB_COL_ARTIST: return "artist";
+    case MDB_COL_COMPOSER: return "composer";
+    case MDB_COL_GENRE: return "genre";
+    }
+  return NULL; // Can not happen
+  OUT
+  }
+
+/*======================================================================
+  media_database_escape_sql
+======================================================================*/
+char *media_database_escape_sql (const char *sql)
+  {
+  IN
+  char *ret;
+  if (strchr (sql, '\''))
+    {
+    int l = strlen (sql);
+    int newlen = l;
+    ret = malloc (newlen + 1);
+    int p = 0;
+
+    for (int i = 0; i < l; i++)
+      {
+      char c = sql[i];
+      if (c == '\'')
+        {
+        newlen+=2;
+        ret = realloc (ret, newlen + 1);
+        ret[p++] = '\'';
+        ret[p++] = '\'';
+        }
+      else
+        {
+        ret[p++] = c;
+        }
+      }
+    ret[p] = 0;
+    }
+  else
+    {
+    ret = strdup (sql);
+    }
+  return ret;
+  OUT
+  }
+
+/*======================================================================
+  media_database_sql_query
+
+  Returns a List of char *, which may be empty. The list returned includes
+  all rows and columns in row order, all concetenated into one long list.
+  If the query selects a single column, then the list returned will be
+  the same length as the number of matches, or 'limit' if that is
+  smaller. If limit == 0, then no limit is applied
+
+======================================================================*/
+VSList *media_database_sql_query (MediaDatabase *self, const char *sql,
+            BOOL include_empty, int limit, char **error)
+  {
+  IN
+  VSList *ret = NULL;
+  char *e = NULL;
+  char **result = NULL;
+  int hits;
+  int cols;
+  vs_log_debug ("%s: executing SQL %s", __PRETTY_FUNCTION__, sql);
+  sqlite3_get_table (self->sqlite, sql, &result, &hits, &cols, &e);
+  if (e)
+    {
+    if (error) (*error) = strdup (e);
+    sqlite3_free (e);
+    ret = NULL;
+    }
+  else
+    {
+    ret = vs_list_create (free);
+
+    for (int i = 0; i < hits && ((i < limit) || (limit == 0)); i++)
+      {
+      for (int j = 0; j < cols ; j++)
+        {
+        char *res = result[(i + 1) * cols + j];
+        if (res[0] != 0 || include_empty)
+          {
+          vs_list_append (ret, strdup (res));
+          }
+        }
+      }
+    sqlite3_free_table (result);
+    }
+  OUT
+  return ret;
+  }
+
+
+/*======================================================================
+  media_database_search
+======================================================================*/
+void media_database_search (MediaDatabase *self, 
+       MediaDatabaseColumn column,  VSList *results, 
+       const MediaDatabaseConstraints *constraints, char **error)
+  {
+  VSString *sql = vs_string_create ("select distinct ");
+
+  vs_string_append (sql, media_database_col_name (column));
+
+  vs_string_append (sql, " from files ");
+
+  if (constraints->where)
+    {
+    vs_string_append (sql, " where ");
+    //char *escaped_where = media_database_escape_sql (constraints->where);
+    //vs_string_append (sql, escaped_where);
+    vs_string_append (sql, constraints->where);
+    //free (escaped_where);
+    }
+
+  vs_string_append (sql, " order by ");
+
+  if (column == MDB_COL_PATH)
+    vs_string_append (sql, "track,path"); 
+  else
+    vs_string_append (sql, media_database_col_name (column)); 
+
+  //printf ("Executing sql %s\n", vs_string_cstr (sql));
+  vs_log_debug ("Executing sql %s\n", vs_string_cstr (sql));
+
+  int hits = 0;
+  int cols = 0;
+  char **result = NULL;
+  char *e = NULL;
+  sqlite3_get_table (self->sqlite, vs_string_cstr (sql), &result, 
+     &hits, &cols, &e);
+  if (e == NULL)
+    {
+    vs_log_debug ("Query returned %d hits", hits);
+
+    for (int i = 0; i < hits; i++)
+      {
+      if ((i >= constraints->start) && 
+                 ((i < constraints->start + constraints->count) || 
+                 (constraints->count < 0)))
+        {
+        char *res = result [i + 1];
+        vs_list_append (results, strdup (res));
+        }
+      }
+
+    sqlite3_free_table (result);
+    }
+  else
+    {
+    *error = strdup (e);
+    sqlite3_free (e);
+    }
+
+  vs_string_destroy (sql);
+  }
+
+/*======================================================================
+  media_database_search_count
+======================================================================*/
+int media_database_search_count (MediaDatabase *self, 
+       MediaDatabaseColumn column,   
+       const MediaDatabaseConstraints *constraints, char **error)
+  {
+  int ret = 0;
+  VSString *sql = vs_string_create ("select count (distinct ");
+
+  vs_string_append (sql, media_database_col_name (column));
+
+  vs_string_append (sql, ") from files ");
+
+  if (constraints->where)
+    {
+    vs_string_append (sql, " where ");
+    //char *escaped_where = media_database_escape_sql (constraints->where);
+    //vs_string_append (sql, escaped_where);
+    vs_string_append (sql, constraints->where);
+    //free (escaped_where);
+    }
+
+  //printf ("Executing sql %s\n", vs_string_cstr (sql));
+  vs_log_debug ("Executing sql %s\n", vs_string_cstr (sql));
+
+  int hits = 0;
+  int cols = 0;
+  char **result = NULL;
+  char *e = NULL;
+  sqlite3_get_table (self->sqlite, vs_string_cstr (sql), &result, 
+     &hits, &cols, &e);
+  if (e == NULL)
+    {
+    vs_log_debug ("Query returned %d hits", hits);
+
+    if (hits >= 1)
+      {
+      char *res = result [1];
+      ret = atoi (res);
+      }
+
+    sqlite3_free_table (result);
+    }
+  else
+    {
+    *error = strdup (e);
+    sqlite3_free (e);
+    }
+
+  vs_string_destroy (sql);
+  return ret;
+  }
+
+/*======================================================================
+  media_database_is_init
+======================================================================*/
+BOOL media_database_is_init (const MediaDatabase *self)
+  {
+  return self->sqlite != NULL;
+  }
+
+
+/*======================================================================
+  media_database_set_amd
+======================================================================*/
+BOOL media_database_set_amd (MediaDatabase *self, 
+      const AudioMetadata *amd, char **error)
+  {
+  IN
+  char *esc_path = media_database_escape_sql 
+    (SAFE (audio_metadata_get_path (amd)));
+  char *esc_title = media_database_escape_sql 
+    (SAFE (audio_metadata_get_title (amd)));
+  char *esc_album = media_database_escape_sql 
+    (SAFE (audio_metadata_get_album (amd)));
+  char *esc_genre = media_database_escape_sql 
+    (SAFE (audio_metadata_get_genre (amd)));
+  char *esc_composer = media_database_escape_sql 
+    (SAFE (audio_metadata_get_composer (amd)));
+  char *esc_artist = media_database_escape_sql 
+    (SAFE (audio_metadata_get_artist (amd)));
+  char *esc_track = media_database_escape_sql  
+    (SAFE (audio_metadata_get_track (amd)));
+  char *esc_comment = media_database_escape_sql 
+    (SAFE (audio_metadata_get_comment (amd)));
+  char *esc_year = media_database_escape_sql 
+    (SAFE (audio_metadata_get_year (amd)));
+  time_t mtime = audio_metadata_get_mtime (amd);
+  size_t size = audio_metadata_get_size (amd);
+
+  char *sql;
+  asprintf (&sql, "insert into files "
+     "(path,size,mtime,title,album,genre,composer,"
+     "artist,track,comment,year,exist) values "
+     "('%s',%ld,%ld,'%s','%s','%s','%s','%s','%s','%s','%s',1)",
+     esc_path,
+     size,
+     mtime,
+     esc_title,
+     esc_album,
+     esc_genre,
+     esc_composer,
+     esc_artist,
+     esc_track,
+     esc_comment,
+     esc_year);
+
+  BOOL ret = media_database_exec (self, sql, error);
+
+  free (sql);
+  free (esc_path);
+  free (esc_title);
+  free (esc_album);
+  free (esc_genre);
+  free (esc_composer);
+  free (esc_artist);
+  free (esc_track);
+  free (esc_comment);
+  free (esc_year);
+
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+  media_database_get_amd
+======================================================================*/
+AudioMetadata *media_database_get_amd (MediaDatabase *self, 
+      const char *path)
+  {
+  IN
+  AudioMetadata *ret = NULL;
+
+  char *esc_path = media_database_escape_sql (path);
+
+  char *sql;
+  asprintf (&sql, "select size,mtime,title,album,genre,composer,artist,"
+                    "track,comment,year from files where path='%s'", esc_path);
+
+  char *error = NULL;
+
+  VSList *list = media_database_sql_query (self, sql, TRUE, 0, &error);
+  if (list)
+    {
+    int l = vs_list_length (list);
+    if (l == 10)
+      {
+      ret = audio_metadata_create();
+      audio_metadata_set_path (ret, path);
+      audio_metadata_set_size (ret, atoi (vs_list_get (list, 0)));
+      audio_metadata_set_mtime (ret, atoi (vs_list_get (list, 1)));
+      audio_metadata_set_title (ret, vs_list_get (list, 2));
+      audio_metadata_set_album (ret, vs_list_get (list, 3));
+      audio_metadata_set_genre (ret, vs_list_get (list, 4));
+      audio_metadata_set_composer (ret, vs_list_get (list, 5));
+      audio_metadata_set_artist (ret, vs_list_get (list, 6));
+      audio_metadata_set_track (ret, vs_list_get (list, 7));
+      audio_metadata_set_comment (ret, vs_list_get (list, 8));
+      audio_metadata_set_year (ret, vs_list_get (list, 9));
+      }
+    else
+      {
+      vs_log_warning ("Database query for '%s' return wrong number of columns: ", path);
+      } 
+    vs_list_destroy (list);
+    }
+  else
+    {
+    if (error)
+      {
+      vs_log_warning ("Database query for '%s' failed: ", path, error);
+      free (error);
+      }
+    }
+
+  free (sql);
+  free (esc_path);
+  OUT
+  return ret;
+  }
+ 
+/*======================================================================
+  media_database_get_amd
+======================================================================*/
+BOOL media_database_has_path (MediaDatabase *self, 
+      const char *path)
+  {
+  IN
+  BOOL ret = FALSE;
+  char *esc_path = media_database_escape_sql (path);
+
+  char *sql;
+  asprintf (&sql, "select path from files where path='%s'", esc_path);
+
+  char *e = NULL;
+  char **result = NULL;
+  int hits;
+  int cols;
+  vs_log_debug ("%s: executing SQL %s", __PRETTY_FUNCTION__, sql);
+  sqlite3_get_table (self->sqlite, sql, &result, &hits, &cols, &e);
+  if (e)
+    {
+    sqlite3_free (e);
+    }
+  else
+    {
+    if (hits > 0) ret = TRUE;
+    sqlite3_free_table (result);
+    }
+
+  free (sql);
+  free (esc_path);
+  OUT
+  return ret;
+  }
+ 
+/*======================================================================
+  iterate_all_paths_callback
+======================================================================*/
+static int iterate_all_paths_callback (void *data, int ncols,
+     char **cols, char **dummy)
+  {
+  (void)dummy;
+  BOOL ret = FALSE;
+  IteratePathsCallbackData *ipcd = (IteratePathsCallbackData *)data;
+  if (ncols == 1)
+    {
+    const char *path = cols[0];
+    ret = ipcd->callback (path, ipcd->user_data);
+    }
+  else
+    {
+    // Should never happen
+    vs_log_error ("Internal error -- ncols != 1 in %s", __PRETTY_FUNCTION__);
+    ret = FALSE;
+    }
+
+  if (ret) return 0;
+  return -1;
+  }
+
+/*======================================================================
+  media_database_iterate_all_paths
+======================================================================*/
+BOOL media_database_iterate_all_paths (MediaDatabase *self,
+        DBPathIteratorCallback callback, void *user_data, char **error)
+  {
+  IN
+  BOOL ret = TRUE;
+
+  IteratePathsCallbackData ipcd;
+  ipcd.callback = callback;
+  ipcd.user_data = user_data;
+    
+  char *e = NULL;
+  sqlite3_exec(self->sqlite, 
+    "select path from files", iterate_all_paths_callback,
+    &ipcd, &e);
+
+  if (e)
+    {
+    if (error) (*error) = strdup (e);
+    sqlite3_free (e);
+    ret = FALSE;
+    }
+  else
+    ret = TRUE;
+
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+  media_database_mark_path_deleted
+======================================================================*/
+void media_database_mark_path_deleted (MediaDatabase *self, 
+        const char *path)
+  {
+  IN
+
+  char *sql;
+  char *esc_path = media_database_escape_sql (path);
+  asprintf (&sql, "update files set exist=0 where path='%s'", esc_path);
+
+  media_database_exec_log_error (self, sql);
+  free (sql);
+  free (esc_path);
+
+  OUT
+  }
+
+/*======================================================================
+  media_database_remove_nonexistent
+======================================================================*/
+void media_database_remove_nonexistent (MediaDatabase *self)
+  {
+  IN
+  media_database_exec_log_error (self, "delete from files where exist=0");
+  OUT
+  }
+
+/*======================================================================
+  media_database_get_filename
+======================================================================*/
+const char *media_database_get_filename (const MediaDatabase *self)
+  {
+  return self->mdb_file;
+  }
+

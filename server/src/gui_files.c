@@ -1,6 +1,6 @@
 /*======================================================================
   
-  vlc-rest-server
+  vlc-server
 
   server/src/gui_files.c
 
@@ -21,22 +21,6 @@
 
 /*======================================================================
   
-  gui_files_encode_for_js
-
-======================================================================*/
-VSString *gui_files_encode_for_js (const char *file)
-  {
-  IN
-  VSString *s = vs_string_create(file);
-  vs_string_substitute_all_in_place (s, "\'", "\\'");
-  VSString *ret = vs_string_encode_url (vs_string_cstr (s));
-  vs_string_destroy (s);
-  OUT
-  return ret;
-  }
-
-/*======================================================================
-  
   gui_files_file_cell
 
 ======================================================================*/
@@ -46,7 +30,7 @@ void gui_files_file_cell (VSString *body, const char *file)
       const char *file_file = file;
       const char *p = strrchr (file, '/');
       if (p) file_file = p + 1;
-      VSString *enc_file = gui_files_encode_for_js (file); 
+      VSString *enc_file = http_util_encode_for_js (file); 
       vs_string_append (body, "<div>");
       vs_string_append (body, "<a href=\"javascript:cmd_add('");
       vs_string_append (body, vs_string_cstr (enc_file)); 
@@ -71,7 +55,7 @@ void gui_files_dir_cell (VSString *body, const char *dir, BOOL covers)
       const char *dir_file = dir;
       const char *p = strrchr (dir, '/');
       if (p) dir_file = p + 1;
-      VSString *enc_dir = gui_files_encode_for_js (dir); 
+      VSString *enc_dir = http_util_encode_for_js (dir); 
       VSString *enc_dir_html = vs_string_encode_url (dir); 
       if (covers)
         vs_string_append (body, "<div class=\"dircell_cover\">");
@@ -213,7 +197,7 @@ VSString *gui_files_get_body (const Player *player,
       }
     else
       {
-      sprintf (ss, "next ");
+      sprintf (ss, " next");
       }
     vs_string_append (body, ss);
     vs_string_append (body, "<p/>\n");
