@@ -1,7 +1,11 @@
 /*============================================================================
 
   vlc-server 
+
   server/src/gui_artists.h
+
+  See gui_modules.md for more information.
+
   Copyright (c)2022 Kevin Boone, GPL v3.0
 
 ============================================================================*/
@@ -14,6 +18,9 @@
 #include "media_database.h" 
 
 BEGIN_CDECLS
+
+extern void gui_artists_artist_cell (VSString *body, const char *artist, 
+       BOOL covers, MediaDatabase *mdb);
 
 extern VSString *gui_artists_get_body (const char *path,
             const VSProps *arguments, BOOL matches_per_page, 

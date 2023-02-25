@@ -1,7 +1,11 @@
 /*============================================================================
 
   vlc-server 
-  server/src/gui_playlist.h
+
+  server/src/gui_home.h
+
+  See gui_modules.md for more information.
+
   Copyright (c)2022 Kevin Boone, GPL v3.0
 
 ============================================================================*/

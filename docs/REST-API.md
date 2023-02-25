@@ -91,6 +91,10 @@ All three operations can be combined in an invocation of the `play` API.
 
 ## API details
 
+*NOTE: some API function names have the underscore (_) character as*
+*a separator, and some have a minus (-). This is for historical reasons,*
+*and not easy to change.*
+
 ### add
 
     /api/add/url

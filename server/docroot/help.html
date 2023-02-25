@@ -1,0 +1,175 @@
+<h1>vlc-server browser interface manual</h1>
+
+<p>
+vlc-server audio server, version %%VERSION%%
+</p>
+
+<h3 id="playing_local_audio_tracks">Playing local audio tracks</h3>
+<p>
+The most rudimentary way to find audio to play is to browse 
+local folders. You can do this
+<a href="/gui/files?covers=1">with cover art</a> or 
+<a href="/gui/files?covers=1">without cover art</a>.
+</p>
+<p>
+You can also list tracks by album, or list all artists, album artists,
+genres, or composers. Again, this can be with, or without, cover art.
+Links for these features are on the <a href="/gui/home">home page</a>.
+</p>
+<p>
+In general, a list of tracks will contain links to the album that contains
+the track, the artist, the genre, and the composer. You can use these 
+links to navigate the audio library.
+</p>
+
+<h3 id="playing_remote_urls">Playing remote URLs</h3>
+<p>
+The 'URL...' link in the menu bar pops up a dialog box, in which you
+can enter a remote URL to, for example, an Internet radio station.
+</p>
+
+<h3 id="results_pages">Results pages</h3>
+<p>
+In general, the server will only show a limited number of results -- with
+or without cover images -- on a particular page. The limit is set by
+the server administrator, and defaults to thirty.
+</p>
+<p>
+This limit is to protect the server and the browser from searches that
+might return thousands of results. With a large audio library, that would
+certainly be possible.
+</p>
+<p>
+If the number of results is large than the limit, then navigation links
+will be shown at the top of the page.
+</p>
+
+<h3 id="the_playlist">The playlist</h3>
+<p>
+Everything played by the audio player is in a <a
+href="/gui/playlist">playlist</a> of some sort, even if it contains only one
+item. Because the player can handle local and network audio streams, the
+playlist displays URLs, not titles or albums. If the playlist entry begins with
+the '@' sign, it is a local file, relative to the media root folder. If it
+begins with '/', it is an absolute filename on the server.  Entries that begin
+'http:', 'rtsp:', etc., are remote URLs.
+</p>
+<p>
+In general, if you click a link labelled '[add]', that will add something
+to the existing playlist. Anything labelled '[play]' will replace the 
+playlist with different content.
+</p>
+<p>
+</p>
+
+<h3 id="cover_art">Cover art</h3>
+<p>
+Most methods for browsing content have an option to show, or not to show,
+cover art. In general, cover art images are files with conventional
+names like <code>folder.png</code> in the same folder as the corresponding
+audio file. The library scanner will extract images from audio files
+if it finds any, or you can just store image files in the appropriate
+directories.
+</p>
+<p>
+Display of cover art is optional because the images take a substantial
+amount of screen space, and this may be unhelpful on a small display
+(like a cellphone). Over a slow network connect, the images may also
+take a while to transfer, which will make the display slow to update.
+</p>
+
+<h3 id="searching">Searching</h3>
+<p>
+There is a general search form on the <a href="/gui/home">home page</a>.
+This will search for a specific keyword in all of the database fields
+that the server supports. Only the first few matches of each type
+are displayed: there will be a link to the full list if there are
+more.
+</p>
+<p>
+The text search matches whole words, so 'part' will match 'part one',
+but it won't match 'parting'. If you need more flexibility than this,
+you can use a customer SQL query on the database.
+</p>
+
+<h3 id="custom_sql_queries">Custom SQL queries</h3>
+<p>
+You can search for tracks using SQL queries, if the built-in search 
+facilities don't suffice. This isn't the place to describe SLQ (it is
+well-documented), but here are some examples. 
+</p>
+<p>
+Search for tracks in albums whose names contain 'Bach' (case-insensitive):
+<pre>
+album like '%bach%'
+</pre>
+<p>
+Search for tracks in albums whose 'year' tag is exactly '2020':
+<pre>
+year='2020'
+</pre>
+</p>
+<p>
+Search for tracks whose album artist tag begins with 'various':
+<pre>
+album_artist like 'various%'
+</pre>
+</p>
+
+<p>
+The following fields can be searched:
+<code>path</code> (text), 
+<code>size</code> (number), 
+<code>mtime</code> (number), 
+<code>title</code> (text), 
+<code>album</code> (text), 
+<code>genre</code> (text), 
+<code>composer</code> (text), 
+<code>artist</code> (text), 
+<code>album_artist</code> (text), 
+<code>track</code> (text), 
+<code>comment</code> (text), 
+<code>year</code> (text). 
+</p>
+
+<p>
+Most of these should be self-explanatory, but some require explanation.
+</p>
+
+<p>
+The <code>path</code> field is the filename of the track on disk,
+relative to the media root folder. Depending on how media files are
+organized on disk, this field may contain directory names.
+</p>
+
+<p>
+<code>size</code> is simply the size of the file, in bytes.
+</p>
+
+<p>
+<code>mtime</code> is the modification time of the file on disk, and can
+be used to search for files that have recently been added to the collection.
+The format of this field, however, is a Unix epoch timestamp, which is
+rather unwieldy. To make it easier to search for files of a particular
+age, there is a custom SQL function <code>daysold</code>. To find 
+tracks that were updated less than a week ago, for example: 
+<pre>
+daysold(mtime) < 7
+</pre>
+</p>
+
+<p>
+Bear in mind that when SQL <code>like</code> expressions contain
+wildcards (%), these will match any number of any character. For 
+convenience, vlc-server's SQL support has a non-standard test
+<code>regexp</code> that will perform a regular expression test.
+This can be useful when a crude wildcard like % will match things
+that are unhelpful. For example, this expression: 
+<pre>
+artist regexp \bAC\b''
+</pre>
+will match 'AC/DC', but it won't match "Flac". Regular expression
+tests are case-insensitive.
+</p>
+
+

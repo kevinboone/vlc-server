@@ -1,8 +1,14 @@
 /*============================================================================
 
   vlc-server 
+
   template_manager.h
-  Copyright (c)2022 Kevin Boone, GPL v3.0
+
+  Functions for retrieving binary blobs of data from files that got
+    embedded into the binary during the link process. For example: static
+    HTML pages, images.
+
+  Copyright (c)2022-3 Kevin Boone, GPL v3.0
 
 ============================================================================*/
 
@@ -25,6 +31,7 @@
 #define TEMPLATE_MENU_ICON_PNG       11
 #define TEMPLATE_SPK_PNG             12
 #define TEMPLATE_HOME_HTML           13 
+#define TEMPLATE_HELP_HTML           14 
 
 BEGIN_CDECLS
 

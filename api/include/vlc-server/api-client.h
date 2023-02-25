@@ -75,6 +75,10 @@ void libvlc_server_client_stop (LibVlcServerClient *self,
 void libvlc_server_client_pause (LibVlcServerClient *self, 
         VSApiError *err_code, char **msg);
 
+/** Toggle play/pause. */
+void libvlc_server_client_toggle_pause (LibVlcServerClient *self, 
+        VSApiError *err_code, char **msg);
+
 /** Move to the next playlist item. */
 void libvlc_server_client_next (LibVlcServerClient *self, 
         VSApiError *err_code, char **msg);
@@ -103,7 +107,7 @@ void libvlc_server_client_volume_down (LibVlcServerClient *self,
 
 /** Sets the playlist position (first item is 0) */ 
 void libvlc_server_client_set_index (LibVlcServerClient *self, 
-        VSApiError *err_code, char **msg, int vol);
+        VSApiError *err_code, char **msg, int index);
 
 /** List files on the filesystem, under the specified path. */
 VSList *libvlc_server_client_list_files 
@@ -145,6 +149,13 @@ VSList *libvlc_server_client_list_genres
 VSList *libvlc_server_client_list_tracks
         (const LibVlcServerClient *selfclient, const char *where, VSApiError 
            *err_code, char **msg);
+
+/** Convenience function to play an albun. Not really necessary, but the
+      function exists in the REST API for the benefit of JavaScript
+      clients, so there's no extra work involved in providing it here. */
+void libvlc_server_client_play_album
+        (const LibVlcServerClient *self, VSApiError *err_code,
+           char **msg, const char *album);
 
 END_CDECLS
 

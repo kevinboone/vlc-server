@@ -1,0 +1,36 @@
+.\" Copyright (C) 2020 Kevin Boone 
+.\" Permission is granted to any individual or institution to use, copy, or
+.\" redistribute this software so long as all of the original files are
+.\" included, that it is not sold for profit, and that this copyright notice
+.\" is retained.
+.\"
+.TH vlc-server 1 "February 2023"
+.SH NAME
+nc-vlc-client -- a console-based interface for vlc-server media player 
+
+.SH SYNOPSIS
+.B vlc-server-client\ [options] 
+.PP
+
+.SH DESCRIPTION
+
+\fInc-vlc-client\fR is an ncurses-based, console client for the  
+\fIvlc-server\fR media player, which is itself an HTTP interface to the VLC
+player. The client allows the audio library to be browsed and played
+by album. Other features may be added later. 
+
+.SH "OPTIONS"
+
+.TP
+.BI -h,\-\-host={hostname]
+.LP
+Specify the hostname or IP number of the \fIvlc-server\fR host.
+Default: localhost.
+
+.TP
+.BI -p,\-\-port={number]
+.LP
+Specify the IP port number of the \fIvlc-server\fR instance.
+Default: 30000.
+
+.\" end of file

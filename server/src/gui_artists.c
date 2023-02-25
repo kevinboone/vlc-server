@@ -2,7 +2,7 @@
   
   vlc-server
 
-  server/src/gui_tracks.c
+  server/src/gui_artists.c
 
   Copyright (c)2022 Kevin Boone, GPL v3.0
 
@@ -70,7 +70,7 @@ VSString *gui_artists_get_body (const char *path,
             const VSProps *arguments, int count, MediaDatabase *mdb)
   {
   return gui_get_results_page (path, arguments, count, mdb, "artists",  
-    MDB_COL_ARTIST, TRUE, gui_artists_artist_cell, TRUE);
+    "Artists", MDB_COL_ARTIST, TRUE, gui_artists_artist_cell, TRUE);
   }
 
 

@@ -24,6 +24,7 @@ extern void              audio_metadata_destroy (AudioMetadata *self);
 extern const char       *audio_metadata_get_path (const AudioMetadata *self);
 extern const char       *audio_metadata_get_title (const AudioMetadata *self);
 extern const char       *audio_metadata_get_artist (const AudioMetadata *self);
+extern const char       *audio_metadata_get_album_artist (const AudioMetadata *self);
 extern const char       *audio_metadata_get_composer (const AudioMetadata *self);
 extern const char       *audio_metadata_get_album (const AudioMetadata *self);
 extern const char       *audio_metadata_get_genre (const AudioMetadata *self);
@@ -37,11 +38,15 @@ extern const MimeBuffer *audio_metadata_get_cover (const AudioMetadata *self);
 extern void audio_metadata_set_path (AudioMetadata *self, const char *path);
 extern void audio_metadata_set_title (AudioMetadata *self, const char *title);
 extern void audio_metadata_set_artist (AudioMetadata *self, const char *artist);
-extern void audio_metadata_set_composer (AudioMetadata *self, const char *composer);
+extern void audio_metadata_set_album_artist (AudioMetadata *self, 
+                            const char *album_artist);
+extern void audio_metadata_set_composer (AudioMetadata *self, 
+                            const char *composer);
 extern void audio_metadata_set_album (AudioMetadata *self, const char *album);
 extern void audio_metadata_set_genre (AudioMetadata *self, const char *genre);
 extern void audio_metadata_set_track (AudioMetadata *self, const char *track);
-extern void audio_metadata_set_comment (AudioMetadata *self, const char *comment);
+extern void audio_metadata_set_comment (AudioMetadata *self, 
+                            const char *comment);
 extern void audio_metadata_set_year (AudioMetadata *self, const char *year);
 extern void audio_metadata_set_size (AudioMetadata *self, size_t size);
 extern void audio_metadata_set_mtime (AudioMetadata *self, time_t mtime);

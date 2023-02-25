@@ -172,7 +172,11 @@ static BOOL libvlc_server_client_checkjson (cJSON *root,
     {
     j = cJSON_GetObjectItem (root, "message"); 
     if (j && j->valuestring)
+      {
       *msg = strdup (j->valuestring);
+      char *nlpos = strchr (*msg, '\r');
+      if (nlpos) *nlpos = 0;
+      }
     }
   OUT
   return (*err_code == 0);
@@ -301,6 +305,39 @@ void libvlc_server_client_add_url (LibVlcServerClient *self,
       if (libvlc_server_client_checkjson (root, err_code, msg))
         {
         // Nothing to do -- file added 
+        }
+
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  OUT
+  }
+
+/*======================================================================
+
+  libvlc_server_client_toggle_pause
+
+======================================================================*/
+void libvlc_server_client_toggle_pause (LibVlcServerClient *self, 
+        VSApiError *err_code, char **msg)
+  {
+  IN
+  char *response = libvlc_server_client_request (self, "toggle-pause", 
+     err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+        // Nothing to do
         }
 
       cJSON_Delete (root);
@@ -746,6 +783,45 @@ VSList *libvlc_server_client_list_files
   free (request);
   OUT
   return list;
+  }
+
+/*======================================================================
+
+  libvlc_server_client_play_album
+
+======================================================================*/
+void libvlc_server_client_play_album
+        (const LibVlcServerClient *self, VSApiError *err_code,
+           char **msg, const char *album)
+  {
+  IN
+  char *request;
+  VSString *enc_album = vs_string_encode_url (album);
+  asprintf (&request, "play_album/%s", vs_string_cstr (enc_album)); 
+  vs_string_destroy (enc_album);
+  char *response = libvlc_server_client_request (self, request, 
+    err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+        // Nothing to do -- playing 
+        }
+
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  free (request);
+  OUT
   }
 
 /*======================================================================

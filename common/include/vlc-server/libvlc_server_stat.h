@@ -28,6 +28,7 @@ extern LibVlcServerStat *libvlc_server_stat_new (VSApiTransportStatus ts,
   const char *mrl, int position, int duration, int index, int volume);
 
 extern void libvlc_server_stat_destroy (LibVlcServerStat *self);
+
 VSApiTransportStatus libvlc_server_stat_get_transport_status 
   (const LibVlcServerStat *self);
 

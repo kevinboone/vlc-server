@@ -255,6 +255,12 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }
+  else if (strncmp (url, "toggle-pause", 12) == 0) 
+    {
+    char *aret = api_toggle_pause_js (self->player);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
   else if (strcmp (url, "playlist") == 0) 
     {
     char *aret = api_playlist_js (self->player);

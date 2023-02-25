@@ -24,17 +24,6 @@
 #define SAFE(x)((x) ? (x) : "")
 
 /*======================================================================
-  idiv_round_up 
-======================================================================*/
-/*
-static int idiv_round_up (int numerator, int denominator)
-  {
-  return numerator / denominator
-      + (((numerator < 0) ^ (denominator > 0)) && (numerator%denominator));
-  }
-*/
-
-/*======================================================================
   gui_tracks_track_cell
 ======================================================================*/
 void gui_tracks_track_cell (VSString *body, const char *path, 
@@ -57,6 +46,7 @@ void gui_tracks_track_cell (VSString *body, const char *path,
   AudioMetadata *amd = media_database_get_amd (mdb, path);
   if (amd)
     {
+    // Path
     vs_string_append (body, "<td>");
     const char *title = SAFE(audio_metadata_get_title (amd));
     if (title && title[0])
@@ -67,18 +57,43 @@ void gui_tracks_track_cell (VSString *body, const char *path,
     vs_string_append (body, "<td>");
     vs_string_append (body, SAFE(audio_metadata_get_track (amd)));
     vs_string_append (body, "</td>");
+
+    // Album
+    
+    vs_string_append (body, "<td>");
+
+    const char *album = SAFE (audio_metadata_get_album (amd));
+    char *enc2 = media_database_escape_sql (album);
+    VSString *enc_album = http_util_encode_for_js (enc2); 
+    char *where;
+    asprintf (&where, "album='%s'", vs_string_cstr(enc_album));
+    vs_string_destroy (enc_album);
+    free (enc2);
+
+    char *album_href;
+    asprintf (&album_href, 
+      "<a href=\"/gui/albums?where=%s&covers=%d\">%s</a>", where, 
+        covers, album);
+
+    free (where);
+
+    vs_string_append (body, album_href);
+    free (album_href);
+
+    vs_string_append (body, "</td>");
+
+    // Artist
+    
     vs_string_append (body, "<td>");
 
     const char *artist = SAFE (audio_metadata_get_artist (amd));
 
-    char *enc2 = media_database_escape_sql (artist);
+    enc2 = media_database_escape_sql (artist);
     VSString *enc_artist = http_util_encode_for_js (enc2); 
-    char *where;
     asprintf (&where, "artist='%s'", vs_string_cstr(enc_artist));
     vs_string_destroy (enc_artist);
     free (enc2);
 
-    char *album_href;
     asprintf (&album_href, 
       "<a href=\"/gui/albums?where=%s&covers=%d\">%s</a>", where, 
         covers, artist);
@@ -90,6 +105,32 @@ void gui_tracks_track_cell (VSString *body, const char *path,
 
     vs_string_append (body, "</td>");
 
+    // Album artist
+    
+    vs_string_append (body, "<td>");
+
+    const char *album_artist = SAFE (audio_metadata_get_album_artist (amd));
+
+    enc2 = media_database_escape_sql (album_artist);
+    VSString *enc_album_artist = http_util_encode_for_js (enc2); 
+    asprintf (&where, "album_artist='%s'", vs_string_cstr(enc_album_artist));
+    vs_string_destroy (enc_album_artist);
+    free (enc2);
+
+    asprintf (&album_href, 
+      "<a href=\"/gui/albums?where=%s&covers=%d\">%s</a>", where, 
+        covers, artist);
+
+    free (where);
+
+    vs_string_append (body, album_href);
+    free (album_href);
+
+    vs_string_append (body, "</td>");
+
+    // Composer
+
+    vs_string_append (body, "<td>");
 
     const char *composer = SAFE (audio_metadata_get_composer (amd));
 
@@ -106,10 +147,13 @@ void gui_tracks_track_cell (VSString *body, const char *path,
 
     free (where);
 
-    vs_string_append (body, "<td>");
     vs_string_append (body, composer_href);
     vs_string_append (body, "</td>");
     free (composer_href);
+
+    // Genre
+
+    vs_string_append (body, "<td>");
 
     const char *genre = SAFE (audio_metadata_get_genre (amd));
 
@@ -126,12 +170,10 @@ void gui_tracks_track_cell (VSString *body, const char *path,
 
     free (where);
 
-    vs_string_append (body, "<td>");
     vs_string_append (body, genre_href);
     free (genre_href);
 
     vs_string_append (body, "</td>");
-
 
 
     audio_metadata_destroy (amd);
@@ -141,6 +183,7 @@ void gui_tracks_track_cell (VSString *body, const char *path,
     vs_string_append (body, "<td>");
     vs_string_append (body, path);
     vs_string_append (body, "</td>");
+    vs_string_append (body, "<td></td>");
     vs_string_append (body, "<td></td>");
     vs_string_append (body, "<td></td>");
     vs_string_append (body, "<td></td>");
@@ -157,7 +200,7 @@ VSString *gui_tracks_get_body (const char *path,
             const VSProps *arguments, int count, MediaDatabase *mdb)
   {
   return gui_get_results_page (path, arguments, count, mdb, "tracks",  
-    MDB_COL_PATH, TRUE, gui_tracks_track_cell, TRUE);
+    "Tracks", MDB_COL_PATH, TRUE, gui_tracks_track_cell, TRUE);
   }
 
 

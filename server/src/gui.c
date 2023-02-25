@@ -22,9 +22,13 @@
 #include "gui_albums.h"
 #include "gui_tracks.h"
 #include "gui_artists.h"
+#include "gui_album_artists.h"
 #include "gui_composers.h"
 #include "gui_genres.h"
 #include "gui_home.h"
+#include "gui_help.h"
+#include "gui_search.h"
+#include "gui_tracks.h"
 #include "media_database.h"
 
 /*======================================================================
@@ -58,6 +62,15 @@ BOOL gui_process_request (Player *player, const char *media_root,
           (s, "TITLE", NAME " - Home"); 
       vs_string_destroy (body);
       }
+    else if (strncmp (url, "help", 4) == 0)
+      {
+      VSString *body = gui_help_get_body (url + 4, arguments, instance_name);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Home"); 
+      vs_string_destroy (body);
+      }
     else if (strncmp (url, "files/", 5) == 0)
       {
       VSString *body = gui_files_get_body (player, media_root, url + 5,
@@ -75,6 +88,16 @@ BOOL gui_process_request (Player *player, const char *media_root,
           (s, "BODY", vs_string_cstr (body));
       template_manager_substitute_placeholder 
           (s, "TITLE", NAME " - Playlist"); 
+      vs_string_destroy (body);
+      }
+    else if (strncmp (url, "album_artists", 13) == 0)
+      {
+      VSString *body = gui_album_artists_get_body (url + 13,
+        arguments, matches_per_page, mdb);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Albums");
       vs_string_destroy (body);
       }
     else if (strncmp (url, "albums", 6) == 0)
@@ -121,6 +144,16 @@ BOOL gui_process_request (Player *player, const char *media_root,
       {
       VSString *body = gui_composers_get_body (url + 6,
         arguments, matches_per_page, mdb);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Composers"); 
+      vs_string_destroy (body);
+      }
+    else if (strncmp (url, "search", 6) == 0)
+      {
+      VSString *body = gui_search_get_body (mdb, 
+           arguments, 10 /* todo */);;
       template_manager_substitute_placeholder 
           (s, "BODY", vs_string_cstr (body));
       template_manager_substitute_placeholder 
@@ -255,11 +288,12 @@ static void gui_write_page_navigation (VSString *body,
 
 
 /*======================================================================
-  gui_get_page
+  gui_get_results_page
 ======================================================================*/
 VSString *gui_get_results_page (const char *path, 
             const VSProps *arguments, int count, MediaDatabase *mdb, 
-            const char *field_name, MediaDatabaseColumn col, 
+            const char *field_name, const char *header, 
+            MediaDatabaseColumn col, 
             BOOL headers, GUICellCallback cell_callback, BOOL tabular)
   {
   (void)path;
@@ -269,7 +303,7 @@ VSString *gui_get_results_page (const char *path,
   if (headers)
     {
     vs_string_append (body, "<h1>");
-    vs_string_append (body, field_name);
+    vs_string_append (body, header);
     vs_string_append (body, "</h1>\n");
     }
 
@@ -290,51 +324,58 @@ VSString *gui_get_results_page (const char *path,
       int total_count = media_database_search_count (mdb, col, 
         constraints, &error);
 
-      int start = 0;
-      const char *s_start = vs_props_get (arguments, "start");
-      const char *s_count = vs_props_get (arguments, "count");
-      const char *s_covers = vs_props_get (arguments, "covers");
-      const char *where = vs_props_get (arguments, "where");
-      if (s_count) count = atoi (s_count);
-      if (s_covers) covers = atoi (s_covers);
-      if (count == 0) count = 30; // TODO
-      if (s_start) start = atoi (s_start);
+      if (total_count > 0)
+        { 
+	int start = 0;
+	const char *s_start = vs_props_get (arguments, "start");
+	const char *s_count = vs_props_get (arguments, "count");
+	const char *s_covers = vs_props_get (arguments, "covers");
+	const char *where = vs_props_get (arguments, "where");
+	if (s_count) count = atoi (s_count);
+	if (s_covers) covers = atoi (s_covers);
+	if (count == 0) count = 30; // TODO
+	if (s_start) start = atoi (s_start);
 
-      int l = vs_list_length (entries);
+	int l = vs_list_length (entries);
 
-      if (headers)
-        {
-        vs_string_append_printf (body, "<h3>%d to %d of %d", start + 1, 
-           start + count < total_count 
-             ? start + count : total_count, total_count);
-        if (where)
-          {
-          vs_string_append (body, " (");
-          vs_string_append (body, where);
-          vs_string_append (body, ")");
-          }
-        vs_string_append (body, "</h3>");
+	if (headers)
+	  {
+	  vs_string_append_printf (body, "<h3>%d to %d of %d", start + 1, 
+	     start + count < total_count 
+	       ? start + count : total_count, total_count);
+	  if (where)
+	    {
+	    vs_string_append (body, " (");
+	    vs_string_append (body, where);
+	    vs_string_append (body, ")");
+	    }
+	  vs_string_append (body, "</h3>");
+	  }
+
+	int prev_page_start = start - count;
+	if (prev_page_start < 0) prev_page_start = 0; 
+	int next_page_start = start + count;
+	if (next_page_start >= total_count) next_page_start = total_count - count;
+
+	gui_write_page_navigation (body, field_name, arguments, 
+	   count, total_count);
+
+	vs_string_append (body, "<p/>\n");
+
+	if (tabular)
+	  vs_string_append (body, "<table class=\"resulttable\">\n");
+	for (int i = 0; i < l; i++)
+	  {
+	  const char *entry = vs_list_get (entries, i);
+	  cell_callback (body, entry, covers, mdb);
+	  }
+	if (tabular)
+	  vs_string_append (body, "</table>\n");
         }
-
-      int prev_page_start = start - count;
-      if (prev_page_start < 0) prev_page_start = 0; 
-      int next_page_start = start + count;
-      if (next_page_start >= total_count) next_page_start = total_count - count;
-
-      gui_write_page_navigation (body, field_name, arguments, 
-         count, total_count);
-
-      vs_string_append (body, "<p/>\n");
-
-      if (tabular)
-        vs_string_append (body, "<table class=\"resulttable\">\n");
-      for (int i = 0; i < l; i++)
+      else
         {
-        const char *entry = vs_list_get (entries, i);
-        cell_callback (body, entry, covers, mdb);
+	vs_string_append (body, "No matches found\n");
         }
-      if (tabular)
-        vs_string_append (body, "</table>\n");
       }
     else
       {
@@ -353,6 +394,105 @@ VSString *gui_get_results_page (const char *path,
   OUT
   return body;
   }
+
+
+/*======================================================================
+  gui_get_limited_results_page
+======================================================================*/
+VSString *gui_get_limited_results_page (
+            const VSProps *arguments, int count, MediaDatabase *mdb, 
+            const char *field_name, const char *header, 
+            MediaDatabaseColumn col, 
+            BOOL headers, GUICellCallback cell_callback, BOOL tabular)
+  {
+  IN
+  VSString *body = vs_string_create ("");
+
+  if (headers)
+    {
+    vs_string_append (body, "<h1>");
+    vs_string_append (body, header);
+    vs_string_append (body, "</h1>\n");
+    }
+
+  if (media_database_is_init (mdb))
+    {
+    int covers = 0; // FALSE
+    const char *s_covers = vs_props_get (arguments, "covers");
+    if (s_covers) covers = atoi (s_covers);
+    MediaDatabaseConstraints *constraints = media_database_constraints_new();
+    gui_set_constraints_from_arguments (constraints, arguments);
+    constraints->start = 0;
+    constraints->count = count;
+    VSList *entries = vs_list_create (free);
+    char *error = NULL;
+
+    media_database_search (mdb, col, entries, constraints, &error);
+
+    if (error == NULL)
+      {
+      int total_count = media_database_search_count (mdb, col, 
+        constraints, &error);
+
+      if (total_count > 0)
+        { 
+
+	int l = vs_list_length (entries);
+
+	if (headers)
+	  {
+	  vs_string_append_printf (body, "<p>Showing %d of %d ", 
+               l, total_count);
+	  }
+
+        if (l != total_count)
+          {
+	  const char *where = vs_props_get (arguments, "where");
+	  char *all_link;
+	  asprintf (&all_link, "/gui/%s?where=%s&covers=%d", 
+	    field_name, where, covers);
+	  vs_string_append (body, "<a href=\"");
+	  vs_string_append (body, all_link);
+	  vs_string_append (body, "\">[show all]</a><br/>\n");
+	  free (all_link);
+          }
+	vs_string_append (body, "</p>\n");
+
+	vs_string_append (body, "<p/>\n");
+
+	if (tabular)
+	  vs_string_append (body, "<table class=\"resulttable\">\n");
+	for (int i = 0; i < l; i++)
+	  {
+	  const char *entry = vs_list_get (entries, i);
+	  cell_callback (body, entry, covers, mdb);
+	  }
+	if (tabular)
+	  vs_string_append (body, "</table>\n");
+        }
+      else
+        {
+	vs_string_append (body, "No matches found\n");
+        }
+      }
+    else
+      {
+      vs_string_append (body, error);
+      vs_string_append (body, "\n");
+      free (error);
+      }
+    vs_list_destroy (entries);
+    media_database_constraints_destroy (constraints);
+    }
+  else
+    {
+    vs_log_error (MDB_ERR_NOT_INIT);
+    vs_string_append (body, MDB_ERR_NOT_INIT);
+    }
+  OUT
+  return body;
+  }
+
 
 
 

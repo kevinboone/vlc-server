@@ -5,14 +5,17 @@ vlc-server version %%VERSION%%
 </p>
 
 <h3>Browse local files</h3>
+<p>
 <a href="/gui/files?covers=1">Files and folders with covers</a><br/>
 <a href="/gui/files?covers=0">Files and folders without covers</a><br/>
+</p>
 
 <h3>Browse the media library (with covers)</h3>
 
 <p>
 <a href="/gui/albums?covers=1">Albums</a><br/>
 <a href="/gui/artists?covers=1">Artists</a><br/>
+<a href="/gui/album_artists?covers=1">Album artists</a><br/>
 <a href="/gui/composers?covers=1">Composers</a><br/>
 <a href="/gui/genres?covers=1">Genres</a><br/>
 </p>
@@ -22,8 +25,41 @@ vlc-server version %%VERSION%%
 <p>
 <a href="/gui/albums?covers=0">Albums</a><br/>
 <a href="/gui/artists?covers=0">Artists</a><br/>
+<a href="/gui/album_artists?covers=0">Album artists</a><br/>
 <a href="/gui/composers?covers=0">Composers</a><br/>
 <a href="/gui/genres?covers=0">Genres</a><br/>
+</p>
+
+<h3>Recent updates</h3>
+<p>
+Albums modified or updated in the last week -- 
+<a href="/gui/albums?covers=1&where=daysold(mtime)<7">with covers</a> or
+<a href="/gui/albums?covers=0&where=daysold(mtime)<7">without covers</a>.<br/>
+Albums modified or updated in the last 30 days -- 
+<a href="/gui/albums?covers=1&where=daysold(mtime)<30">with covers</a> or
+<a href="/gui/albums?covers=0&where=daysold(mtime)<30">without covers</a>.<br/>
+</p>
+
+<h3>Search</h3>
+<h4>General search</h4>
+<p>
+Search in albums, artists, tracks, etc.
+<form action="/gui/search" method="get">
+  <label for="keyword">Keyword:</label>
+  <input type="text" id="keyword" name="keyword"/>
+  <input type="text" id="covers" name="covers" value="1" hidden/>
+  <input type="submit" value="Search"/>
+</form>
+</p>
+<h4>Custom SQL query</h4>
+<p>
+<a href="/gui/help#custom_sql_queries">Help on this feature</a><br/>
+<form action="/gui/tracks" method="get">
+  <label for="where">SQL:</label>
+  <input type="text" id="where" name="where"/>
+  <input type="text" id="covers" name="covers" value="1" hidden/>
+  <input type="submit" value="Search"/>
+</form>
 </p>
 
 <h3>Admin</h3>

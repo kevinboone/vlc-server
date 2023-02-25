@@ -73,7 +73,7 @@ VSString *gui_composers_get_body (const char *path,
             const VSProps *arguments, int count, MediaDatabase *mdb)
   {
   return gui_get_results_page (path, arguments, count, mdb, "composers",  
-    MDB_COL_COMPOSER, TRUE, gui_composers_composer_cell, TRUE);
+    "Composers", MDB_COL_COMPOSER, TRUE, gui_composers_composer_cell, TRUE);
   }
 
 

@@ -142,6 +142,8 @@ static void scanner_do_file (const char *abs_path,
         audio_metadata_set_album (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_ARTIST);
         audio_metadata_set_artist (amd, s);
+        s = (char *)tag_get_common (tags, TAG_COMMON_ALBUM_ARTIST);
+        audio_metadata_set_album_artist (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_COMPOSER);
         audio_metadata_set_composer (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_YEAR);

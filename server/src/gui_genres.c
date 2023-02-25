@@ -33,10 +33,13 @@ void gui_genres_genre_cell (VSString *body, const char *genre,
   vs_string_append (body, "<tr>");
 
   vs_string_append (body, "<td>");
-  vs_string_append (body, genre); 
+  if (genre[0])
+    vs_string_append (body, genre); 
+  else
+    vs_string_append (body, "[blank]"); 
+
   vs_string_append (body, "</td>");
 
-  vs_string_append (body, "<td>\n");
 
   char *enc2 = media_database_escape_sql (genre);
   VSString *enc3 = vs_string_encode_url (enc2);
@@ -46,6 +49,8 @@ void gui_genres_genre_cell (VSString *body, const char *genre,
   free (enc2);
   vs_string_destroy (enc3);
 
+  // Album
+  vs_string_append (body, "<td>\n");
   char *album_href;
     asprintf (&album_href, 
       "<a href=\"/gui/albums?where=%s&covers=%d\">[albums]</a>", where, 
@@ -55,6 +60,8 @@ void gui_genres_genre_cell (VSString *body, const char *genre,
   free (album_href);
   vs_string_append (body, "</td>\n");
 
+
+  // Artist
   vs_string_append (body, "<td>\n");
   char *artist_href;
     asprintf (&artist_href, 
@@ -65,6 +72,19 @@ void gui_genres_genre_cell (VSString *body, const char *genre,
   free (artist_href);
   vs_string_append (body, "</td>\n");
 
+  // Album artist
+  vs_string_append (body, "<td>\n");
+  char *album_artist_href;
+    asprintf (&album_artist_href, 
+      "<a href=\"/gui/album_artists?where=%s&covers=%d\">[album artists]</a>", 
+        where, 
+        covers);
+
+  vs_string_append (body, album_artist_href);
+  free (album_artist_href);
+  vs_string_append (body, "</td>\n");
+
+  // Composer
   vs_string_append (body, "<td>\n");
   char *composer_href;
     asprintf (&composer_href, 
@@ -87,7 +107,7 @@ VSString *gui_genres_get_body (const char *path,
             const VSProps *arguments, int count, MediaDatabase *mdb)
   {
   return gui_get_results_page (path, arguments, count, mdb, "genres",  
-    MDB_COL_GENRE, TRUE, gui_genres_genre_cell, TRUE);
+    "Genres", MDB_COL_GENRE, TRUE, gui_genres_genre_cell, TRUE);
   }
 
 

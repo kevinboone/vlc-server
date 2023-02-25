@@ -27,6 +27,8 @@ extern uint8_t generic_html_end[] asm("_binary_docroot_generic_html_end");
 extern uint8_t functions_js_start[] asm("_binary_docroot_functions_js_start");
 extern uint8_t functions_js_end[] asm("_binary_docroot_functions_js_end");
 extern uint8_t stopbutton_png_start[] asm("_binary_docroot_stopbutton_png_start");
+extern uint8_t help_html_start[] asm("_binary_docroot_help_html_start");
+extern uint8_t help_html_end[] asm("_binary_docroot_help_html_end");
 extern uint8_t home_html_start[] asm("_binary_docroot_home_html_start");
 extern uint8_t home_html_end[] asm("_binary_docroot_home_html_end");
 extern uint8_t stopbutton_png_end[] asm("_binary_docroot_stopbutton_png_end");
@@ -71,6 +73,7 @@ TemplateData templateData[] =
   { TEMPLATE_SPK_PNG, "spk.png", spk_png_start, spk_png_end },
   { TEMPLATE_MAIN_CSS, "main.css", main_css_start, main_css_end },
   { TEMPLATE_HOME_HTML, "home.html", home_html_start, home_html_end },
+  { TEMPLATE_HELP_HTML, "help.html", help_html_start, help_html_end },
   { -1, NULL, NULL, NULL },
   };
 
@@ -196,7 +199,7 @@ VSString *template_manager_get_string_by_tag (const char *tag)
   IN
   int len;
   const BYTE *buff;
-  VSString *ret;
+  VSString *ret = NULL;
   if (template_manager_get_data_by_tag (tag, &buff, &len))
     {
     char *b = malloc (len + 1);

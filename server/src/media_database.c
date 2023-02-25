@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <regex.h>
+#include <time.h>
 #include <microhttpd.h>
 #include <vlc-server/vs_log.h> 
 #include <vlc-server/vs_util.h> 
@@ -36,6 +37,26 @@ struct _MediaDatabase
   };
 
 #define SAFE(x)((x) ? (x) : "")
+
+/*======================================================================
+  media_database_daysold
+======================================================================*/
+void media_database_daysold (sqlite3_context* context, int argc,
+      sqlite3_value** values)
+  {
+  if ( argc != 1)
+    {
+    sqlite3_result_error (context,
+      "SQL function daysago() called with invalid arguments.\n", -1);
+    return;
+    }
+
+  int arg = sqlite3_value_int (values[0]);
+
+  int daysold = (time(NULL) - arg) / (24 * 3600);
+
+  sqlite3_result_int (context, daysold); 
+  }
 
 /*======================================================================
   media_database_regexp
@@ -132,13 +153,15 @@ static void media_database_create_tables (MediaDatabase *self)
   media_database_exec_log_error (self, "create table files "
        "(path varchar not null, size integer, mtime integer, "
        "title varchar, album varchar, genre varchar, "
-       "composer varchar, artist varchar, track varchar, "
-       "comment varchar, year varchar, exist integer)");
+       "composer varchar, artist varchar, album_artist varchar, " 
+       "track varchar, comment varchar, year varchar, exist integer)");
 
   media_database_exec_log_error (self, 
        "create index albumindex on files (album)");
   media_database_exec_log_error (self, 
        "create index artistindex on files (artist)");
+  media_database_exec_log_error (self, 
+       "create index albumartistindex on files (album_artist)");
   media_database_exec_log_error (self, 
        "create index composerindex on files (composer)");
   media_database_exec_log_error (self, 
@@ -172,6 +195,8 @@ void media_database_init (MediaDatabase *self, BOOL create, char **error)
       {
       sqlite3_create_function (sqlite, "regexp", 2, SQLITE_ANY, 0,
           media_database_regexp, 0, 0);
+      sqlite3_create_function (sqlite, "daysold", 1, SQLITE_ANY, 0,
+          media_database_daysold, 0, 0);
 
       self->sqlite = sqlite;
 
@@ -222,6 +247,8 @@ static const char *media_database_col_name (MediaDatabaseColumn col)
     case MDB_COL_ARTIST: return "artist";
     case MDB_COL_COMPOSER: return "composer";
     case MDB_COL_GENRE: return "genre";
+    case MDB_COL_ALBUM_ARTIST: return "album_artist";
+    case MDB_COL_TITLE: return "title";
     }
   return NULL; // Can not happen
   OUT
@@ -461,6 +488,8 @@ BOOL media_database_set_amd (MediaDatabase *self,
     (SAFE (audio_metadata_get_composer (amd)));
   char *esc_artist = media_database_escape_sql 
     (SAFE (audio_metadata_get_artist (amd)));
+  char *esc_album_artist = media_database_escape_sql 
+    (SAFE (audio_metadata_get_album_artist (amd)));
   char *esc_track = media_database_escape_sql  
     (SAFE (audio_metadata_get_track (amd)));
   char *esc_comment = media_database_escape_sql 
@@ -473,8 +502,8 @@ BOOL media_database_set_amd (MediaDatabase *self,
   char *sql;
   asprintf (&sql, "insert into files "
      "(path,size,mtime,title,album,genre,composer,"
-     "artist,track,comment,year,exist) values "
-     "('%s',%ld,%ld,'%s','%s','%s','%s','%s','%s','%s','%s',1)",
+     "artist,album_artist,track,comment,year,exist) values "
+     "('%s',%ld,%ld,'%s','%s','%s','%s','%s','%s','%s','%s','%s',1)",
      esc_path,
      size,
      mtime,
@@ -483,6 +512,7 @@ BOOL media_database_set_amd (MediaDatabase *self,
      esc_genre,
      esc_composer,
      esc_artist,
+     esc_album_artist,
      esc_track,
      esc_comment,
      esc_year);
@@ -496,6 +526,7 @@ BOOL media_database_set_amd (MediaDatabase *self,
   free (esc_genre);
   free (esc_composer);
   free (esc_artist);
+  free (esc_album_artist);
   free (esc_track);
   free (esc_comment);
   free (esc_year);
@@ -517,7 +548,7 @@ AudioMetadata *media_database_get_amd (MediaDatabase *self,
 
   char *sql;
   asprintf (&sql, "select size,mtime,title,album,genre,composer,artist,"
-                    "track,comment,year from files where path='%s'", esc_path);
+       "album_artist,track,comment,year from files where path='%s'", esc_path);
 
   char *error = NULL;
 
@@ -525,7 +556,7 @@ AudioMetadata *media_database_get_amd (MediaDatabase *self,
   if (list)
     {
     int l = vs_list_length (list);
-    if (l == 10)
+    if (l == 11)
       {
       ret = audio_metadata_create();
       audio_metadata_set_path (ret, path);
@@ -536,9 +567,10 @@ AudioMetadata *media_database_get_amd (MediaDatabase *self,
       audio_metadata_set_genre (ret, vs_list_get (list, 4));
       audio_metadata_set_composer (ret, vs_list_get (list, 5));
       audio_metadata_set_artist (ret, vs_list_get (list, 6));
-      audio_metadata_set_track (ret, vs_list_get (list, 7));
-      audio_metadata_set_comment (ret, vs_list_get (list, 8));
-      audio_metadata_set_year (ret, vs_list_get (list, 9));
+      audio_metadata_set_album_artist (ret, vs_list_get (list, 7));
+      audio_metadata_set_track (ret, vs_list_get (list, 8));
+      audio_metadata_set_comment (ret, vs_list_get (list, 9));
+      audio_metadata_set_year (ret, vs_list_get (list, 10));
       }
     else
       {
@@ -550,7 +582,7 @@ AudioMetadata *media_database_get_amd (MediaDatabase *self,
     {
     if (error)
       {
-      vs_log_warning ("Database query for '%s' failed: ", path, error);
+      vs_log_warning ("Database query for '%s' failed: %s", path, error);
       free (error);
       }
     }

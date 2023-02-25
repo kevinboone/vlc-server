@@ -91,7 +91,7 @@ VSString *gui_albums_get_body (const char *path,
             const VSProps *arguments, int count, MediaDatabase *mdb)
   {
   return gui_get_results_page (path, arguments, count, mdb, "albums",  
-    MDB_COL_ALBUM, TRUE, gui_albums_album_cell, FALSE);
+    "Albums", MDB_COL_ALBUM, TRUE, gui_albums_album_cell, FALSE);
   }
 
 

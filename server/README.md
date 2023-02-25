@@ -4,12 +4,12 @@ Version 0.2b, February 2023
 
 ## What is this?
 
-`vlc-server` is a simple HTTP server that wraps the VLC media player, and
-provides a REST-like interface for clients, as well as a rudimentary web
-interface for use by browsers. Its purpose is to allow music playback on one
-Linux computer to be controlled remotely from some other computer. The
-"controlling" computer can be anything that can issue HTTP requests. The
-intended application is multi-room audio.
+`vlc-server` is an HTTP server that wraps the VLC media player, and provides a
+REST-like interface for clients, as well as a rudimentary web interface for use
+by web browsers. Its purpose is to allow music playback on one Linux computer
+to be controlled remotely from some other computer. The "controlling" computer
+can be anything that can issue HTTP requests. The intended application is
+multi-room audio.
 
 The server was designed to be run on a Raspberry Pi, although it should build
 on other Linux-like systems, so long as they have access to the VLC library.
@@ -139,7 +139,9 @@ Show the server version.
 
 `vlc-server` maintains a database of metadata of audio files, so audio tracks
 may be listed by album, genre, etc. The database is in sqlite3 format, and can
-be viewed using sqlite3 utilities if necessary.
+be viewed using sqlite3 utilities if necessary. `vlc-server` will work
+without a media database, and it will not construct one unless asked. 
+However, most functionality does, in practice, require the database.
 
 The database is constructed using an exhaustive examination of the metadata in
 audio files. Currently, the metadata reader supports ID3V2, Vorbis, and MP4 tag
@@ -209,6 +211,30 @@ For convenience, you can list the output devices on the default audio plug-in
 Note that the "--" on the command line separates the `vlc-server` arguments
 from the VLC arguments.
 
+This isn't the place to go into the details of ALSA configuration, much
+less Pulse, which is a nightmare to configure to get optimal sound quality.
+Some systems that use Pulse do not allow ALSA to be used directly at all,
+so there's no point trying to set ALSA configuration. I tend to believe
+that, if you can use ALSA directly, you probably should. ALSA will still
+fiddle about this sample rates, etc., but at least you'll be able to
+predict how it does it.
+
+If you're using ALSA and aren't hugely fussed about subtle issues of
+audio quality, you should probably use an ALSA device whose names
+starts with "plughw". This will enable ALSA's conversion plugins. These
+aren't _necessarily_ bad conversions. For example, my DACMagic USB DAC
+only supports 24-bit samples. With 16-bit CD rips I get exactly the same 
+output if I use the `plughw` interface and let ALSA fill in the missing
+8 bits, as if I do this conversion manually when I rip the CD. 
+
+Of course, using `plughw` enables _bad_ conversions as well. If the
+audio hardware is set up to allow only 16-bit samples, and you play
+a 24-bit file, ALSA will silently downsample.
+
+In sort, if you care about optimal sound quality, you really have to
+understand how ALSA (or Pulse) works, and know the capabilities of
+your audio hardware. 
+
 ### Volume control
 
 The web interface exposes a volume control, as does the REST API. This volume
@@ -222,7 +248,7 @@ of memory that is not freed when the server quits. So long as this amount does
 not increase over time -- and it seems not too -- I guess this is something we
 have to live with. 
 
-## Sorting search results
+### Sorting search results
 
 Metadata results page (artists, albums,...) are sorted in alphabetical order of
 the field. That is, the 'artists' page is sorted by artist.  The except is the
@@ -235,5 +261,36 @@ the track names are often inconsistent. In this respect, `vlc-server` works in
 the same way as every other media player I know, and it's not easy to implement
 a better approach with the kind of intelligence provided by the `sqlite3`
 database engine.
+
+### Media organization 
+
+`vlc-server` really depends on audio files being properly tagged. That is,
+all the tracks in an album should have the same album tag; all tracks by
+the same artist should have the same 'artist' tag, and so on. The closer
+the media is to being rigorously tagged, the better the server will work.
+
+`vlc-server` can browse specific files and folders, but being able to do
+this really depends on the files being grouped meaningfully into a 
+directory heirarchy. However, when working with metadata (tags), `vlc-server`
+doesn't care about filesystem organization -- except in one instance.
+
+That one instance is that proper handling of cover art depends on the 
+tracks from each album being collected into a single directory. That is
+because each directory can only have one cover-art image file.
+
+### Cover art issues
+
+Cover images will be displayed, if they are available, on the Albums or
+Files pages. The file scanner will extract cover art from various audio
+file types, and store it as local files. For reasons of efficiency, the
+server will not attempt to read cover art from audio files at runtime.
+
+Any of the usual filenames -- <code>folder.png</code>, <code>cover.png</code>,
+etc -- can be used for a cover art image, if you want to install them
+manually. Be aware, however, that there's little point installing an
+image larger than 64x64 pixels. That is the size that the cover art images
+are displayed on web pages; if they are larger, the browser will have
+to scale them down. And, of course, transferring a larger image from
+the server to the browser takes longer. 
 
 

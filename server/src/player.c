@@ -116,6 +116,7 @@ static void player_vlc_media_change_handler (const libvlc_event_t *p_event,
   if (self->vlc_media_list)
     {
     int index = libvlc_media_list_index_of_item (self->vlc_media_list, m);
+    vs_log_info ("Moving to item %d in playlist", index);
     self->index = index;
     }
   OUT
@@ -238,6 +239,7 @@ VSApiError player_start (Player *self)
  
   if (self->vlc_media_list)
     {
+    vs_log_info ("Starting playback");
     // Note that we don't have to handle "unpause" specifically --
     //   _set_media_list does not reset anything if the player is currently
     //   paused, so _play just resumes
@@ -268,6 +270,24 @@ VSApiError player_pause (Player *self)
 
 /*======================================================================
 
+  player_toggle_pause
+
+======================================================================*/
+VSApiError player_toggle_pause (Player *self)
+  {
+  IN
+  VSApiError ret = 0;
+  VSApiTransportStatus ts = player_get_transport_status (self);
+  if (ts == VSAPI_TS_PLAYING)
+    player_pause (self);
+  else
+    ret = player_start (self);
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
   player_stop
 
 ======================================================================*/
@@ -279,6 +299,7 @@ VSApiError player_stop (Player *self)
   // So we need to check that self->mlp actually exists.
   if (self->mlp)
     {
+    vs_log_info ("Stopping playback");
     libvlc_media_list_player_stop (self->mlp);
     if (player_get_playlist_length (self) > 0)
       self->index = 0;

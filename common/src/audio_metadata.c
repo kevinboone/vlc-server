@@ -31,6 +31,7 @@ struct _AudioMetadata
   char *album;
   char *genre;
   char *artist;
+  char *album_artist;
   char *title;
   char *track;
   char *comment;
@@ -56,6 +57,7 @@ AudioMetadata *audio_metadata_create ()
   self->path = NULL;
   self->composer = NULL;
   self->artist = NULL;
+  self->album_artist = NULL;
   self->album = NULL;
   self->genre = NULL;
   self->title = NULL;
@@ -83,6 +85,7 @@ void audio_metadata_destroy (AudioMetadata *self)
     if (self->album) free (self->album);
     if (self->genre) free (self->genre);
     if (self->artist) free (self->artist);
+    if (self->album_artist) free (self->album_artist);
     if (self->title) free (self->title);
     if (self->track) free (self->track);
     if (self->comment) free (self->comment);
@@ -151,6 +154,16 @@ const char *audio_metadata_get_genre (const AudioMetadata *self)
 const char *audio_metadata_get_artist (const AudioMetadata *self)
   {
   return self->artist;
+  }
+
+/*==========================================================================
+
+  audio_metadata_get_album_artist
+
+==========================================================================*/
+const char *audio_metadata_get_album_artist (const AudioMetadata *self)
+  {
+  return self->album_artist;
   }
 
 /*==========================================================================
@@ -245,6 +258,17 @@ void audio_metadata_set_title (AudioMetadata *self, const char *title)
 void audio_metadata_set_artist (AudioMetadata *self, const char *artist)
   {
   replace (&self->artist, artist);
+  }
+
+/*==========================================================================
+
+  audio_metadata_set_album_artist
+
+==========================================================================*/
+void audio_metadata_set_album_artist (AudioMetadata *self, 
+       const char *album_artist)
+  {
+  replace (&self->album_artist, album_artist);
   }
 
 /*==========================================================================
@@ -360,6 +384,7 @@ void audio_metadata_dump (const AudioMetadata *self)
   printf ("path: %s\n", SAFE(self->path));  
   printf ("album: %s\n", SAFE(self->album));  
   printf ("artist: %s\n", SAFE(self->artist));  
+  printf ("album artist: %s\n", SAFE(self->album_artist));  
   printf ("comment: %s\n", SAFE(self->comment));  
   printf ("composer: %s\n", SAFE(self->composer));  
   printf ("genre: %s\n", SAFE(self->genre));  

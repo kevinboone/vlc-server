@@ -1,7 +1,17 @@
 /*==========================================================================
 
   tag_reader.h
+
+  Functions to read audio metatadata. Currently we support ID3v2, MP3, and
+    Vorbis tags (which are used in FLAC, among others).
+
+  The tricky thing here is to provide a common set of tags that apply
+     to all file types. For example, all the common formats have tags
+     for 'album name' and 'album', but the internal representations re
+     completely different.
+
   Copyright (c)2012-2023 Kevin Boone
+
   Distributed under the terms of the GNU Public Licence, v3.0
 
 ==========================================================================*/

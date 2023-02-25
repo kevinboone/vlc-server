@@ -349,6 +349,22 @@ char *api_pause_js (Player *player)
 
 /*======================================================================
 
+  api_toggle_pause_js
+
+======================================================================*/
+char *api_toggle_pause_js (Player *player)
+  {
+  char *ret;
+  int ret2 = player_toggle_pause (player);
+  char *j_error = api_escape_json (vs_util_strerror (ret2));
+  asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+    ret2, j_error);
+  free (j_error);
+  return ret;
+  }
+
+/*======================================================================
+
   api_next_js
 
 ======================================================================*/

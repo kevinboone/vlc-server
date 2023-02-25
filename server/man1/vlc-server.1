@@ -21,9 +21,9 @@ for audio use and, in particular, multi-room audio applications.
 \fIvlc-server\fR provides a web user interface, and also a REST-like API that
 other clients can use. 
 
-At present, \fIvlc-server\fR plays local files, which are expected to be
-grouped into directories under a common "media root" directory. The server does
-not expose any other part of the underlying filesystem to clients.
+At present, \fIvlc-server\fR plays URLs, or local files which are expected to
+be grouped into directories under a common "media root" directory. The server
+does not expose any other part of the underlying filesystem to clients.
 
 There is an accompanying \fIvlc-server-client\fR which provides a command-line
 interface to the media player. This client can select files to play, change the
@@ -155,10 +155,11 @@ special permissions -- a user account that can run VLC will be able to run this
 server. 
 
 Neither the media to be played, nor any directory in which it is contained,
-need to be writeable. However, the media database needs to be writeable.  This
-is why the `-d` switch is available, to set the media database outside the main
-content directory. If this switch is not given, then at least the top-level
-directory of the media content needs to be writeable.
+need to be writeable (with one small exception -- see below).  However, the
+media database needs to be writeable.  This is why the `-d` switch is
+available, to set the media database outside the main content directory. If
+this switch is not given, then at least the top-level directory of the media
+content needs to be writeable.
 
 The media scanner, when it updates the database, will try to extract cover art
 files from audio files, and will write them into the same directory as the
@@ -175,12 +176,12 @@ tables with dynamic numbers of columns. Most of the testing has been done using
 Firefox. However, any browser released since about 2018 should be fine -- the
 server's demands are not stringent.
 
-The \fI--folders\fR setting exists to protect the browser from receiving a huge
+The \fI--entries\fR setting exists to protect the browser from receiving a huge
 amount of data in one request. To some extent it also protects the server from
-abusive clients. The webserver defaults to showing 30 folders (with cover art)
-in each page. With a modern browser and powerful server, there's no problem
-increasing this to 500 or more.  However, if the server is a Raspberry Pi, more
-caution should be exercised.
+abusive clients. The webserver defaults to showing 30 folders, tracks, albums,
+etc. (with cover art) in each page. With a modern browser and powerful server,
+there's no problem increasing this to 500 or more.  However, if the server is a
+Raspberry Pi, more caution should be exercised.
 
 .SS Cover art display 
 
