@@ -3,7 +3,7 @@ VERSION := 0.1b
 CC      := gcc
 LIBPATH1 := ../api
 LIBPATH2 := ../common
-LIBS    := ${EXTRA_LIBS} -lvlc -lvlc-server-client -lvlc-server-common -lcurl -lncursesw
+LIBS    := ${EXTRA_LIBS} -lvlc -lvlc-server-client -lvlc-server-common -lcurl -lncursesw -lpthread
 TARGET	:= $(NAME)
 SOURCES := $(shell find src/ -type f -name *.c)
 OBJECTS := $(patsubst src/%,build/%,$(SOURCES:.c=.o))
@@ -13,7 +13,7 @@ PREFIX  := /usr
 MANDIR  := $(DESTDIR)/$(PREFIX)/share/man
 BINDIR  := $(DESTDIR)/$(PREFIX)/bin
 SHARE   := $(DESTDIR)/$(PREFIX)/share/$(TARGET)
-CFLAGS  := -g -fpie -fpic -Wall -Werror -DNAME=\"$(NAME)\" -DVERSION=\"$(VERSION)\" -DSHARE=\"$(SHARE)\" -DPREFIX=\"$(PREFIX)\" ${EXTRA_CFLAGS}
+CFLAGS  := -g -fpie -fpic -Wall -Wextra -DNAME=\"$(NAME)\" -DVERSION=\"$(VERSION)\" -DSHARE=\"$(SHARE)\" -DPREFIX=\"$(PREFIX)\" ${EXTRA_CFLAGS}
 LDFLAGS := -pie ${EXTRA_LDFLAGS}
 INCLUDE1 := ../api/include
 INCLUDE2 := ../common/include

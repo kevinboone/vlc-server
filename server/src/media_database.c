@@ -65,28 +65,37 @@ void media_database_regexp (sqlite3_context* context, int argc,
       sqlite3_value** values)
   {
   int ret;
-  regex_t regex;
-  char* reg = (char*)sqlite3_value_text(values[0]);
-  char* text = (char*)sqlite3_value_text(values[1]);
 
-  if ( argc != 2 || reg == 0 || text == 0)
+  if (argc == 2)
+    {
+    char *text = (char*)sqlite3_value_text(values[1]);
+    if (text)
+      {
+      char *reg = (char*)sqlite3_value_text(values[0]);
+      regex_t regex;
+      ret = regcomp (&regex, reg, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+      if (ret != 0)
+	{
+	sqlite3_result_error (context, "error compiling regular expression", -1);
+	return;
+	}
+
+      ret = regexec (&regex, text , 0, NULL, 0);
+      regfree(&regex);
+
+      sqlite3_result_int (context, (ret != REG_NOMATCH));
+      }
+    else
+      {
+      // A 'null' column should not match anything
+      sqlite3_result_int (context, 0);
+      }
+    }
+  else
     {
     sqlite3_result_error (context,
-      "SQL function regexp() called with invalid arguments.\n", -1);
-    return;
+      "SQL function regexp() requires two arguments.\n", -1);
     }
-
-  ret = regcomp (&regex, reg, REG_EXTENDED | REG_NOSUB | REG_ICASE);
-  if (ret != 0)
-    {
-    sqlite3_result_error (context, "error compiling regular expression", -1);
-    return;
-    }
-
-  ret = regexec (&regex, text , 0, NULL, 0);
-  regfree(&regex);
-
-  sqlite3_result_int (context, (ret != REG_NOMATCH));
   }
 
 /*======================================================================
@@ -151,7 +160,7 @@ static void media_database_create_tables (MediaDatabase *self)
   vs_log_info ("Creating database tables");
 
   media_database_exec_log_error (self, "create table files "
-       "(path varchar not null, size integer, mtime integer, "
+       "(path varchar not null primary key, size integer, mtime integer, "
        "title varchar, album varchar, genre varchar, "
        "composer varchar, artist varchar, album_artist varchar, " 
        "track varchar, comment varchar, year varchar, exist integer)");
@@ -329,9 +338,19 @@ VSList *media_database_sql_query (MediaDatabase *self, const char *sql,
       for (int j = 0; j < cols ; j++)
         {
         char *res = result[(i + 1) * cols + j];
-        if (res[0] != 0 || include_empty)
+        if (res)
           {
-          vs_list_append (ret, strdup (res));
+          if (res[0] != 0 || include_empty)
+            {
+            vs_list_append (ret, strdup (res));
+            }
+          }
+        else
+          {
+          if (include_empty)
+            {
+            vs_list_append (ret, strdup (""));
+            }
           }
         }
       }
@@ -574,7 +593,7 @@ AudioMetadata *media_database_get_amd (MediaDatabase *self,
       }
     else
       {
-      vs_log_warning ("Database query for '%s' return wrong number of columns: ", path);
+      vs_log_warning ("Database query for '%s' returned wrong number of columns: got %d, expected 11", path, l);
       } 
     vs_list_destroy (list);
     }

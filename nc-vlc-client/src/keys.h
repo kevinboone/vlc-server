@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <string.h>
-#include <ncurses/curses.h>
+#include <ncursesw/curses.h>
 
 extern int keys_line_down;
 extern int keys_page_down;

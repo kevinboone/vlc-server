@@ -73,27 +73,38 @@ BOOL cover_process_request (const char *media_root,
   IN
 
   BOOL ret = FALSE;
-  char *dir;
-  asprintf (&dir, "%s/%s", media_root, url);
-
-  char *cover_path = cover_get_cover_path (dir);
-  if (cover_path)
-    {
-    ret = http_util_fetch_from_filesystem (cover_path, buff, len);
-    *type = http_util_mime_from_path (cover_path);
-
-    free (cover_path);
-    }
-  else
+  if (url[0] == '=')
     {
     const BYTE *_buff;
-    ret = http_util_fetch_from_docroot ("default_cover.png", &_buff, len);
+    ret = http_util_fetch_from_docroot ("stream_cover.png", &_buff, len);
     *buff = malloc (*len);
     memcpy (*buff, _buff, *len);
     *type = TYPE_PNG; 
     }
+  else
+    {
+    char *dir;
+    asprintf (&dir, "%s/%s", media_root, url);
 
-  free (dir);
+    char *cover_path = cover_get_cover_path (dir);
+    if (cover_path)
+      {
+      ret = http_util_fetch_from_filesystem (cover_path, buff, len);
+      *type = http_util_mime_from_path (cover_path);
+
+      free (cover_path);
+      }
+    else
+      {
+      const BYTE *_buff;
+      ret = http_util_fetch_from_docroot ("default_cover.png", &_buff, len);
+      *buff = malloc (*len);
+      memcpy (*buff, _buff, *len);
+      *type = TYPE_PNG; 
+      }
+
+    free (dir);
+    }
   OUT
   return ret;
   }

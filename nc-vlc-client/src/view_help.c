@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <vlc-server/vs_list.h>
 #include <vlc-server/api-client.h>
-#include <ncurses/curses.h>
+#include <ncursesw/curses.h>
 #include "message.h" 
 #include "status.h" 
 #include "keys.h" 
@@ -47,6 +47,8 @@ static VSList *populate_help (void)
   {
   VSList *ret = vs_list_create (free);
   char *s;
+  asprintf (&s, "Letters a-z select the starting point in the album list");
+  vs_list_append (ret, s);
   asprintf (&s, "Play/pause: '%s'", mykeyname(keys_toggle_pause));
   vs_list_append (ret, s);
   asprintf (&s, "Stop: '%s'", mykeyname(keys_stop));
@@ -96,7 +98,7 @@ void view_help (WINDOW *main_window, LibVlcServerClient *lvsc,
   VSList *list = populate_help ();
 
   view_list (main_window, lvsc, h, w, row, col, list, 
-       select_menu, "Help");
+       select_menu, "Help", FALSE);
 
   vs_list_destroy (list);
   }

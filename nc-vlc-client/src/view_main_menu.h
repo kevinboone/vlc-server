@@ -9,8 +9,9 @@
 ======================================================================*/
 #pragma once
 
+#include <vlc-server/vs_defs.h>
 #include <vlc-server/api-client.h>
 
 extern void view_main_menu (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col);
+       int h, int w, int row, int col, BOOL kiosk);
 

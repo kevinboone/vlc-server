@@ -35,3 +35,33 @@ keyboard. USB numeric keypads are widely available and dirt cheap,
 and can easily be dismantled and integrated into a custom hardware
 design.  
 
+## Limitations
+
+Apart from the obvious lack of functionality at present, there are some
+striking limitations.
+
+`nc-vlc-client` will probably only work with UTF-8 terminal configurations.
+The data fields in the `vlc-server` media database are assumed to be
+UTF-8, and there is no conversion in the program. 
+
+All the text and error messages are in English only.
+
+Where tests are case-insensitive, the notion of 'case' is one that
+applies to the ASCII character set only.
+
+The program does not change its layout dynamically, if the terminal size
+changes at run time.
+
+The `ncurses` library is notoriously fussy about Unicode support. 
+`vlc-server` uses UTF-8 throughout, and the client will receive names
+of albums, files, etc., in UTF-8 format. The platform's `ncurses` library
+needs to have proper Unicode support, as must the terminal the client
+runs in. Graphical terminal emulators are usually OK, but a plain
+Linux text console might be problematic. The terminal not only must
+support UTF-8 wide characters, but it must have the necessary fonts to
+render these characters.  There really isn't much that `nc-vlc-client` can
+do to correct deficiencies in the console.
+
+ 
+
+

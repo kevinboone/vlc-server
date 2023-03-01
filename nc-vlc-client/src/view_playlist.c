@@ -16,7 +16,7 @@
 #include <vlc-server/vs_list.h>
 #include <vlc-server/api-client.h>
 #include <vlc-server/media_database_constraints.h>
-#include <ncurses/curses.h>
+#include <ncursesw/curses.h>
 #include "message.h" 
 #include "status.h" 
 #include "keys.h" 
@@ -31,6 +31,7 @@
 static VSList *populate_playlist (LibVlcServerClient *lvsc, 
          char **error)
   {
+  (void)error;
   VSApiError err_code;
   char *msg = NULL;
   VSList *ret = NULL;
@@ -103,7 +104,7 @@ void view_playlist (WINDOW *main_window, LibVlcServerClient *lvsc,
   if (playlist)
     {
     view_list (main_window, lvsc, h, w, row, col, playlist, 
-       play_index, "Playlist");
+       play_index, "Playlist", FALSE);
     vs_list_destroy (playlist);
     }
   else

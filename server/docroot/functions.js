@@ -10,7 +10,11 @@ function clear_message ()
 
 function cmd_add (path)
   {
-  var apiFn = API_BASE + "add/@" + encodeURIComponent (path); 
+  var apiFn;
+  if (path.startsWith('='))
+    apiFn = API_BASE + "add/" + encodeURIComponent (path.substring(1)); 
+  else
+    apiFn = API_BASE + "add/@" + encodeURIComponent (path); 
   make_fn_request (apiFn, response_callback_gen_status);
   }
 
@@ -46,7 +50,11 @@ function cmd_pause()
 
 function cmd_play(path)
   {
-  var apiFn = API_BASE + "play/@" + encodeURIComponent (path); 
+  var apiFn;
+  if (path.startsWith('='))
+    apiFn = API_BASE + "play/" + encodeURIComponent (path.substring(1)); 
+  else
+    apiFn = API_BASE + "play/@" + encodeURIComponent (path); 
   make_fn_request (apiFn, response_callback_gen_status);
   }
 

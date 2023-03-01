@@ -13,10 +13,11 @@
 #include <getopt.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
 #include <vlc-server/vs_list.h>
 #include <vlc-server/api-client.h>
 #include <vlc-server/media_database_constraints.h>
-#include <ncurses/curses.h>
+#include <ncursesw/curses.h>
 #include "keys.h" 
 #include "message.h" 
 #include "status.h" 
@@ -207,14 +208,33 @@ static void update_window (WINDOW *my_window, const VSList *album_list,
   
   wrefresh (my_window);
   }
+
 /*======================================================================
   
-  view_albums 
+  find_in_list 
+
+======================================================================*/
+static int find_in_list (const VSList *list, int list_length, 
+            const char *s)
+  {
+  int ls = strlen (s);
+  for (int i = 0; i < list_length; i++)
+    {
+    const char *entry = vs_list_get ((VSList *)list, i);
+    if (strncasecmp (s, entry, ls) == 0) return i;
+    }
+  return -1;
+  }
+
+/*======================================================================
+  
+  view_list
 
 ======================================================================*/
 void view_list (WINDOW *main_window, LibVlcServerClient *lvsc, 
        int h, int w, int row, int col, const VSList *list,
-       VMSelectFunction select_function, const char *title)
+       VMSelectFunction select_function, const char *title,
+       BOOL kiosk)
   {
   int ch;
   halfdelay (50);  
@@ -229,7 +249,7 @@ void view_list (WINDOW *main_window, LibVlcServerClient *lvsc,
   int current_index = 0;
   update_window (my_window, list, h - 2, w, first_index_on_screen,
      current_index, list_length, title);
-  while ((ch = getch ()) != keys_quit)
+  while ((ch = getch ()) != keys_quit || kiosk)
     {
     if (ch == keys_line_down)
       {
@@ -308,6 +328,19 @@ void view_list (WINDOW *main_window, LibVlcServerClient *lvsc,
       view_misc_prev (lvsc);
       status_update (lvsc);
       }
+    else if isalnum (ch)
+      {
+      char s[2];
+      s[0] = (char)ch; s[1] = 0;
+      int index = find_in_list (list, list_length, s);
+      if (index >= 0)
+        {
+        current_index = index; 
+        first_index_on_screen = current_index; 
+	update_window (my_window, list, h - 2, w, 
+	    first_index_on_screen, current_index, list_length, title);
+        }
+      }
     else if (ch == ERR) 
       {
       status_update (lvsc);
@@ -319,5 +352,4 @@ void view_list (WINDOW *main_window, LibVlcServerClient *lvsc,
   echo();
   curs_set (1);
   }
-
 

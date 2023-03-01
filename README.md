@@ -34,6 +34,10 @@ audio files to be displayed and searched by artist, album, genre, etc.
 To provide this support, the server scans the media directory and builds
 up an sqlite3 database.
 
+The database can also store URLs of, for example, Internet radio stations.
+See the seperate README.md in the `radio_support` directory for ideas
+how this might be used.
+
 `vlc-server` notionally supports video.  However, since the purpose of the
 utility is to allow for remote control, there seems to be little purpose in
 using it to play video. The server can optionally be provided with a list of
@@ -86,6 +90,9 @@ communication with a `vlc-server` server instance.
 
 `common/` contains general-purpose functions that are used by all 
 the other components, such as string and list manipulation.
+
+`radio_support/` documentation on how to use `vlc-server` with Internet
+radio stations, and sample scripts for maintaining a station list.
 
 ## Building
 

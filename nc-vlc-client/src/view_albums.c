@@ -16,7 +16,7 @@
 #include <vlc-server/vs_list.h>
 #include <vlc-server/api-client.h>
 #include <vlc-server/media_database_constraints.h>
-#include <ncurses/curses.h>
+#include <ncursesw/curses.h>
 #include "message.h" 
 #include "status.h" 
 #include "keys.h" 
@@ -79,7 +79,7 @@ void view_albums (WINDOW *main_window, LibVlcServerClient *lvsc,
   else
     {
     view_list (main_window, lvsc, h, w, row, col, album_list, play_album,
-       "Albums");
+       "Albums", FALSE);
     }
 
   if (album_list) vs_list_destroy (album_list);

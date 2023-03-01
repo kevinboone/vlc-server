@@ -16,7 +16,7 @@
 #include <vlc-server/api-client.h>
 #include <vlc-server/media_database_constraints.h>
 #include <vlc-server/vs_defs.h>
-#include <ncurses/curses.h>
+#include <ncursesw/curses.h>
 #include "view_misc.h" 
 #include "message.h" 
 #include "status.h" 

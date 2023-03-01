@@ -9,6 +9,7 @@
 ======================================================================*/
 #pragma once
 
+#include <vlc-server/vs_defs.h>
 #include <vlc-server/api-client.h>
 
 typedef void (*VMSelectFunction) 
@@ -23,6 +24,7 @@ extern void view_misc_toggle_pause (LibVlcServerClient *lvsc);
 extern char *view_misc_fit_string (const char *s, int w);
 extern void view_list (WINDOW *main_window, LibVlcServerClient *lvsc, 
          int h, int w, int row, int col, const VSList *list,
-         VMSelectFunction select_function, const char *title);
+         VMSelectFunction select_function, const char *title,
+         BOOL kiosk);
 
 

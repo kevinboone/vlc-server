@@ -143,7 +143,10 @@ VSApiError api_add_album (Player *player, MediaDatabase *mdb,
       {
       const char *path = vs_list_get (list, i);
       char *rel_path;
-      asprintf (&rel_path, "@/%s", path);
+      if (path[0] == '=')
+        asprintf (&rel_path, "%s", path + 1);
+      else
+        asprintf (&rel_path, "@/%s", path);
       int this_added = 0;
       if (player_add (player, rel_path, &this_added) == 0)
         (*added) += this_added;

@@ -277,10 +277,14 @@ BOOL scanner_check_file_exists (const char *path, void *data)
     }
   else
     {
-    // File is in the database, but not on disk
-    //printf ("path=%s\n", fullpath);
-    media_database_mark_path_deleted (mdb, path);
-    (sic->nonexistent)++;
+    // File is in the database, but not on disk. But don't delete
+    //   paths that begin with '-', as these are literal streams,
+    //   not derived from the scanner.
+    if (path[0] != '=')
+      {
+      media_database_mark_path_deleted (mdb, path);
+      (sic->nonexistent)++;
+      }
     }
   return TRUE;
   }

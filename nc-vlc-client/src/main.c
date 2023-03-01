@@ -14,9 +14,10 @@
 #include <string.h>
 #include <errno.h>
 #include <locale.h>
+#include <unistd.h>
 #include <vlc-server/api-client.h>
 #include <vlc-server/media_database_constraints.h>
-#include <ncurses/curses.h>
+#include <ncursesw/curses.h>
 #include "message.h" 
 #include "status.h" 
 #include "view_control.h" 
@@ -39,6 +40,7 @@ void show_help (void)
   printf ("  -v                      show version\n");
   printf ("  -h,--host {hostname}    VLC server host (localhost)\n");
   printf ("  -p,--port {number}      VLC server port (30000)\n");
+  printf ("  -k,--kiosk              Kiosk mode (no exit)\n");
   }
 
 /*======================================================================
@@ -64,6 +66,7 @@ int main (int argc, char **argv)
   int port = 30000;
   BOOL flag_version = FALSE;
   BOOL flag_help = FALSE;
+  BOOL flag_kiosk = FALSE;
   int log_level = VSLOG_INFO;
 
   static struct option long_options[] =
@@ -72,6 +75,7 @@ int main (int argc, char **argv)
       {"version", no_argument, NULL, 'v'},
       {"port", required_argument, NULL, 'p'},
       {"host", required_argument, NULL, 'h'},
+      {"kiosk", no_argument, NULL, 'k'},
       {"log-level", required_argument, NULL, 'l'},
       {0, 0, 0, 0}
     };
@@ -82,7 +86,7 @@ int main (int argc, char **argv)
   while (ret == 0)
     {
     int option_index = 0;
-    opt = getopt_long (argc, argv, "?h:l:vp:w:", long_options, &option_index);
+    opt = getopt_long (argc, argv, "?h:kl:vp:w:", long_options, &option_index);
 
     if (opt == -1) break;
 
@@ -90,6 +94,9 @@ int main (int argc, char **argv)
       {
       case '?':
         flag_help = TRUE;
+        break;
+      case 'k':
+        flag_kiosk = TRUE;
         break;
       case 'h':
         if (host) free (host);
@@ -130,20 +137,43 @@ int main (int argc, char **argv)
     vs_log_set_level (log_level);
     LibVlcServerClient *lvsc = libvlc_server_client_new (host, port);
 
-    char *error = NULL;
+    LibVlcServerStat *stat = NULL;
     VSApiError err_code;
-    LibVlcServerStat *stat = libvlc_server_client_stat (lvsc, &err_code,
-      &error);
+    char *error = NULL;
+    if (flag_kiosk)
+      {
+      do
+        {
+        stat = libvlc_server_client_stat (lvsc, &err_code,
+           &error);
+        if (err_code) 
+          {
+          if (error) 
+            {
+            fprintf (stderr, ":\n%s\n", error);
+            free (error);
+            }
+          printf ("Waiting for server to start...\n");
+          usleep (1000000);
+          }
+        } while (err_code);
+      }
+    else
+      {
+      stat = libvlc_server_client_stat (lvsc, &err_code,
+        &error);
+      }
+
     if (err_code == 0)
       {
-      libvlc_server_stat_destroy (stat);
+      if (stat) libvlc_server_stat_destroy (stat);
 
       main_window = initscr();
       status_window = subwin (main_window, 5, COLS, 0, 0);
       message_window = subwin (main_window, 3, COLS, LINES - 3, 0);
 
       status_update (lvsc);
-      view_main_menu (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
+      view_main_menu (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0, flag_kiosk);
       //view_albums (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
 
       delwin (status_window);

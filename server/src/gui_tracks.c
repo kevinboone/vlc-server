@@ -44,6 +44,7 @@ void gui_tracks_track_cell (VSString *body, const char *path,
   
 
   AudioMetadata *amd = media_database_get_amd (mdb, path);
+
   if (amd)
     {
     // Path

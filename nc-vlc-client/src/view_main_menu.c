@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <vlc-server/vs_list.h>
 #include <vlc-server/api-client.h>
-#include <ncurses/curses.h>
+#include <ncursesw/curses.h>
 #include "message.h" 
 #include "status.h" 
 #include "keys.h" 
@@ -72,12 +72,12 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line)
 
 ======================================================================*/
 void view_main_menu (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col)
+       int h, int w, int row, int col, BOOL kiosk)
   {
   VSList *list = populate_main_menu ();
 
   view_list (main_window, lvsc, h, w, row, col, list, 
-       select_menu, "Main menu");
+       select_menu, "Main menu", kiosk);
 
   vs_list_destroy (list);
   }

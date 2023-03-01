@@ -48,6 +48,8 @@ extern uint8_t menu_icon_png_start[] asm("_binary_docroot_menu_icon_png_start");
 extern uint8_t menu_icon_png_end[] asm("_binary_docroot_menu_icon_png_end");
 extern uint8_t spk_png_start[] asm("_binary_docroot_spk_png_start");
 extern uint8_t spk_png_end[] asm("_binary_docroot_spk_png_end");
+extern uint8_t stream_cover_png_start[] asm("_binary_docroot_stream_cover_png_start");
+extern uint8_t stream_cover_png_end[] asm("_binary_docroot_stream_cover_png_end");
 
 typedef struct 
   {
@@ -74,6 +76,7 @@ TemplateData templateData[] =
   { TEMPLATE_MAIN_CSS, "main.css", main_css_start, main_css_end },
   { TEMPLATE_HOME_HTML, "home.html", home_html_start, home_html_end },
   { TEMPLATE_HELP_HTML, "help.html", help_html_start, help_html_end },
+  { TEMPLATE_STREAM_COVER_PNG, "stream_cover.png", stream_cover_png_start, stream_cover_png_end },
   { -1, NULL, NULL, NULL },
   };
 

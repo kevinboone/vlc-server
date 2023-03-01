@@ -13,7 +13,7 @@
 #include <getopt.h>
 #include <string.h>
 #include <errno.h>
-#include <ncurses/curses.h>
+#include <ncursesw/curses.h>
 
 extern WINDOW *message_window;
 

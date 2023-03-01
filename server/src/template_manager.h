@@ -32,6 +32,7 @@
 #define TEMPLATE_SPK_PNG             12
 #define TEMPLATE_HOME_HTML           13 
 #define TEMPLATE_HELP_HTML           14 
+#define TEMPLATE_STREAM_COVER_PNG    15
 
 BEGIN_CDECLS
 
