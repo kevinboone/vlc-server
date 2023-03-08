@@ -210,21 +210,33 @@ function response_callback_refresh_playback_status (response_text)
   if (obj.mrl != "")
     {
     mrlObj = parse_uri (obj.mrl);
-    title = mrlObj.file;
+    if (obj.title == "")
+      title = mrlObj.file;
+    else
+      title = obj.title;
     }
   else
     {
     title = "";
     }
 
-  document.getElementById ("transportstatuscell").innerHTML 
-    = obj.transport_status_str;
+  if (obj.scanner_progress == -1)
+    document.getElementById ("transportstatuscell").innerHTML 
+      = obj.transport_status_str;
+  else
+    document.getElementById ("transportstatuscell").innerHTML 
+      = "Scanning: " + obj.scanner_progress + " files"; 
+     
   document.getElementById ("titlecell").innerHTML 
     = title;
   document.getElementById ("positioncell").innerHTML 
     = msec_to_minsec (obj.position);
   document.getElementById ("durationcell").innerHTML 
     = msec_to_minsec (obj.duration);
+  document.getElementById ("albumcell").innerHTML 
+    = obj.album;
+  document.getElementById ("artistcell").innerHTML 
+    = obj.artist;
 
   index = obj.index;
   if (index >= 0)

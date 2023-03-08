@@ -13,9 +13,7 @@
 #include <getopt.h>
 #include <string.h>
 #include <errno.h>
-#include <vlc-server/vs_list.h>
 #include <vlc-server/api-client.h>
-#include <vlc-server/media_database_constraints.h>
 #include <ncursesw/curses.h>
 #include "message.h" 
 #include "status.h" 
@@ -36,16 +34,16 @@ static VSList *populate_playlist (LibVlcServerClient *lvsc,
   char *msg = NULL;
   VSList *ret = NULL;
 
-  LibVlcServerPlaylist *playlist =  libvlc_server_client_get_playlist 
+  VSPlaylist *playlist =  libvlc_server_client_get_playlist 
         (lvsc, &err_code, &msg);
 
   if (playlist)
     {
     ret = vs_list_create (free);
-    int l = libvlc_server_playlist_length (playlist);
+    int l = vs_playlist_length (playlist);
     for (int i = 0; i < l; i++)
       {
-      const char *mrl = libvlc_server_playlist_get (playlist, i);
+      const char *mrl = vs_playlist_get (playlist, i);
       const char *p = strrchr (mrl, '/');
       char *s;
       if (p)
@@ -55,7 +53,7 @@ static VSList *populate_playlist (LibVlcServerClient *lvsc,
 
       vs_list_append (ret, s); 
       }
-    libvlc_server_playlist_destroy (playlist);
+    vs_playlist_destroy (playlist);
     }
   else
     {

@@ -43,27 +43,27 @@ void gui_tracks_track_cell (VSString *body, const char *path,
   vs_string_destroy (enc_path);
   
 
-  AudioMetadata *amd = media_database_get_amd (mdb, path);
+  VSMetadata *amd = media_database_get_amd (mdb, path);
 
   if (amd)
     {
     // Path
     vs_string_append (body, "<td>");
-    const char *title = SAFE(audio_metadata_get_title (amd));
+    const char *title = SAFE(vs_metadata_get_title (amd));
     if (title && title[0])
       vs_string_append (body, title);
     else
       vs_string_append (body, path);
     vs_string_append (body, "</td>");
     vs_string_append (body, "<td>");
-    vs_string_append (body, SAFE(audio_metadata_get_track (amd)));
+    vs_string_append (body, SAFE(vs_metadata_get_track (amd)));
     vs_string_append (body, "</td>");
 
     // Album
     
     vs_string_append (body, "<td>");
 
-    const char *album = SAFE (audio_metadata_get_album (amd));
+    const char *album = SAFE (vs_metadata_get_album (amd));
     char *enc2 = media_database_escape_sql (album);
     VSString *enc_album = http_util_encode_for_js (enc2); 
     char *where;
@@ -87,7 +87,7 @@ void gui_tracks_track_cell (VSString *body, const char *path,
     
     vs_string_append (body, "<td>");
 
-    const char *artist = SAFE (audio_metadata_get_artist (amd));
+    const char *artist = SAFE (vs_metadata_get_artist (amd));
 
     enc2 = media_database_escape_sql (artist);
     VSString *enc_artist = http_util_encode_for_js (enc2); 
@@ -110,7 +110,7 @@ void gui_tracks_track_cell (VSString *body, const char *path,
     
     vs_string_append (body, "<td>");
 
-    const char *album_artist = SAFE (audio_metadata_get_album_artist (amd));
+    const char *album_artist = SAFE (vs_metadata_get_album_artist (amd));
 
     enc2 = media_database_escape_sql (album_artist);
     VSString *enc_album_artist = http_util_encode_for_js (enc2); 
@@ -133,7 +133,7 @@ void gui_tracks_track_cell (VSString *body, const char *path,
 
     vs_string_append (body, "<td>");
 
-    const char *composer = SAFE (audio_metadata_get_composer (amd));
+    const char *composer = SAFE (vs_metadata_get_composer (amd));
 
     enc2 = media_database_escape_sql (composer);
     VSString *enc_composer = http_util_encode_for_js (enc2); 
@@ -156,7 +156,7 @@ void gui_tracks_track_cell (VSString *body, const char *path,
 
     vs_string_append (body, "<td>");
 
-    const char *genre = SAFE (audio_metadata_get_genre (amd));
+    const char *genre = SAFE (vs_metadata_get_genre (amd));
 
     enc2 = media_database_escape_sql (genre);
     VSString *enc_genre = http_util_encode_for_js (enc2); 
@@ -177,7 +177,7 @@ void gui_tracks_track_cell (VSString *body, const char *path,
     vs_string_append (body, "</td>");
 
 
-    audio_metadata_destroy (amd);
+    vs_metadata_destroy (amd);
     }
   else
     {

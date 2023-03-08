@@ -14,7 +14,7 @@
 #include <string.h>
 #include <errno.h>
 #include <vlc-server/api-client.h>
-#include <vlc-server/media_database_constraints.h>
+#include <vlc-server/vs_search_constraints.h>
 #include "cmd.h"
  
 /*======================================================================
@@ -187,10 +187,10 @@ int main (int argc, char **argv)
           CmdContext context;
           context.host = host;
           context.port = port;
-          MediaDatabaseConstraints *mdc = media_database_constraints_new();
+          VSSearchConstraints *mdc = vs_search_constraints_new();
           context.mdc = mdc;
           ret = e->fn (e->name, new_argc, new_argv, &context);
-          media_database_constraints_destroy (mdc);
+          vs_search_constraints_destroy (mdc);
           found = TRUE;
           }
         i++;

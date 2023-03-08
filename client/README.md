@@ -1,6 +1,6 @@
 # vlc-server-client
 
-Version 0.2b, February 2023
+Version 0.1c, March 2023
 
 ## What is this
 

@@ -15,7 +15,7 @@
 #include <vlc-server/vs_log.h>
 #include <vlc-server/api-client.h>
 #include <vlc-server/vs_string.h>
-#include <vlc-server/libvlc_server_playlist.h>
+#include <vlc-server/vs_playlist.h>
 #include "cJSON.h" 
 
 #define INV_JSON_MSG "Invalid JSON from server"
@@ -187,11 +187,11 @@ static BOOL libvlc_server_client_checkjson (cJSON *root,
   libvlc_server_client_stat
 
 ======================================================================*/
-LibVlcServerStat *libvlc_server_client_stat (LibVlcServerClient *self, 
+VSServerStat *libvlc_server_client_stat (LibVlcServerClient *self, 
         VSApiError *err_code, char **msg)
   {
   IN
-  LibVlcServerStat *stat = NULL;
+  VSServerStat *stat = NULL;
   char *response = libvlc_server_client_request (self, "stat", err_code, msg); 
   if (*err_code == 0)
     {
@@ -208,11 +208,31 @@ LibVlcServerStat *libvlc_server_client_stat (LibVlcServerClient *self,
           transport_status = VSAPI_TS_STOPPED; // This is really a comms error
 
         const char *mrl = "";
+        const char *title = "";
+        const char *artist = "";
+        const char *album = "";
+        const char *genre = "";
+        const char *composer = "";
         if (transport_status != VSAPI_TS_STOPPED)
           {
   	  j = cJSON_GetObjectItem (root, "mrl"); 
           if (j && j->valuestring) 
             mrl = j->valuestring;
+  	  j = cJSON_GetObjectItem (root, "title"); 
+          if (j && j->valuestring) 
+            title = j->valuestring;
+  	  j = cJSON_GetObjectItem (root, "artist"); 
+          if (j && j->valuestring) 
+            artist = j->valuestring;
+  	  j = cJSON_GetObjectItem (root, "album"); 
+          if (j && j->valuestring) 
+            album = j->valuestring;
+  	  j = cJSON_GetObjectItem (root, "genre"); 
+          if (j && j->valuestring) 
+            genre = j->valuestring;
+  	  j = cJSON_GetObjectItem (root, "composer"); 
+          if (j && j->valuestring) 
+            composer = j->valuestring;
           }
 
         int position = 0;
@@ -234,8 +254,14 @@ LibVlcServerStat *libvlc_server_client_stat (LibVlcServerClient *self,
         if (j)
           volume = j->valueint; 
 
-        stat = libvlc_server_stat_new 
-          (transport_status, mrl, position, duration, index, volume);
+        int scanner_progress = -1;
+  	j = cJSON_GetObjectItem (root, "scanner_progress"); 
+        if (j)
+          scanner_progress = j->valueint; 
+
+        stat = vs_server_stat_new 
+          (transport_status, mrl, position, duration, index, volume,
+           title, artist, album, genre, composer, scanner_progress);
         }
 
       cJSON_Delete (root);
@@ -557,11 +583,11 @@ void libvlc_server_client_stop (LibVlcServerClient *self,
   libvlc_server_client_get_playlist
 
 ======================================================================*/
-LibVlcServerPlaylist *libvlc_server_client_get_playlist 
+VSPlaylist *libvlc_server_client_get_playlist 
         (LibVlcServerClient *self, VSApiError *err_code, char **msg)
   {
   IN
-  LibVlcServerPlaylist *playlist = NULL; 
+  VSPlaylist *playlist = NULL; 
   char *response = libvlc_server_client_request (self, "playlist", 
     err_code, msg); 
   if (*err_code == 0)
@@ -575,12 +601,12 @@ LibVlcServerPlaylist *libvlc_server_client_get_playlist
         if (j)
           {
           int len = cJSON_GetArraySize (j);
-          playlist = libvlc_server_playlist_new (len);
+          playlist = vs_playlist_new (len);
           for (int i = 0; i < len; i++)
             {
             cJSON *jj = cJSON_GetArrayItem (j, i);
             //printf ("v=%s\n", jj->valuestring);
-            libvlc_server_playlist_set (playlist, i, jj->valuestring);
+            vs_playlist_set (playlist, i, jj->valuestring);
             }
           }
         }

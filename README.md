@@ -11,25 +11,17 @@ API, allow audio files to be viewed and selected using metadata (tags), but
 this is only partially implemented at present.
 
 The bundle includes a simple C library for controlling the the server using the
-REST API, and a command-line utility that uses this library.
+REST API, and command-line and ncurses utilities that uses this library.
 
 The purpose of `vlc-server` is allow media playback on one Linux computer to be
 controlled remotely from some other computer. The "controlling" computer can be
 anything that can issue HTTP requests.
 
-`vlc-server` is intended, eventually, to be a replacement for `xine-server`:
+`vlc-server` is intended to be a replacement for `xine-server`:
 
 https://github.com/kevinboone/xine-server
 
-At present, `xine-server` is somewhat more sophisticated that `vlc-server`,
-with Internet radio support, various console clients, etc. However, the Xine
-player itself is -- so far as I can see -- currently unmaintained. It no longer
-works on some platforms where it used to work fine.  In the longer term, I
-intend to move all the functionality from `xine-server` to `vlc-server`, but
-this is a colossal undertaking, and something that I won't start until I know
-that VLC is basically workable when used in a server process.
-
-`vc-server` supports audio metadata (tags), and the web index allows 
+`vc-server` supports audio metadata (tags), and the web interface allows 
 audio files to be displayed and searched by artist, album, genre, etc.
 To provide this support, the server scans the media directory and builds
 up an sqlite3 database.
@@ -64,14 +56,21 @@ Done:
 - There is an API library that can be used by clients. This exercises
   the server's REST API
 - There is a basic command-line client
+- Although there is no specific support for Internet radio streams, such
+  streams can be integrated into the media database and played (see the
+  scripts and documentation in the `radio_support/` directory)
 
 Still to do:
 
-- Internet radio support
-- General search facilities 
-- There is as yet no way to filter by recently-added items
-- There is no console client. The command-line client can be used at the
-  console, but it isn't very convenient
+- Database management needs to be tidied up a lot. The best way at present
+  to scan the media and populate the database is to run the scanner at
+  the command line. The built-in scan works fine for adding new media when
+  the database has been generated, but doesn't work from an empty database.
+  The scanner's progress is not viisble in the web user interface at all
+- There are many ways in which the web user interface can be tidied up
+- The ncurses client is very limited -- it plays only albums, in track order
+- Text-based search in the web interface is very slow on low-powered systems
+  like the Pi.
 
 ## In this repository
 

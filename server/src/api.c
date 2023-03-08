@@ -19,15 +19,17 @@
 #include <vlc-server/vs_string.h>
 #include <vlc-server/vs_log.h>
 #include <vlc-server/vs_util.h>
-#include <vlc-server/libvlc_server_stat.h>
+#include <vlc-server/vs_server_stat.h>
 #include <vlc-server/libvlc_media_database.h>
 #include "http_server.h"
 #include "player.h"
 #include "media_database.h"
+#include "scanner.h"
 
 #define OK_MSG "{\"status\": 0}\r\n"
 #define MAX(a,b) ((a > b) ? a : b)
 #define MIN(a,b) ((a > b) ? b : a)
+#define SAFE(x) (x ? x : "")
 
 /*======================================================================
 
@@ -125,16 +127,16 @@ VSApiError api_add_album (Player *player, MediaDatabase *mdb,
      const char *album, int *added)
   {
   VSApiError ret = 0;
-  MediaDatabaseConstraints *mdc = media_database_constraints_new ();
+  VSSearchConstraints *mdc = vs_search_constraints_new ();
   mdc->start = 0;
   mdc->count = -1;
   char *where;
   asprintf (&where, "album='%s'", album);
-  media_database_constraints_set_where (mdc, where); 
+  vs_search_constraints_set_where (mdc, where); 
   free (where);
   VSList *list = api_list_tracks (mdb, 
      mdc, &ret);
-  media_database_constraints_destroy (mdc);
+  vs_search_constraints_destroy (mdc);
 
   if (list)
     {
@@ -419,7 +421,7 @@ char *api_stop_js (Player *player)
   api_stat
 
 ======================================================================*/
-LibVlcServerStat *api_stat (const Player *player, VSApiError *e)
+VSServerStat *api_stat (const Player *player, VSApiError *e)
   {
   VSApiTransportStatus ts;
   char *mrl;
@@ -446,8 +448,34 @@ LibVlcServerStat *api_stat (const Player *player, VSApiError *e)
     duration = player_get_duration (player);
     }
 
-  LibVlcServerStat *stat = libvlc_server_stat_new (ts, 
-    mrl, pos, duration, index, volume);
+  int scanner_progress = scanner_get_progress();
+
+  const char *title = "";
+  const char *artist = "";
+  const char *composer = "";
+  const char *album = "";
+  const char *genre = "";
+  const VSMetadata *amd = player_get_metadata (player);
+  if (amd)
+    {
+    title = SAFE(vs_metadata_get_title (amd));
+    artist = SAFE(vs_metadata_get_artist (amd));
+    genre = SAFE(vs_metadata_get_genre (amd));
+    album = SAFE(vs_metadata_get_album (amd));
+    composer = SAFE(vs_metadata_get_composer (amd));
+    }
+  else
+    {
+    title = "";
+    artist = "";
+    genre = "";
+    album = "";
+    composer = "";
+    }
+
+  VSServerStat *stat = vs_server_stat_new (ts, 
+    mrl, pos, duration, index, volume,
+    title, artist, album, genre, composer, scanner_progress);
 
   *e = 0; // No errors possible in this function
   free (mrl);
@@ -467,21 +495,41 @@ char *api_stat_js (const Player *player)
   int pl_len = player_get_playlist_length (player);
 
   VSApiError e;
-  LibVlcServerStat *stat = api_stat (player, &e);
+  VSServerStat *stat = api_stat (player, &e);
 
-  VSApiTransportStatus ts = libvlc_server_stat_get_transport_status (stat);
+  VSApiTransportStatus ts = vs_server_stat_get_transport_status (stat);
   const char *ts_str = vs_util_strts (ts);
   char *j_mrl;
-  const char *mrl = libvlc_server_stat_get_mrl (stat);
+  const char *mrl = vs_server_stat_get_mrl (stat);
   if (mrl)
     j_mrl = api_escape_json (mrl);
   else
     j_mrl = strdup ("");
 
-  int volume = libvlc_server_stat_get_volume (stat);
-  int duration = libvlc_server_stat_get_duration (stat);
-  int pos = libvlc_server_stat_get_position (stat);
-  int index = libvlc_server_stat_get_index (stat);
+  int volume = vs_server_stat_get_volume (stat);
+  int duration = vs_server_stat_get_duration (stat);
+  int pos = vs_server_stat_get_position (stat);
+  int index = vs_server_stat_get_index (stat);
+  int scanner_progress = vs_server_stat_get_scanner_progress (stat);
+
+  const VSMetadata *amd = player_get_metadata (player);
+  char *j_title, *j_artist, *j_album, *j_genre, *j_composer;
+  if (amd)
+    {
+    j_title = strdup (SAFE (vs_metadata_get_title (amd)));
+    j_album = strdup (SAFE (vs_metadata_get_album (amd)));
+    j_artist = strdup (SAFE (vs_metadata_get_artist (amd)));
+    j_genre = strdup (SAFE (vs_metadata_get_genre (amd)));
+    j_composer = strdup (SAFE (vs_metadata_get_composer (amd)));
+    }
+  else
+    {
+    j_title = strdup ("");
+    j_album = strdup ("");
+    j_artist = strdup ("");
+    j_genre = strdup ("");
+    j_composer = strdup ("");
+    }
   
   asprintf (&ret, "{\"status\": 0, \
 \"playlist_length\": %d, \
@@ -491,12 +539,25 @@ char *api_stat_js (const Player *player)
 \"duration\": %d, \
 \"index\": %d, \
 \"volume\": %d, \
+\"title\": \"%s\", \
+\"artist\": \"%s\", \
+\"album\": \"%s\", \
+\"genre\": \"%s\", \
+\"composer\": \"%s\", \
+\"scanner_progress\": %d, \
 \"mrl\": \"%s\"} \
-\r\n", pl_len, ts, ts_str, pos, duration, index, volume, j_mrl);
+\r\n", pl_len, ts, ts_str, pos, duration, index, volume, 
+   j_title, j_artist, j_album, j_genre, j_composer, scanner_progress,
+   j_mrl);
 
   free (j_mrl);
+  free (j_title);
+  free (j_artist);
+  free (j_album);
+  free (j_genre);
+  free (j_composer);
 
-  libvlc_server_stat_destroy (stat);
+  vs_server_stat_destroy (stat);
   OUT
   return ret;
   }
@@ -780,7 +841,7 @@ char *api_list_dirs_js (Player *player, const char *media_root,
 
 ======================================================================*/
 VSList *api_list_albums (MediaDatabase *mdb, 
-     const MediaDatabaseConstraints *mdc, VSApiError *e)
+     const VSSearchConstraints *mdc, VSApiError *e)
   {
   VSList *ret = NULL;
   if (media_database_is_init (mdb))
@@ -807,14 +868,14 @@ char *api_list_albums_js (MediaDatabase *mdb,
   IN
   char *ret; 
   VSApiError e;
-  MediaDatabaseConstraints *mdc = media_database_constraints_new();
+  VSSearchConstraints *mdc = vs_search_constraints_new();
   mdc->start = 0;
   mdc->count = -1;
   const char *where = vs_props_get (arguments, "where");
   if (where)
-    media_database_constraints_set_where (mdc, where);
+    vs_search_constraints_set_where (mdc, where);
   VSList *list = api_list_albums (mdb, mdc, &e);
-  media_database_constraints_destroy (mdc);
+  vs_search_constraints_destroy (mdc);
   if (list)
     {
     VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
@@ -852,7 +913,7 @@ char *api_list_albums_js (MediaDatabase *mdb,
 
 ======================================================================*/
 VSList *api_list_genres (MediaDatabase *mdb, 
-     const MediaDatabaseConstraints *mdc, VSApiError *e)
+     const VSSearchConstraints *mdc, VSApiError *e)
   {
   VSList *ret = NULL;
   if (media_database_is_init (mdb))
@@ -879,14 +940,14 @@ char *api_list_genres_js (MediaDatabase *mdb,
   IN
   char *ret; 
   VSApiError e;
-  MediaDatabaseConstraints *mdc = media_database_constraints_new();
+  VSSearchConstraints *mdc = vs_search_constraints_new();
   mdc->start = 0;
   mdc->count = -1;
   const char *where = vs_props_get (arguments, "where");
   if (where)
-    media_database_constraints_set_where (mdc, where);
+    vs_search_constraints_set_where (mdc, where);
   VSList *list = api_list_genres (mdb, mdc, &e);
-  media_database_constraints_destroy (mdc);
+  vs_search_constraints_destroy (mdc);
   if (list)
     {
     VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
@@ -924,7 +985,7 @@ char *api_list_genres_js (MediaDatabase *mdb,
 
 ======================================================================*/
 VSList *api_list_composers (MediaDatabase *mdb, 
-     const MediaDatabaseConstraints *mdc, VSApiError *e)
+     const VSSearchConstraints *mdc, VSApiError *e)
   {
   VSList *ret = NULL;
   if (media_database_is_init (mdb))
@@ -951,14 +1012,14 @@ char *api_list_composers_js (MediaDatabase *mdb,
   IN
   char *ret; 
   VSApiError e;
-  MediaDatabaseConstraints *mdc = media_database_constraints_new();
+  VSSearchConstraints *mdc = vs_search_constraints_new();
   mdc->start = 0;
   mdc->count = -1;
   const char *where = vs_props_get (arguments, "where");
   if (where)
-    media_database_constraints_set_where (mdc, where);
+    vs_search_constraints_set_where (mdc, where);
   VSList *list = api_list_composers (mdb, mdc, &e);
-  media_database_constraints_destroy (mdc);
+  vs_search_constraints_destroy (mdc);
   if (list)
     {
     VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
@@ -996,7 +1057,7 @@ char *api_list_composers_js (MediaDatabase *mdb,
 
 ======================================================================*/
 VSList *api_list_artists (MediaDatabase *mdb, 
-     const MediaDatabaseConstraints *mdc, VSApiError *e)
+     const VSSearchConstraints *mdc, VSApiError *e)
   {
   VSList *ret = NULL;
   if (media_database_is_init (mdb))
@@ -1023,14 +1084,14 @@ char *api_list_artists_js (MediaDatabase *mdb,
   IN
   char *ret; 
   VSApiError e;
-  MediaDatabaseConstraints *mdc = media_database_constraints_new();
+  VSSearchConstraints *mdc = vs_search_constraints_new();
   mdc->start = 0;
   mdc->count = -1;
   const char *where = vs_props_get (arguments, "where");
   if (where)
-    media_database_constraints_set_where (mdc, where);
+    vs_search_constraints_set_where (mdc, where);
   VSList *list = api_list_artists (mdb, mdc, &e);
-  media_database_constraints_destroy (mdc);
+  vs_search_constraints_destroy (mdc);
   if (list)
     {
     VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
@@ -1068,7 +1129,7 @@ char *api_list_artists_js (MediaDatabase *mdb,
 
 ======================================================================*/
 VSList *api_list_tracks (MediaDatabase *mdb, 
-     const MediaDatabaseConstraints *mdc, VSApiError *e)
+     const VSSearchConstraints *mdc, VSApiError *e)
   {
   VSList *ret = NULL;
   if (media_database_is_init (mdb))
@@ -1095,14 +1156,14 @@ char *api_list_tracks_js (MediaDatabase *mdb,
   IN
   char *ret; 
   VSApiError e;
-  MediaDatabaseConstraints *mdc = media_database_constraints_new();
+  VSSearchConstraints *mdc = vs_search_constraints_new();
   mdc->start = 0;
   mdc->count = -1;
   const char *where = vs_props_get (arguments, "where");
   if (where)
-    media_database_constraints_set_where (mdc, where);
+    vs_search_constraints_set_where (mdc, where);
   VSList *list = api_list_tracks (mdb, mdc, &e);
-  media_database_constraints_destroy (mdc);
+  vs_search_constraints_destroy (mdc);
   if (list)
     {
     VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
@@ -1144,7 +1205,7 @@ char *api_get_dir_for_album (MediaDatabase *mdb, const char *album)
   char *ret = NULL;
   if (media_database_is_init (mdb))
     {
-    MediaDatabaseConstraints *mdc = media_database_constraints_new();
+    VSSearchConstraints *mdc = vs_search_constraints_new();
     mdc->start = 0;
     mdc->count = 1;
     VSString *where = vs_string_create ("album='");
@@ -1152,7 +1213,7 @@ char *api_get_dir_for_album (MediaDatabase *mdb, const char *album)
     vs_string_append (where, enc_album); 
     free (enc_album);
     vs_string_append (where, "'");
-    media_database_constraints_set_where (mdc, vs_string_cstr (where));
+    vs_search_constraints_set_where (mdc, vs_string_cstr (where));
     VSList *list = vs_list_create (free);
     char *error = NULL;
     //printf ("where=%s\n", vs_string_cstr (where));
@@ -1182,7 +1243,7 @@ char *api_get_dir_for_album (MediaDatabase *mdb, const char *album)
         }
       }
     vs_list_destroy (list);
-    media_database_constraints_destroy (mdc);
+    vs_search_constraints_destroy (mdc);
     vs_string_destroy (where);
     }
   return ret;

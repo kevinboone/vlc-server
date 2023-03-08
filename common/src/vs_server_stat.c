@@ -1,8 +1,8 @@
 /*======================================================================
   
-  vlc-rest-server
+  vlc-server
 
-  api/src/libvlc_server_stat.c
+  vs_server_stat.c
 
   Copyright (c)2022 Kevin Boone, GPL v3.0
 
@@ -10,14 +10,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vlc-server/libvlc_server_stat.h>
+#include <vlc-server/vs_server_stat.h>
 
 /*======================================================================
   
-  LibVlcServerStat 
+  VSServerStat 
 
 ======================================================================*/
-struct _LibVlcServerStat
+struct _VSServerStat
   {
   VSApiTransportStatus transport_status;
   char *mrl;
@@ -25,17 +25,21 @@ struct _LibVlcServerStat
   int duration;
   int index;
   int volume;
+  VSMetadata *amd;
+  int scanner_progress;
   };
 
 /*======================================================================
   
-  libvlc_server_stat_new
+  vs_server_stat_new
 
 ======================================================================*/
-LibVlcServerStat *libvlc_server_stat_new (VSApiTransportStatus ts,
-    const char *mrl, int position, int duration, int index, int volume)
+VSServerStat *vs_server_stat_new (VSApiTransportStatus ts,
+    const char *mrl, int position, int duration, int index, int volume, 
+    const char *title, const char *artist, const char *album,
+    const char *genre, const char *composer, int scanner_progress)
   {
-  LibVlcServerStat *self = malloc (sizeof (LibVlcServerStat));
+  VSServerStat *self = malloc (sizeof (VSServerStat));
   self->transport_status = ts;
   if (mrl) 
     self->mrl = strdup (mrl);
@@ -45,38 +49,46 @@ LibVlcServerStat *libvlc_server_stat_new (VSApiTransportStatus ts,
   self->duration = duration;
   self->index = index;
   self->volume = volume;
+  self->amd = vs_metadata_create();
+  vs_metadata_set_title (self->amd, title);
+  vs_metadata_set_artist (self->amd, artist);
+  vs_metadata_set_album (self->amd, album);
+  vs_metadata_set_genre (self->amd, genre);
+  vs_metadata_set_composer (self->amd, composer);
+  self->scanner_progress = scanner_progress;
   return self;
   }
 
 /*======================================================================
   
-  libvlc_server_stat_destroy
+  vs_server_stat_destroy
 
 ======================================================================*/
-void libvlc_server_stat_destroy (LibVlcServerStat *self)
+void vs_server_stat_destroy (VSServerStat *self)
   {
   if (self->mrl) free (self->mrl);
+  if (self->amd) free (self->amd);
   free (self);
   }
 
 /*======================================================================
   
-  libvlc_server_stat_get_transport_status 
+  vs_server_stat_get_transport_status 
 
 ======================================================================*/
-VSApiTransportStatus libvlc_server_stat_get_transport_status 
-    (const LibVlcServerStat *self)
+VSApiTransportStatus vs_server_stat_get_transport_status 
+    (const VSServerStat *self)
   {
   return self->transport_status;
   }
 
 /*======================================================================
   
-  libvlc_server_stat_get_mrl
+  vs_server_stat_get_mrl
 
 ======================================================================*/
-const char *libvlc_server_stat_get_mrl
-    (const LibVlcServerStat *self)
+const char *vs_server_stat_get_mrl
+    (const VSServerStat *self)
   {
   return self->mrl;
   }
@@ -84,41 +96,63 @@ const char *libvlc_server_stat_get_mrl
 
 /*======================================================================
   
-  libvlc_server_stat_get_position
+  vs_server_stat_get_position
 
 ======================================================================*/
-int libvlc_server_stat_get_position (const LibVlcServerStat *self)
+int vs_server_stat_get_position (const VSServerStat *self)
   {
   return self->position;
   }
 
 /*======================================================================
   
-  libvlc_server_stat_get_duration
+  vs_server_stat_get_duration
 
 ======================================================================*/
-int libvlc_server_stat_get_duration (const LibVlcServerStat *self)
+int vs_server_stat_get_duration (const VSServerStat *self)
   {
   return self->duration;
   }
 
 /*======================================================================
   
-  libvlc_server_stat_get_index
+  vs_server_stat_get_index
 
 ======================================================================*/
-int libvlc_server_stat_get_index (const LibVlcServerStat *self)
+int vs_server_stat_get_index (const VSServerStat *self)
   {
   return self->index;
   }
 
 /*======================================================================
   
-  libvlc_server_stat_get_volume
+  vs_server_stat_get_volume
 
 ======================================================================*/
-int libvlc_server_stat_get_volume (const LibVlcServerStat *self)
+int vs_server_stat_get_volume (const VSServerStat *self)
   {
   return self->volume;
   }
+
+/*======================================================================
+  
+  vs_server_stat_get_scanner_progress
+
+======================================================================*/
+int vs_server_stat_get_scanner_progress (const VSServerStat *self)
+  {
+  return self->scanner_progress;
+  }
+
+/*======================================================================
+  
+  vs_server_stat_get_metadata
+
+======================================================================*/
+const VSMetadata *vs_server_stat_get_metadata 
+        (const VSServerStat *self)
+  {
+  return self->amd;
+  }
+
 

@@ -36,15 +36,15 @@ int cmd_index (const char *argv0, int argc, char **new_argv,
     }
   else
     {
-    LibVlcServerStat *stat = libvlc_server_client_stat 
+    VSServerStat *stat = libvlc_server_client_stat 
       (client, &err_code, &msg);
 
     if (stat)
       {
-      int index = libvlc_server_stat_get_index (stat);
+      int index = vs_server_stat_get_index (stat);
       printf ("%d\n", index);
 
-      libvlc_server_stat_destroy (stat);
+      vs_server_stat_destroy (stat);
       }
     else
       cmd_handle_response (argv0, err_code, msg);

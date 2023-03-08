@@ -10,13 +10,13 @@
 
 #pragma once
 
-#include <vlc-server/media_database_constraints.h>
+#include <vlc-server/vs_search_constraints.h>
 
 typedef struct _CmdContext
   {
   int port;
   const char *host;
-  MediaDatabaseConstraints *mdc;
+  VSSearchConstraints *mdc;
   } CmdContext;
 
 typedef int (*CmdFn) (const char *argv0, int argc, char **new_argv, 

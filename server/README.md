@@ -1,6 +1,6 @@
 # vlc-server
 
-Version 0.2b, February 2023
+Version 0.1c, February 2023
 
 ## What is this?
 
@@ -140,8 +140,8 @@ Show the server version.
 `vlc-server` maintains a database of metadata of audio files, so audio tracks
 may be listed by album, genre, etc. The database is in sqlite3 format, and can
 be viewed using sqlite3 utilities if necessary. `vlc-server` will work
-without a media database, and it will not construct one unless asked. 
-However, most functionality does, in practice, require the database.
+without a media database, but it will try to construct one if it can. 
+In practice, most functionality requires the database.
 
 The database is constructed using an exhaustive examination of the metadata in
 audio files. Currently, the metadata reader supports ID3V2, Vorbis, and MP4 tag
@@ -152,22 +152,27 @@ Once the database has been constructed for the first time, triggering a scan
 will typically use 'quick' mode. This mode assumes that files may have been
 added or removed, but the metadata of existing files will not have changed.
 There is also a 'full' scan mode, which makes no such assumption -- and will be
-very slow.
+very slow. At present, the full scan mode is only available by running the
+scanner on the command line -- or, of course, by deleting the existing
+database.
 
-Constructing the database for the first time will be slow, particular on
+Constructing the database from scratch will be slow, particularly on
 low-powered systems like Raspberry Pi. The Pi only scans about five media files
-per second. The server can be used whilst the database is being updated -- at
-least to some extent. 
+per second. The server can be used whilst the database is being updated,
+but the database itself will not be available. This means that only
+file/directory playback will be possible. Even on the Pi, a 'quick' scan
+should not be particularly disruptive, unless a lot of media has been
+added. 
 
-It is strongly recommended that the media database be constructed
+It is recommended that the media database be constructed
 administratively the first time, so its operation can be tracked. Do this using
 the `-q` or `-s` switches, and foreground operation (`-f`).  For example:
 
     vlc-server -q -f -r /path/to/media/directory -d /path/to/database/file
 
-Note that the server only checks for the presence of a media database file when
-it first starts. You can trigger a scan after that, but a restart will be
-needed for the server to read the database.
+If the server is started without a database, it will construct an empty
+one, but it won't scan the filesystem until it is asked to -- either by
+the web interface or using a command-line operation.
 
 ## Notes
 

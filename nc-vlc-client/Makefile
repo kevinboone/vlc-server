@@ -1,5 +1,5 @@
 NAME    := nc-vlc-client
-VERSION := 0.1b
+VERSION := 0.1c
 CC      := gcc
 LIBPATH1 := ../api
 LIBPATH2 := ../common

@@ -13,7 +13,6 @@
 #include <getopt.h>
 #include <string.h>
 #include <errno.h>
-#include <vlc-server/vs_list.h>
 #include <vlc-server/api-client.h>
 #include <ncursesw/curses.h>
 #include "message.h" 
@@ -84,6 +83,7 @@ static VSList *populate_help (void)
 ======================================================================*/
 static void select_menu (LibVlcServerClient *lvsc, const char *line)
   {
+  (void)lvsc; (void)line;
   message_show ("Can't select in this page");
   }
 

@@ -36,7 +36,7 @@ display artists.
 My Astell and Kern player, for example, uses 'album artist', by default,
 and falls back to 'artist' if the 'album artist' tag is empty.
 
-`vlc-server` display, and can search by, both. It's up to the user to
+`vlc-server` display, and can search in, both. It's up to the user to
 decide how to use these tags.
 
 
@@ -86,4 +86,10 @@ these are in plain text, not recognized date-time formats. If you
 use these date/time fields, and do so consistently, you could use
 the Custom SQL Query feature to search on them.
 
+_What does 'database is locked' mean?_
+
+Probably the media scanner is running. It will lock the database during
+this process. It's also possible that a lock file got left behind, if
+the scanner process crashed or was killed. The lock file has the same
+name as the media database file, but with `.lock` appended.
 

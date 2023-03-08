@@ -26,5 +26,5 @@ extern void view_list (WINDOW *main_window, LibVlcServerClient *lvsc,
          int h, int w, int row, int col, const VSList *list,
          VMSelectFunction select_function, const char *title,
          BOOL kiosk);
-
+extern void view_misc_run_scanner (LibVlcServerClient *lvsc);
 

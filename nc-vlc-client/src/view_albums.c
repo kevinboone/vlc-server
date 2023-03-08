@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <vlc-server/vs_list.h>
 #include <vlc-server/api-client.h>
-#include <vlc-server/media_database_constraints.h>
+#include <vlc-server/vs_search_constraints.h>
 #include <ncursesw/curses.h>
 #include "message.h" 
 #include "status.h" 

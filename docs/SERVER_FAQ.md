@@ -50,8 +50,8 @@ the command line:
 
     $ vlc --version
 
-On all platforms, the VLC user interface will be able to provide
-this information.
+On all platforms, the VLC user interface, if installed,
+ will be able to provide this information.
 
 
 _What system resources does `vlc-server` use?_
@@ -90,7 +90,7 @@ for each album are in a single directory for that album.
 
 _Does `vlc-server` support "baked-in" cover art images?_
 
-To some extent: the media scanner will find extract these images if
+To some extent: the media scanner will extract these images if
 it finds any, and write them to disk in the same directory as the 
 audio files. The filename will depend on the image format baked into
 the file.
@@ -108,5 +108,27 @@ _What facilities are offered by the REST API?_
 
 See the separate document `REST-API.md` for full details of the REST
 interface.
+
+
+_Does vlc-server support Internet radio?_
+
+VLC server will play any stream that VLC can play. Internet radio stations
+that stream using HTTP, IceCast, etc., will usually play. However, 
+`vlc-server` has no built-in support for Internet radio. Streams can
+be added to the media database along with local media, but `vlc-server`
+provides no way to put them there. See the `radio-support/` directory for 
+ideas on how to populate the media database with radio streams.
+
+
+_How do I select the audio output device?_
+
+Use VLC command-line options: `vlc-server` accepts all the command-line
+switches that the `cvlc` player does. So, to set a specific ALSA device:
+
+    vlc-server ... -- -A alsa --alsa-audio-device plughw:CARD=my_card
+
+If you're using Pulse Audio (and I guess somebody has to), this selection
+can be made using Pulse controls.
+
 
 

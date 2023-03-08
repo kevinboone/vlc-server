@@ -4,7 +4,7 @@
 .\" included, that it is not sold for profit, and that this copyright notice
 .\" is retained.
 .\"
-.TH vlc-server 1 "Feb 2023"
+.TH vlc-server 1 "March 2023"
 .SH NAME
 vlc-server -- an HTTP front-end for the VLC media player 
 
@@ -62,14 +62,18 @@ playback.
 .TP
 .BI -d,\-\-database
 .LP
-Specify the media database file. If not give, the default is the file
-\fIvlc-server.sqlite\fR in the media root directory. However, this file
-will not be created if it does not exist -- the server will run without
-a media database, albeit with limited functionality.
+Specify the media database file. If not given, the default is the file
+\fIvlc-server.sqlite\fR in the media root directory. This file will be
+created, if it does not exist, and if the server has write access to
+the directory. 
+
+If the server creates a new database, it will not scan media in the filesystem
+until it is asked to, either by the web user interface or some command-line
+operation.
 
 Please note that the media database must be writeable, in a writable directory.
 The main content directory (the media root) need not be writeable at all; this
-is why there is an option to specify the database directory separately.
+is why there is an option to specify the database location separately.
 
 .TP
 .BI -e,\-\-entries={number}

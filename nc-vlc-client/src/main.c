@@ -16,7 +16,6 @@
 #include <locale.h>
 #include <unistd.h>
 #include <vlc-server/api-client.h>
-#include <vlc-server/media_database_constraints.h>
 #include <ncursesw/curses.h>
 #include "message.h" 
 #include "status.h" 
@@ -137,7 +136,7 @@ int main (int argc, char **argv)
     vs_log_set_level (log_level);
     LibVlcServerClient *lvsc = libvlc_server_client_new (host, port);
 
-    LibVlcServerStat *stat = NULL;
+    VSServerStat *stat = NULL;
     VSApiError err_code;
     char *error = NULL;
     if (flag_kiosk)
@@ -166,7 +165,7 @@ int main (int argc, char **argv)
 
     if (err_code == 0)
       {
-      if (stat) libvlc_server_stat_destroy (stat);
+      if (stat) vs_server_stat_destroy (stat);
 
       main_window = initscr();
       status_window = subwin (main_window, 5, COLS, 0, 0);

@@ -15,7 +15,6 @@
 #include <errno.h>
 #include <string.h>
 #include <vlc-server/vs_log.h> 
-#include <vlc-server/audio_metadata.h> 
 #include "http_server.h" 
 #include "player.h" 
 #include "media_database.h" 
@@ -202,7 +201,7 @@ int main (int argc, char* argv[])
     if (mdb_file == NULL)
       {
       asprintf (&mdb_file, "%s/%s", media_root, DATABASE_FILENAME);
-      vs_log_warning ("Media database not set; defaulting to %s", mdb_file);
+      vs_log_info ("Media database not set; defaulting to %s", mdb_file);
       }
 
     canon_media_root = canonicalize_file_name (media_root);
@@ -218,7 +217,8 @@ int main (int argc, char* argv[])
       {
       MediaDatabase *mdb = media_database_create (mdb_file);
       char *error = NULL;
-      media_database_init (mdb, scan | quickscan, &error);
+      media_database_init (mdb, TRUE, &error);
+      //media_database_init (mdb, scan | quickscan, &error);
       if (error)
         {
         fprintf (stderr, "Can't initialize media database: %s\n", error);

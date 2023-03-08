@@ -25,8 +25,8 @@
 #include <vlc-server/vs_defs.h>
 #include <vlc-server/vs_list.h>
 #include <vlc-server/vs_props.h>
-#include <vlc-server/libvlc_server_stat.h>
-#include <vlc-server/media_database_constraints.h>
+#include <vlc-server/vs_server_stat.h>
+#include <vlc-server/vs_search_constraints.h>
 #include "media_database.h"
 
 struct _Player;
@@ -94,32 +94,32 @@ extern char *api_list_dirs_js (struct _Player *player,
     has a 'where' field that applies a WHERE clause to the SQL SELECT
     operation. */ 
 extern VSList *api_list_albums (MediaDatabase *mdb,
-         const MediaDatabaseConstraints *mdc, VSApiError *e);
+         const VSSearchConstraints *mdc, VSApiError *e);
 extern char *api_list_albums_js (MediaDatabase *mdb, 
          const VSProps *arguments);
 
 extern VSList *api_list_artists (MediaDatabase *mdb,
-         const MediaDatabaseConstraints *mdc, VSApiError *e);
+         const VSSearchConstraints *mdc, VSApiError *e);
 extern char *api_list_artists_js (MediaDatabase *mdb, 
          const VSProps *arguments);
 
 extern VSList *api_list_genres (MediaDatabase *mdb,
-         const MediaDatabaseConstraints *mdc, VSApiError *e);
+         const VSSearchConstraints *mdc, VSApiError *e);
 extern char *api_list_genres_js (MediaDatabase *mdb, 
          const VSProps *arguments);
 
 extern VSList *api_list_composers (MediaDatabase *mdb,
-         const MediaDatabaseConstraints *mdc, VSApiError *e);
+         const VSSearchConstraints *mdc, VSApiError *e);
 extern char *api_list_composers_js (MediaDatabase *mdb, 
          const VSProps *arguments);
 
 extern VSList *api_list_tracks (MediaDatabase *mdb,
-         const MediaDatabaseConstraints *mdc, VSApiError *e);
+         const VSSearchConstraints *mdc, VSApiError *e);
 extern char *api_list_tracks_js (MediaDatabase *mdb, 
          const VSProps *arguments);
 
 /* Return the player status, including what is playing and the position. */
-extern LibVlcServerStat *api_stat (const struct _Player *player, VSApiError *e);
+extern VSServerStat *api_stat (const struct _Player *player, VSApiError *e);
 extern char *api_stat_js (const struct _Player *player);
 
 /* Get a URL that can be requested by a browser, to retrieve the cover

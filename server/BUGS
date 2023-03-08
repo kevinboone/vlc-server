@@ -1,0 +1,12 @@
+Defective audio files can break the media scanner. I've noticed this when I've
+copied files onto a memory stick, and a file has been truncated because the
+stick wasn't large enough. The scanner would get to the truncated file, and
+never get any further. The scanner needs to be more robust, because this kind
+of problem is probably not unusual.
+
+Short audio dropouts, that appears as 'clicks' in the playback, may appear
+when playing FLAC files. This is a known bug in VLC versions 3.0.18 and
+earlier. The solution is to upgrade, but 3.0.18 seems to be the latest version
+available in some (most?) repositories. This isn't a fault in `vlc-server`,
+and can't be fixed there.
+

@@ -48,15 +48,15 @@ int cmd_volume (const char *argv0, int argc, char **new_argv,
     }
   else
     {
-    LibVlcServerStat *stat = libvlc_server_client_stat 
+    VSServerStat *stat = libvlc_server_client_stat 
       (client, &err_code, &msg);
 
     if (stat)
       {
-      int volume = libvlc_server_stat_get_volume (stat);
+      int volume = vs_server_stat_get_volume (stat);
       printf ("%d\n", volume);
 
-      libvlc_server_stat_destroy (stat);
+      vs_server_stat_destroy (stat);
       }
     else
       cmd_handle_response (argv0, err_code, msg);

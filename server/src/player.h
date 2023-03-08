@@ -101,3 +101,10 @@ extern BOOL player_check_allowed_file (const Player *self, const char *path);
 /** Dump to stdout the audio output devices known to VLC. */
 extern void player_list_devices (const Player *self);
 
+/** Return metadata for the currently playing item. This might return
+    NULL. If it does not, some of the individual fields in the returned
+    AMD might themselves be NULL. Even if they are non-NULL, they might
+    be empty -- particularly with network streams. */
+extern const VSMetadata *player_get_metadata (const Player *self);
+
+

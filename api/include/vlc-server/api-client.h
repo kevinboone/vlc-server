@@ -1,13 +1,13 @@
 /*======================================================================
   
-  vlc-rest-server
+  vlc-server
 
   api-client.h
 
   Copyright (c)2022 Kevin Boone, GPL v3.0
 
   This file contains definitions of all the functions and data
-  structures provided by the libvlc-server API library.
+  structures provided by the vlc-server API library.
 
 ======================================================================*/
 
@@ -15,8 +15,8 @@
 #include <vlc-server/vs_util.h>
 #include <vlc-server/vs_log.h>
 #include <vlc-server/vs_list.h>
-#include <vlc-server/libvlc_server_playlist.h>
-#include <vlc-server/libvlc_server_stat.h>
+#include <vlc-server/vs_playlist.h>
+#include <vlc-server/vs_server_stat.h>
 
 /*======================================================================
   
@@ -27,8 +27,8 @@
 struct _LibVlcServerClient;
 typedef struct _LibVlcServerClient LibVlcServerClient;
 
-struct _LibVlcServerPlaylist;
-typedef struct _LibVlcServerPlaylist LibVlcServerPlaylist;
+struct _VSPlaylist;
+typedef struct _VSPlaylist VSPlaylist;
 
 BEGIN_CDECLS
 
@@ -37,14 +37,24 @@ BEGIN_CDECLS
   LibVlcServerClient functions 
 
 ======================================================================*/
+/* NOTE: most of these functions return a error code and a message. 
+   The message is dynamically-allocated, and must be freed by the client.
+   There will be a message, even if the request were made successfully,
+   in which case it will usually be "OK". If the caller does not want
+   the message, it should use NULL for the msg parameter, and rely on
+   the error code to determine whether the request succeeded. */
 
 LibVlcServerClient *libvlc_server_client_new (const char *host, int port);
 void libvlc_server_client_destroy (LibVlcServerClient  *self);
 
-LibVlcServerStat *libvlc_server_client_stat (LibVlcServerClient *self, 
+/** Get the server status in a VSServerStat object. The caller must
+    destroy this object, if it is not NULL. */
+VSServerStat *libvlc_server_client_stat (LibVlcServerClient *self, 
         VSApiError *err_code, char **msg);
 
-LibVlcServerPlaylist *libvlc_server_client_get_playlist 
+/** Get the server's playlist as a VSPlayList object. The caller must
+    destroy this object, if it is non-null. */
+VSPlaylist *libvlc_server_client_get_playlist 
         (LibVlcServerClient *self, VSApiError *err_code, char **msg);
 
 /** Clear the playlist. */
@@ -150,7 +160,7 @@ VSList *libvlc_server_client_list_tracks
         (const LibVlcServerClient *selfclient, const char *where, VSApiError 
            *err_code, char **msg);
 
-/** Convenience function to play an albun. Not really necessary, but the
+/** Convenience function to play an album. Not really necessary, but the
       function exists in the REST API for the benefit of JavaScript
       clients, so there's no extra work involved in providing it here. */
 void libvlc_server_client_play_album

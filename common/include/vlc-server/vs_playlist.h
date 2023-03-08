@@ -1,8 +1,8 @@
 /*======================================================================
   
-  vlc-rest-server
+  vlc-server
 
-  libvlc_server_playlist.h
+  vs_playlist.h
 
   Copyright (c)2022 Kevin Boone, GPL v3.0
 
@@ -19,27 +19,27 @@
 
 ======================================================================*/
 
-struct _LibVlcServerPlaylist;
-typedef struct _LibVlcServerPlaylist LibVlcServerPlaylist;
+struct _VSPlaylist;
+typedef struct _VSPlaylist VSPlaylist;
 
 BEGIN_CDECLS
 
 /*======================================================================
   
-  LibVlcServerPlaylist functions 
+  VSPlaylist functions 
 
 ======================================================================*/
-LibVlcServerPlaylist *libvlc_server_playlist_new (int len);
+VSPlaylist *vs_playlist_new (int len);
 
-void libvlc_server_playlist_destroy (LibVlcServerPlaylist *self);
+void vs_playlist_destroy (VSPlaylist *self);
 
-void libvlc_server_playlist_set (LibVlcServerPlaylist *self, 
+void vs_playlist_set (VSPlaylist *self, 
        int index, const char *mrl);
 
-const char *libvlc_server_playlist_get (const LibVlcServerPlaylist *self, 
+const char *vs_playlist_get (const VSPlaylist *self, 
        int index);
 
-int libvlc_server_playlist_length (const LibVlcServerPlaylist *self);
+int vs_playlist_length (const VSPlaylist *self);
 
 END_CDECLS
 

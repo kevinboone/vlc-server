@@ -4,7 +4,7 @@
 
   scanner.c
 
-  Copyright (c)2022 Kevin Boone, GPL v3.0
+  Copyright (c)2023 Kevin Boone, GPL v3.0
 
 ======================================================================*/
 #define _GNU_SOURCE
@@ -31,6 +31,10 @@ typedef struct _ScannerIteratorContext
   MediaDatabase *mdb;
   int nonexistent;
   } ScannerIteratorContext;
+
+// We might as well make this static, since it won't change
+//   at run-time
+static char scanner_progress_file [PATH_MAX + 1];
 
 /*======================================================================
   
@@ -108,6 +112,53 @@ static void scanner_write_cover (const unsigned char *data, int len,
   free (path);
   OUT
   }
+
+/*======================================================================
+  
+  scanner_do_file
+
+======================================================================*/
+void scanner_update_progress (int num)
+  {
+  if (scanner_progress_file[0])
+    {
+    int f = open (scanner_progress_file, O_WRONLY | O_TRUNC, 0644);
+    if (f >= 0)
+      {
+      char s[20];
+      sprintf (s, "%d", num);
+      write (f, s, strlen (s));
+      close (f);
+      }
+    }
+  }
+ 
+/*======================================================================
+  
+  scanner_create_progress_file
+
+======================================================================*/
+void scanner_create_progress_file (void)
+  {
+  scanner_get_progress_file (scanner_progress_file, 
+    sizeof (scanner_progress_file));
+  int f = open (scanner_progress_file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+  if (f >= 0)
+    close (f);
+  else
+    vs_log_error ("Can't create progress file '%s': '%s'", 
+      scanner_progress_file, strerror (errno));
+  }
+ 
+/*======================================================================
+  
+  scanner_delete_progress_file
+
+======================================================================*/
+void scanner_delete_progress_file (void)
+  {
+  unlink (scanner_progress_file);
+  }
  
 /*======================================================================
   
@@ -127,39 +178,41 @@ static void scanner_do_file (const char *abs_path,
     {
     vs_log_debug ("Scanner considering file %s", abs_path);
     (*considered)++;
+    if ((*considered) % 10 == 0)
+      scanner_update_progress (*considered);
     if (!media_database_has_path (mdb, rel_path) || full)
       {
       TagData *tags; 
       if (tag_get_tags (abs_path, &tags) == TAG_OK)
         {
-        AudioMetadata *amd = audio_metadata_create ();
-        audio_metadata_set_path (amd, rel_path);
+        VSMetadata *amd = vs_metadata_create ();
+        vs_metadata_set_path (amd, rel_path);
         const char *s = (char *)tag_get_common (tags, TAG_COMMON_ALBUM);
-        audio_metadata_set_title (amd, s);
+        vs_metadata_set_title (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_TITLE);
-        audio_metadata_set_title (amd, s);
+        vs_metadata_set_title (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_ALBUM);
-        audio_metadata_set_album (amd, s);
+        vs_metadata_set_album (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_ARTIST);
-        audio_metadata_set_artist (amd, s);
+        vs_metadata_set_artist (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_ALBUM_ARTIST);
-        audio_metadata_set_album_artist (amd, s);
+        vs_metadata_set_album_artist (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_COMPOSER);
-        audio_metadata_set_composer (amd, s);
+        vs_metadata_set_composer (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_YEAR);
-        audio_metadata_set_year (amd, s);
+        vs_metadata_set_year (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_GENRE);
-        audio_metadata_set_genre (amd, s);
+        vs_metadata_set_genre (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_TRACK);
-        audio_metadata_set_track (amd, s);
+        vs_metadata_set_track (amd, s);
         s = (char *)tag_get_common (tags, TAG_COMMON_COMMENT);
-        audio_metadata_set_comment (amd, s);
+        vs_metadata_set_comment (amd, s);
 
         struct stat sb;
         if (stat (abs_path, &sb) == 0)
           {
-          audio_metadata_set_mtime (amd, sb.st_mtime);
-          audio_metadata_set_size (amd, sb.st_size);
+          vs_metadata_set_mtime (amd, sb.st_mtime);
+          vs_metadata_set_size (amd, sb.st_size);
           }
 
         char *error = NULL;
@@ -172,7 +225,7 @@ static void scanner_do_file (const char *abs_path,
           }
         else
           (*added)++;
-        audio_metadata_destroy (amd);
+        vs_metadata_destroy (amd);
 
         if (tags->cover) 
           {
@@ -341,6 +394,9 @@ void scanner_run (const char *media_root, BOOL full, MediaDatabase *mdb,
 
     int considered = 0;
     int added = 0;
+
+    scanner_create_progress_file();
+
     scanner_run_dir (media_root, "", full, 0, mdb, extensions, num_patterns,
        &considered, &added);
     
@@ -351,14 +407,16 @@ void scanner_run (const char *media_root, BOOL full, MediaDatabase *mdb,
     sic.media_root = media_root;
     sic.mdb = mdb;
     sic.nonexistent = 0;
-    if (!media_database_iterate_all_paths (mdb, scanner_check_file_exists, &sic,
-	     &error))
+    if (!media_database_iterate_all_paths (mdb, scanner_check_file_exists, 
+             &sic, &error))
       {
       vs_log_error (error);
       free (error);
       }
 
     media_database_remove_nonexistent (mdb);
+
+    scanner_delete_progress_file();
 
     vs_log_info ("Scanner finished");
     vs_log_info ("Considered %d files", considered);
@@ -373,6 +431,46 @@ void scanner_run (const char *media_root, BOOL full, MediaDatabase *mdb,
     }
   free (lockfile);
   OUT
+  }
+
+/*======================================================================
+  
+  scanner_get_progress_file
+
+======================================================================*/
+void scanner_get_progress_file (char *file, int len)
+  {
+  const char *tmp = getenv("TMP");
+  if (!tmp) tmp = "/tmp";
+  snprintf (file, len - 1, "%s/" VLC_SCAN_PROG_FILE, tmp);
+  }
+
+/*======================================================================
+  
+  scanner_get_progress
+
+======================================================================*/
+int scanner_get_progress (void)
+  {
+  int ret = -1;
+
+  char filename[PATH_MAX + 1];
+  scanner_get_progress_file (filename, PATH_MAX);
+
+  int f = open (filename, O_RDONLY);
+  if (f >= 0)
+    {
+    char s[20];
+    int n = read (f, s, sizeof (s) - 1);
+    if (n > 0)
+      {
+      s[n] = 0;
+      ret = atoi (s);
+      }
+    close (f);
+    }
+
+  return ret;
   }
 
 

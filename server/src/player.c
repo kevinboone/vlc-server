@@ -22,6 +22,8 @@
 #include <vlc-server/vs_log.h> 
 #include "player.h"
 
+#define SAFE(x) (x ? x : "")
+
 /*======================================================================
 
   Player 
@@ -35,6 +37,7 @@ struct _Player
   int index; // playlist position
   char *patterns; // Comma-separated list of allowed file patterns
   char *media_root;
+  VSMetadata *amd;
   };
 
 /*======================================================================
@@ -103,7 +106,60 @@ static void player_vlc_cleanup (Player *self)
 
 /*======================================================================
 
-  Player 
+ player_vlc_media_change_handler  
+
+======================================================================*/
+static void player_update_metadata (Player *self)
+  {
+  if (self->amd)
+    {
+    vs_metadata_destroy (self->amd);
+    self->amd = NULL;
+    }
+  libvlc_media_player_t *p 
+     = libvlc_media_list_player_get_media_player (self->mlp);
+  libvlc_media_t *m = libvlc_media_player_get_media (p);
+
+  // Ugly, ugly, ugly. Repeat parse_with_options until there is some kind
+  //   of response, with 200 msec between attempts. Aysnchronous notification
+  //   of completed parse doesn't seem to work at all.
+  int status, i = 3;
+  do
+    {
+    libvlc_media_parse_with_options (m, libvlc_media_parse_network, 1000);
+    status = libvlc_media_get_parsed_status(m);
+    usleep (200000);
+    i++;
+    } while (status != libvlc_media_parsed_status_done && i < 4); 
+
+  self->amd = vs_metadata_create();
+  const char *path = libvlc_media_get_meta (m, libvlc_meta_URL); 
+  const char *title = libvlc_media_get_meta (m, libvlc_meta_Title); 
+  const char *artist = libvlc_media_get_meta(m, libvlc_meta_Artist);
+  const char *album_artist = libvlc_media_get_meta(m, libvlc_meta_AlbumArtist);
+  const char *album = libvlc_media_get_meta(m, libvlc_meta_Album);
+  const char *track = libvlc_media_get_meta(m, libvlc_meta_TrackID);
+  const char *genre = libvlc_media_get_meta(m, libvlc_meta_Genre);
+  const char *comment = libvlc_media_get_meta(m, libvlc_meta_Description);
+  const char *year = libvlc_media_get_meta(m, libvlc_meta_Date);
+
+  vs_metadata_set_path (self->amd, SAFE (path));
+  vs_metadata_set_title (self->amd, SAFE (title));
+  vs_metadata_set_album (self->amd, SAFE (album));
+  vs_metadata_set_artist (self->amd, SAFE (artist));
+  // VLC does not have a specific 'composer' meta item :/
+  vs_metadata_set_composer (self->amd, SAFE (artist));
+  vs_metadata_set_album_artist (self->amd, SAFE (album_artist));
+  vs_metadata_set_genre (self->amd, SAFE (genre));
+  vs_metadata_set_track (self->amd, SAFE (track));
+  vs_metadata_set_comment (self->amd, SAFE (comment));
+  vs_metadata_set_comment (self->amd, SAFE (year));
+  //vs_metadata_dump (self->amd);
+  }
+
+/*======================================================================
+
+ player_vlc_media_change_handler  
 
 ======================================================================*/
 static void player_vlc_media_change_handler (const libvlc_event_t *p_event, 
@@ -118,6 +174,7 @@ static void player_vlc_media_change_handler (const libvlc_event_t *p_event,
     int index = libvlc_media_list_index_of_item (self->vlc_media_list, m);
     vs_log_info ("Moving to item %d in playlist", index);
     self->index = index;
+    player_update_metadata (self);
     }
   OUT
   }
@@ -224,6 +281,7 @@ void player_destroy (Player *self)
   player_vlc_cleanup (self);
   if (self->patterns) free (self->patterns);
   if (self->media_root) free (self->media_root);
+  if (self->amd) vs_metadata_destroy (self->amd);
   free (self);
   OUT
   }
@@ -245,6 +303,7 @@ VSApiError player_start (Player *self)
     //   paused, so _play just resumes
     libvlc_media_list_player_set_media_list (self->mlp, self->vlc_media_list);
     libvlc_media_list_player_play (self->mlp);
+
     OUT
     return 0;
     }
@@ -786,6 +845,19 @@ VSApiError player_set_index (Player *self, int index)
 const char *player_get_media_root (const Player *self)
   {
   return self->media_root;
+  }
+
+/*======================================================================
+
+  player_list_devices 
+
+======================================================================*/
+const VSMetadata *player_get_metadata (const Player *self)
+  {
+  if (player_get_transport_status (self) == VSAPI_TS_STOPPED)
+    return NULL;
+  else
+    return self->amd;
   }
 
 /*======================================================================

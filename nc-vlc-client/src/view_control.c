@@ -28,6 +28,7 @@
 #define MENU_PREV "Previous track"
 #define MENU_VOL_UP "Volume up"
 #define MENU_VOL_DOWN "Volume down"
+#define MENU_SCAN "Run scanner"
 
 /*======================================================================
   
@@ -43,6 +44,7 @@ static VSList *populate_control_menu (void)
   vs_list_append (ret, strdup (MENU_PREV));
   vs_list_append (ret, strdup (MENU_VOL_UP));
   vs_list_append (ret, strdup (MENU_VOL_DOWN));
+  vs_list_append (ret, strdup (MENU_SCAN));
   return ret;
   }
 
@@ -66,6 +68,8 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line)
      view_misc_volume_up (lvsc); 
   else if (strcmp (line, MENU_VOL_DOWN) == 0)
      view_misc_volume_down (lvsc); 
+  else if (strcmp (line, MENU_SCAN) == 0)
+     view_misc_run_scanner (lvsc); 
   }
 
 /*======================================================================

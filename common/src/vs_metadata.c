@@ -1,6 +1,8 @@
 /*============================================================================
 
-  audio-metadata.c
+  vlc-server
+
+  vs_metadata.c
 
   Copyright (c)2017 Kevin Boone, GPL v3.0
 
@@ -21,10 +23,10 @@
 #include <ctype.h>
 #include <vlc-server/vs_defs.h>
 #include <vlc-server/vs_log.h>
-#include <vlc-server/audio_metadata.h>
-#include <vlc-server/mimebuffer.h>
+#include <vlc-server/vs_metadata.h>
+#include <vlc-server/vs_mimebuffer.h>
 
-struct _AudioMetadata
+struct _VSMetadata
   {
   char *path;
   char *composer;
@@ -38,22 +40,22 @@ struct _AudioMetadata
   char *year;
   time_t mtime;
   size_t size;
-  MimeBuffer *cover;
+  VSMimeBuffer *cover;
   }; 
 
 
 #define SAFE(x) (x != NULL ? (x) : "")
 
 /*==========================================================================
-  audio_metadata_create
-  Create a audio_metadata from a copy of the data provided. The caller can, and
+  vs_metadata_create
+  Create a vs_metadata from a copy of the data provided. The caller can, and
     probably should, free the data. This method is safe to call on
     static data, should the need arise.
 *==========================================================================*/
-AudioMetadata *audio_metadata_create ()
+VSMetadata *vs_metadata_create ()
   {
   IN
-  AudioMetadata *self = malloc (sizeof (AudioMetadata));
+  VSMetadata *self = malloc (sizeof (VSMetadata));
   self->path = NULL;
   self->composer = NULL;
   self->artist = NULL;
@@ -73,9 +75,9 @@ AudioMetadata *audio_metadata_create ()
 
 
 /*==========================================================================
-  audio_metadata_destroy
+  vs_metadata_destroy
 *==========================================================================*/
-void audio_metadata_destroy (AudioMetadata *self)
+void vs_metadata_destroy (VSMetadata *self)
   {
   IN
   if (self)
@@ -90,7 +92,7 @@ void audio_metadata_destroy (AudioMetadata *self)
     if (self->track) free (self->track);
     if (self->comment) free (self->comment);
     if (self->year) free (self->year);
-    if (self->cover) mimebuffer_destroy(self->cover);
+    if (self->cover) vs_mimebuffer_destroy(self->cover);
     free (self);
     }
   OUT
@@ -98,130 +100,130 @@ void audio_metadata_destroy (AudioMetadata *self)
 
 /*==========================================================================
 
-  audio_metadata_get_cover
+  vs_metadata_get_cover
 
 ==========================================================================*/
-const MimeBuffer *audio_metadata_get_cover (const AudioMetadata *self)
+const VSMimeBuffer *vs_metadata_get_cover (const VSMetadata *self)
   {
   return self->cover;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_composer
+  vs_metadata_get_composer
 
 ==========================================================================*/
-const char *audio_metadata_get_composer (const AudioMetadata *self)
+const char *vs_metadata_get_composer (const VSMetadata *self)
   {
   return self->composer;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_album
+  vs_metadata_get_album
 
 ==========================================================================*/
-const char *audio_metadata_get_album (const AudioMetadata *self)
+const char *vs_metadata_get_album (const VSMetadata *self)
   {
   return self->album;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_path
+  vs_metadata_get_path
 
 ==========================================================================*/
-const char *audio_metadata_get_path (const AudioMetadata *self)
+const char *vs_metadata_get_path (const VSMetadata *self)
   {
   return self->path;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_genre
+  vs_metadata_get_genre
 
 ==========================================================================*/
-const char *audio_metadata_get_genre (const AudioMetadata *self)
+const char *vs_metadata_get_genre (const VSMetadata *self)
   {
   return self->genre;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_artist
+  vs_metadata_get_artist
 
 ==========================================================================*/
-const char *audio_metadata_get_artist (const AudioMetadata *self)
+const char *vs_metadata_get_artist (const VSMetadata *self)
   {
   return self->artist;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_album_artist
+  vs_metadata_get_album_artist
 
 ==========================================================================*/
-const char *audio_metadata_get_album_artist (const AudioMetadata *self)
+const char *vs_metadata_get_album_artist (const VSMetadata *self)
   {
   return self->album_artist;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_title
+  vs_metadata_get_title
 
 ==========================================================================*/
-const char *audio_metadata_get_title (const AudioMetadata *self)
+const char *vs_metadata_get_title (const VSMetadata *self)
   {
   return self->title;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_track
+  vs_metadata_get_track
 
 ==========================================================================*/
-const char *audio_metadata_get_track (const AudioMetadata *self)
+const char *vs_metadata_get_track (const VSMetadata *self)
   {
   return self->track;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_comment
+  vs_metadata_get_comment
 
 ==========================================================================*/
-const char *audio_metadata_get_comment (const AudioMetadata *self)
+const char *vs_metadata_get_comment (const VSMetadata *self)
   {
   return self->comment;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_year
+  vs_metadata_get_year
 
 ==========================================================================*/
-const char *audio_metadata_get_year (const AudioMetadata *self)
+const char *vs_metadata_get_year (const VSMetadata *self)
   {
   return self->year;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_mtime
+  vs_metadata_get_mtime
 
 ==========================================================================*/
-time_t audio_metadata_get_mtime (const AudioMetadata *self)
+time_t vs_metadata_get_mtime (const VSMetadata *self)
   {
   return self->mtime;
   }
 
 /*==========================================================================
 
-  audio_metadata_get_size
+  vs_metadata_get_size
 
 ==========================================================================*/
-size_t audio_metadata_get_size (const AudioMetadata *self)
+size_t vs_metadata_get_size (const VSMetadata *self)
   {
   return self->size;
   }
@@ -242,30 +244,30 @@ static void replace (char **s1, const char *s2)
 
 /*==========================================================================
 
-  audio_metadata_set_title
+  vs_metadata_set_title
 
 ==========================================================================*/
-void audio_metadata_set_title (AudioMetadata *self, const char *title)
+void vs_metadata_set_title (VSMetadata *self, const char *title)
   {
   replace (&self->title, title);
   }
 
 /*==========================================================================
 
-  audio_metadata_set_artist
+  vs_metadata_set_artist
 
 ==========================================================================*/
-void audio_metadata_set_artist (AudioMetadata *self, const char *artist)
+void vs_metadata_set_artist (VSMetadata *self, const char *artist)
   {
   replace (&self->artist, artist);
   }
 
 /*==========================================================================
 
-  audio_metadata_set_album_artist
+  vs_metadata_set_album_artist
 
 ==========================================================================*/
-void audio_metadata_set_album_artist (AudioMetadata *self, 
+void vs_metadata_set_album_artist (VSMetadata *self, 
        const char *album_artist)
   {
   replace (&self->album_artist, album_artist);
@@ -273,10 +275,10 @@ void audio_metadata_set_album_artist (AudioMetadata *self,
 
 /*==========================================================================
 
-  audio_metadata_set_composer
+  vs_metadata_set_composer
 
 ==========================================================================*/
-void audio_metadata_set_composer (AudioMetadata *self, const char *composer)
+void vs_metadata_set_composer (VSMetadata *self, const char *composer)
   {
   replace (&self->composer, composer);
   }
@@ -284,20 +286,20 @@ void audio_metadata_set_composer (AudioMetadata *self, const char *composer)
 
 /*==========================================================================
 
-  audio_metadata_set_album
+  vs_metadata_set_album
 
 ==========================================================================*/
-void audio_metadata_set_album (AudioMetadata *self, const char *album)
+void vs_metadata_set_album (VSMetadata *self, const char *album)
   {
   replace (&self->album, album);
   }
 
 /*==========================================================================
 
-  audio_metadata_set_genre
+  vs_metadata_set_genre
 
 ==========================================================================*/
-void audio_metadata_set_genre (AudioMetadata *self, const char *genre)
+void vs_metadata_set_genre (VSMetadata *self, const char *genre)
   {
   replace (&self->genre, genre);
   }
@@ -305,81 +307,81 @@ void audio_metadata_set_genre (AudioMetadata *self, const char *genre)
 
 /*==========================================================================
 
-  audio_metadata_set_track
+  vs_metadata_set_track
 
 ==========================================================================*/
-void audio_metadata_set_track (AudioMetadata *self, const char *track)
+void vs_metadata_set_track (VSMetadata *self, const char *track)
   {
   replace (&self->track, track);
   }
 
 /*==========================================================================
 
-  audio_metadata_set_comment
+  vs_metadata_set_comment
 
 ==========================================================================*/
-void audio_metadata_set_comment (AudioMetadata *self, const char *comment)
+void vs_metadata_set_comment (VSMetadata *self, const char *comment)
   {
   replace (&self->comment, comment);
   }
 
 /*==========================================================================
 
-  audio_metadata_set_year
+  vs_metadata_set_year
 
 ==========================================================================*/
-void audio_metadata_set_year (AudioMetadata *self, const char *year)
+void vs_metadata_set_year (VSMetadata *self, const char *year)
   {
   replace (&self->year, year);
   }
 
 /*==========================================================================
 
-  audio_metadata_set_path
+  vs_metadata_set_path
 
 ==========================================================================*/
-void audio_metadata_set_path (AudioMetadata *self, const char *path)
+void vs_metadata_set_path (VSMetadata *self, const char *path)
   {
   replace (&self->path, path);
   }
 
 /*==========================================================================
 
-  audio_metadata_set_size
+  vs_metadata_set_size
 
 ==========================================================================*/
-void audio_metadata_set_size (AudioMetadata *self, size_t size)
+void vs_metadata_set_size (VSMetadata *self, size_t size)
   {
   self->size = size;
   }
 
 /*==========================================================================
 
-  audio_metadata_set_mtime
+  vs_metadata_set_mtime
 
 ==========================================================================*/
-void audio_metadata_set_mtime (AudioMetadata *self, time_t mtime)
+void vs_metadata_set_mtime (VSMetadata *self, time_t mtime)
   {
   self->mtime = mtime;
   }
 
 /*==========================================================================
 
-  audio_metadata_set_cover
+  vs_metadata_set_cover
 
 ==========================================================================*/
-void audio_metadata_set_cover (AudioMetadata *self, MimeBuffer *cover)
+void vs_metadata_set_cover (VSMetadata *self, VSMimeBuffer *cover)
   {
-  if (self->cover) mimebuffer_destroy (self->cover);
+  if (self->cover) vs_mimebuffer_destroy (self->cover);
   self->cover = cover;
   }
 
 /*==========================================================================
 
-  audio_metadata_dump
+  vs_metadata_dump
 
 ==========================================================================*/
-void audio_metadata_dump (const AudioMetadata *self)
+void vs_metadata_dump (const VSMetadata *self)
   {
   printf ("path: %s\n", SAFE(self->path));  
   printf ("album: %s\n", SAFE(self->album));  

@@ -1,8 +1,8 @@
 /*======================================================================
   
-  vlc-rest-server
+  vlc-server
 
-  api/src/libvlc_server_playlist.c
+  vs_playlist.c
 
   Copyright (c)2022 Kevin Boone, GPL v3.0
 
@@ -10,14 +10,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <vlc-server/libvlc_server_playlist.h>
+#include <vlc-server/vs_playlist.h>
 
 /*======================================================================
   
-  LibVlcServerPlaylist
+  VSPlaylist
 
 ======================================================================*/
-struct _LibVlcServerPlaylist
+struct _VSPlaylist
   {
   int len;
   char **mrls;
@@ -28,9 +28,9 @@ struct _LibVlcServerPlaylist
   libvlc_server_stat_new
 
 ======================================================================*/
-LibVlcServerPlaylist *libvlc_server_playlist_new (int len)
+VSPlaylist *vs_playlist_new (int len)
   {
-  LibVlcServerPlaylist *self = malloc (sizeof (LibVlcServerPlaylist));
+  VSPlaylist *self = malloc (sizeof (VSPlaylist));
   self->len = len;
   self->mrls = malloc (len * sizeof (char *));
   for (int i = 0; i < len; i++)
@@ -40,10 +40,10 @@ LibVlcServerPlaylist *libvlc_server_playlist_new (int len)
 
 /*======================================================================
   
-  libvlc_server_playlist_destroy
+  vs_playlist_destroy
 
 ======================================================================*/
-void libvlc_server_playlist_destroy (LibVlcServerPlaylist *self)
+void vs_playlist_destroy (VSPlaylist *self)
   {
   for (int i = 0; i < self->len; i++)
     {
@@ -55,11 +55,10 @@ void libvlc_server_playlist_destroy (LibVlcServerPlaylist *self)
 
 /*======================================================================
   
-  libvlc_server_playlist_set
+  vs_playlist_set
 
 ======================================================================*/
-void libvlc_server_playlist_set (LibVlcServerPlaylist *self, 
-       int index, const char *mrl)
+void vs_playlist_set (VSPlaylist *self, int index, const char *mrl)
   {
   if (self->mrls[index]) free (self->mrls[index]);
   self->mrls[index] = strdup (mrl);
@@ -67,22 +66,20 @@ void libvlc_server_playlist_set (LibVlcServerPlaylist *self,
 
 /*======================================================================
   
-  libvlc_server_playlist_get
+  vs_playlist_get
 
 ======================================================================*/
-const char *libvlc_server_playlist_get (const LibVlcServerPlaylist *self, 
-       int index)
+const char *vs_playlist_get (const VSPlaylist *self, int index)
   {
   return self->mrls[index];
   }
 
 /*======================================================================
   
-  libvlc_server_playlist_length
+  vs_playlist_length
 
 ======================================================================*/
-int libvlc_server_playlist_length 
-        (const LibVlcServerPlaylist *self)
+int vs_playlist_length (const VSPlaylist *self)
   {
   return self->len;
   }

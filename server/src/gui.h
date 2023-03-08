@@ -29,7 +29,7 @@ extern BOOL gui_process_request (Player *player, const char *media_root,
         int matches_per_page, MediaDatabase *mdb, const char *instance_name);
 
 extern void gui_set_constraints_from_arguments 
-       (MediaDatabaseConstraints *constraints, const VSProps *arguments);
+       (VSSearchConstraints *constraints, const VSProps *arguments);
 
 extern VSString *gui_get_results_page (const char *path, 
             const VSProps *arguments, int count, MediaDatabase *mdb, 

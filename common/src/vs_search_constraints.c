@@ -2,7 +2,7 @@
   
   vlc-server
 
-  server/src/media_database.c
+  vs_search_constraints.c 
 
   Copyright (c)2022 Kevin Boone, GPL v3.0
 
@@ -17,33 +17,33 @@
 #include <vlc-server/vs_log.h> 
 #include <vlc-server/vs_util.h> 
 #include <vlc-server/vs_string.h> 
-#include <vlc-server/media_database_constraints.h>
+#include <vlc-server/vs_search_constraints.h>
 
 /*======================================================================
-  media_database_constraints_new
+  vs_search_constraints_new
 ======================================================================*/
-MediaDatabaseConstraints *media_database_constraints_new (void)
+VSSearchConstraints *vs_search_constraints_new (void)
   {
-  MediaDatabaseConstraints *self = malloc 
-     (sizeof (MediaDatabaseConstraints));
-  memset (self, 0, sizeof (MediaDatabaseConstraints));
+  VSSearchConstraints *self = malloc 
+     (sizeof (VSSearchConstraints));
+  memset (self, 0, sizeof (VSSearchConstraints));
   return self;
   }
 
 /*======================================================================
-  media_database_constraints_destroy
+  vs_search_constraints_destroy
 ======================================================================*/
-void media_database_constraints_destroy 
-    (MediaDatabaseConstraints *self)
+void vs_search_constraints_destroy 
+    (VSSearchConstraints *self)
   {
   if (self->where) free (self->where);
   free (self);
   }
 
 /*======================================================================
-  media_database_constraints_destroy
+  vs_search_constraints_destroy
 ======================================================================*/
-void media_database_constraints_set_where (MediaDatabaseConstraints *self, 
+void vs_search_constraints_set_where (VSSearchConstraints *self, 
        const char *where)
   {
   if (self->where) free (self->where);

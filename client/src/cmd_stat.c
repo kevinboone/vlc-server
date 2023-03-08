@@ -50,12 +50,12 @@ int cmd_stat (const char *argv0, int argc, char **new_argv,
     (context->host, context->port);
   char *msg = NULL;
   VSApiError err_code;
-  LibVlcServerStat *stat = libvlc_server_client_stat (client, &err_code, &msg);
+  VSServerStat *stat = libvlc_server_client_stat (client, &err_code, &msg);
 
   if (stat)
     {
     printf ("current media url: ");
-    const char *mrl = libvlc_server_stat_get_mrl (stat);
+    const char *mrl = vs_server_stat_get_mrl (stat);
     if (mrl && mrl[0])
       {
       printf ("%s\n", mrl);
@@ -64,7 +64,7 @@ int cmd_stat (const char *argv0, int argc, char **new_argv,
       {
       printf ("none\n");
       }
-    VSApiTransportStatus ts = libvlc_server_stat_get_transport_status (stat);
+    VSApiTransportStatus ts = vs_server_stat_get_transport_status (stat);
     printf ("transport: ");
     switch (ts)
       {
@@ -76,23 +76,42 @@ int cmd_stat (const char *argv0, int argc, char **new_argv,
       case VSAPI_TS_BUFFERING: printf ("buffering\n"); break;
       case VSAPI_TS_ENDED: printf ("ended\n"); break;
       }
-    int duration = libvlc_server_stat_get_duration (stat);
+    int duration = vs_server_stat_get_duration (stat);
     printf ("duration: ");
     cmd_stat_print_time (duration);
     printf ("\n");
 
-    int position = libvlc_server_stat_get_position (stat);
+    int position = vs_server_stat_get_position (stat);
     printf ("position: ");
     cmd_stat_print_time (position);
     printf ("\n");
 
-    int index = libvlc_server_stat_get_index (stat);
+    int index = vs_server_stat_get_index (stat);
     printf ("playlist index: %d\n", index);
 
-    int volume = libvlc_server_stat_get_volume (stat);
+    int volume = vs_server_stat_get_volume (stat);
     printf ("volume: %d\n", volume);
 
-    libvlc_server_stat_destroy (stat);
+    const VSMetadata *amd = vs_server_stat_get_metadata (stat);
+
+    const char *title = vs_metadata_get_title (amd);
+    printf ("title: %s\n", title);
+    const char *album = vs_metadata_get_album (amd);
+    printf ("album: %s\n", album);
+    const char *artist = vs_metadata_get_artist (amd);
+    printf ("artist: %s\n", artist);
+    const char *genre = vs_metadata_get_genre (amd);
+    printf ("genre: %s\n", genre);
+    const char *composer = vs_metadata_get_composer (amd);
+    printf ("composer: %s\n", composer);
+
+    int scanner_progress = vs_server_stat_get_scanner_progress (stat);
+    if (scanner_progress < 0)
+      printf ("scanner: not running\n"); 
+    else
+      printf ("scanner: %d files scanned\n", scanner_progress);
+
+    vs_server_stat_destroy (stat);
     }
   else
     cmd_handle_response (argv0, err_code, msg);

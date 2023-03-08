@@ -1,0 +1,8 @@
+Multi-byte characters do not display properly on the Pi, when using the kernel
+console as the display device. Not only do they display badly, but ncurses
+functions that are supposed to truncate output to a specific number of columns
+don't work properly, so text overflows and generally messes up the display. The
+same mode of operation works fine on Fedora, so I suspect that there's a
+problem with the Pi version of ncurses. There needs to be at least a workaround
+for this, wherever the fault is.
+ 

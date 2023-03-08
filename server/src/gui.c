@@ -179,7 +179,7 @@ BOOL gui_process_request (Player *player, const char *media_root,
   gui_set_constraints_from_arguments
 ======================================================================*/
 void gui_set_constraints_from_arguments 
-       (MediaDatabaseConstraints *constraints, const VSProps *arguments)
+       (VSSearchConstraints *constraints, const VSProps *arguments)
   {
   constraints->start = 0;
   const char *s_start = vs_props_get (arguments, "start");
@@ -188,7 +188,7 @@ void gui_set_constraints_from_arguments
   if (s_count) constraints->count = atoi (s_count);
   if (constraints->count == 0) constraints->count = 30; // TODO
   if (s_start) constraints->start = atoi (s_start);
-  if (s_where) media_database_constraints_set_where (constraints, s_where);
+  if (s_where) vs_search_constraints_set_where (constraints, s_where);
   //if (s_where) printf ("where=%s\n", s_where);
   }
 
@@ -312,7 +312,7 @@ VSString *gui_get_results_page (const char *path,
     int covers = 0; // FALSE
     const char *s_covers = vs_props_get (arguments, "covers");
     if (s_covers) covers = atoi (s_covers);
-    MediaDatabaseConstraints *constraints = media_database_constraints_new();
+    VSSearchConstraints *constraints = vs_search_constraints_new();
     gui_set_constraints_from_arguments (constraints, arguments);
     VSList *entries = vs_list_create (free);
     char *error = NULL;
@@ -384,7 +384,7 @@ VSString *gui_get_results_page (const char *path,
       free (error);
       }
     vs_list_destroy (entries);
-    media_database_constraints_destroy (constraints);
+    vs_search_constraints_destroy (constraints);
     }
   else
     {
@@ -420,7 +420,7 @@ VSString *gui_get_limited_results_page (
     int covers = 0; // FALSE
     const char *s_covers = vs_props_get (arguments, "covers");
     if (s_covers) covers = atoi (s_covers);
-    MediaDatabaseConstraints *constraints = media_database_constraints_new();
+    VSSearchConstraints *constraints = vs_search_constraints_new();
     gui_set_constraints_from_arguments (constraints, arguments);
     constraints->start = 0;
     constraints->count = count;
@@ -482,7 +482,7 @@ VSString *gui_get_limited_results_page (
       free (error);
       }
     vs_list_destroy (entries);
-    media_database_constraints_destroy (constraints);
+    vs_search_constraints_destroy (constraints);
     }
   else
     {

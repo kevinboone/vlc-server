@@ -14,11 +14,12 @@
 #include <stdlib.h>
 #include <regex.h>
 #include <time.h>
+#include <pthread.h>
 #include <microhttpd.h>
 #include <vlc-server/vs_log.h> 
 #include <vlc-server/vs_util.h> 
 #include <vlc-server/vs_string.h> 
-#include <vlc-server/audio_metadata.h> 
+#include <vlc-server/vs_metadata.h> 
 #include "media_database.h"
 #include "sqlite3.h"
 
@@ -34,6 +35,7 @@ struct _MediaDatabase
   {
   char *mdb_file;
   sqlite3 *sqlite;
+  pthread_mutex_t mutex;
   };
 
 #define SAFE(x)((x) ? (x) : "")
@@ -65,18 +67,44 @@ void media_database_regexp (sqlite3_context* context, int argc,
       sqlite3_value** values)
   {
   int ret;
+  MediaDatabase *self = sqlite3_user_data (context);
 
+  static char last_regex_string[128]; // Will be initialzed all zeros
+  static regex_t regex;
+
+  // The method I'm using for caching the compiled regex will only work
+  //   when there are low levels of concurrency. Only one value is cached
+  //   for all requests on all threads. So if two threads are doing different
+  //   queries using regex, most likely the regex will still be compiled on
+  //   each threads. And we have to use mutexes, because we can't risk the
+  //   compiled regex changing in the middle of a query. All in all, this
+  //   is ugly, and the benefit of caching is unclear.
   if (argc == 2)
     {
     char *text = (char*)sqlite3_value_text(values[1]);
     if (text)
       {
+      pthread_mutex_lock (&self->mutex);
       char *reg = (char*)sqlite3_value_text(values[0]);
-      regex_t regex;
+      if (strcmp (reg, last_regex_string)) // This is a different regex
+        {
+        ret = regcomp (&regex, reg, REG_EXTENDED | REG_NOSUB | REG_ICASE);
+        if (ret != 0)
+	  {
+	  sqlite3_result_error 
+            (context, "error compiling regular expression", -1);
+          pthread_mutex_unlock (&self->mutex);
+	  return;
+	  }
+        strncpy (last_regex_string, reg, sizeof (last_regex_string) - 1);
+        }
+      
       ret = regcomp (&regex, reg, REG_EXTENDED | REG_NOSUB | REG_ICASE);
       if (ret != 0)
 	{
-	sqlite3_result_error (context, "error compiling regular expression", -1);
+	sqlite3_result_error (context, 
+          "error compiling regular expression", -1);
+        pthread_mutex_unlock (&self->mutex);
 	return;
 	}
 
@@ -84,6 +112,7 @@ void media_database_regexp (sqlite3_context* context, int argc,
       regfree(&regex);
 
       sqlite3_result_int (context, (ret != REG_NOMATCH));
+      pthread_mutex_unlock (&self->mutex);
       }
     else
       {
@@ -106,6 +135,7 @@ MediaDatabase *media_database_create (const char *mdb_file)
   IN
   MediaDatabase *self = malloc (sizeof (MediaDatabase));
   self->mdb_file = strdup (mdb_file);
+  pthread_mutex_init (&self->mutex, NULL);
   return self;
   OUT
   }
@@ -189,7 +219,11 @@ void media_database_init (MediaDatabase *self, BOOL create, char **error)
   vs_log_debug ("Opening database %s", self->mdb_file);
   BOOL create_tables = FALSE;
 
-  if (access (self->mdb_file, R_OK) != 0)
+  if (access (self->mdb_file, R_OK) == 0)
+    {
+    vs_log_info ("Media database exists");
+    }
+  else
     {
     // If there is no DB file at all, we will have to create tables in
     //   it if we create the database.
@@ -202,15 +236,16 @@ void media_database_init (MediaDatabase *self, BOOL create, char **error)
     int err = sqlite3_open (self->mdb_file, &sqlite);
     if (err == 0)
       {
-      sqlite3_create_function (sqlite, "regexp", 2, SQLITE_ANY, 0,
+      sqlite3_create_function (sqlite, "regexp", 2, SQLITE_ANY, self,
           media_database_regexp, 0, 0);
-      sqlite3_create_function (sqlite, "daysold", 1, SQLITE_ANY, 0,
+      sqlite3_create_function (sqlite, "daysold", 1, SQLITE_ANY, self,
           media_database_daysold, 0, 0);
 
       self->sqlite = sqlite;
 
       if (create_tables)
         {
+        vs_log_info ("Creating an empty media database");
         media_database_create_tables (self);
         }
       }
@@ -238,6 +273,8 @@ void media_database_destroy (MediaDatabase *self)
     {
     if (self->sqlite) sqlite3_close (self->sqlite);
     if (self->mdb_file) free (self->mdb_file); 
+    pthread_mutex_unlock (&self->mutex);
+    pthread_mutex_destroy (&self->mutex);
     free (self);
     }
   OUT
@@ -366,7 +403,7 @@ VSList *media_database_sql_query (MediaDatabase *self, const char *sql,
 ======================================================================*/
 void media_database_search (MediaDatabase *self, 
        MediaDatabaseColumn column,  VSList *results, 
-       const MediaDatabaseConstraints *constraints, char **error)
+       const VSSearchConstraints *constraints, char **error)
   {
   VSString *sql = vs_string_create ("select distinct ");
 
@@ -430,7 +467,7 @@ void media_database_search (MediaDatabase *self,
 ======================================================================*/
 int media_database_search_count (MediaDatabase *self, 
        MediaDatabaseColumn column,   
-       const MediaDatabaseConstraints *constraints, char **error)
+       const VSSearchConstraints *constraints, char **error)
   {
   int ret = 0;
   VSString *sql = vs_string_create ("select count (distinct ");
@@ -492,31 +529,31 @@ BOOL media_database_is_init (const MediaDatabase *self)
   media_database_set_amd
 ======================================================================*/
 BOOL media_database_set_amd (MediaDatabase *self, 
-      const AudioMetadata *amd, char **error)
+      const VSMetadata *amd, char **error)
   {
   IN
   char *esc_path = media_database_escape_sql 
-    (SAFE (audio_metadata_get_path (amd)));
+    (SAFE (vs_metadata_get_path (amd)));
   char *esc_title = media_database_escape_sql 
-    (SAFE (audio_metadata_get_title (amd)));
+    (SAFE (vs_metadata_get_title (amd)));
   char *esc_album = media_database_escape_sql 
-    (SAFE (audio_metadata_get_album (amd)));
+    (SAFE (vs_metadata_get_album (amd)));
   char *esc_genre = media_database_escape_sql 
-    (SAFE (audio_metadata_get_genre (amd)));
+    (SAFE (vs_metadata_get_genre (amd)));
   char *esc_composer = media_database_escape_sql 
-    (SAFE (audio_metadata_get_composer (amd)));
+    (SAFE (vs_metadata_get_composer (amd)));
   char *esc_artist = media_database_escape_sql 
-    (SAFE (audio_metadata_get_artist (amd)));
+    (SAFE (vs_metadata_get_artist (amd)));
   char *esc_album_artist = media_database_escape_sql 
-    (SAFE (audio_metadata_get_album_artist (amd)));
+    (SAFE (vs_metadata_get_album_artist (amd)));
   char *esc_track = media_database_escape_sql  
-    (SAFE (audio_metadata_get_track (amd)));
+    (SAFE (vs_metadata_get_track (amd)));
   char *esc_comment = media_database_escape_sql 
-    (SAFE (audio_metadata_get_comment (amd)));
+    (SAFE (vs_metadata_get_comment (amd)));
   char *esc_year = media_database_escape_sql 
-    (SAFE (audio_metadata_get_year (amd)));
-  time_t mtime = audio_metadata_get_mtime (amd);
-  size_t size = audio_metadata_get_size (amd);
+    (SAFE (vs_metadata_get_year (amd)));
+  time_t mtime = vs_metadata_get_mtime (amd);
+  size_t size = vs_metadata_get_size (amd);
 
   char *sql;
   asprintf (&sql, "insert into files "
@@ -557,11 +594,11 @@ BOOL media_database_set_amd (MediaDatabase *self,
 /*======================================================================
   media_database_get_amd
 ======================================================================*/
-AudioMetadata *media_database_get_amd (MediaDatabase *self, 
+VSMetadata *media_database_get_amd (MediaDatabase *self, 
       const char *path)
   {
   IN
-  AudioMetadata *ret = NULL;
+  VSMetadata *ret = NULL;
 
   char *esc_path = media_database_escape_sql (path);
 
@@ -577,19 +614,19 @@ AudioMetadata *media_database_get_amd (MediaDatabase *self,
     int l = vs_list_length (list);
     if (l == 11)
       {
-      ret = audio_metadata_create();
-      audio_metadata_set_path (ret, path);
-      audio_metadata_set_size (ret, atoi (vs_list_get (list, 0)));
-      audio_metadata_set_mtime (ret, atoi (vs_list_get (list, 1)));
-      audio_metadata_set_title (ret, vs_list_get (list, 2));
-      audio_metadata_set_album (ret, vs_list_get (list, 3));
-      audio_metadata_set_genre (ret, vs_list_get (list, 4));
-      audio_metadata_set_composer (ret, vs_list_get (list, 5));
-      audio_metadata_set_artist (ret, vs_list_get (list, 6));
-      audio_metadata_set_album_artist (ret, vs_list_get (list, 7));
-      audio_metadata_set_track (ret, vs_list_get (list, 8));
-      audio_metadata_set_comment (ret, vs_list_get (list, 9));
-      audio_metadata_set_year (ret, vs_list_get (list, 10));
+      ret = vs_metadata_create();
+      vs_metadata_set_path (ret, path);
+      vs_metadata_set_size (ret, atoi (vs_list_get (list, 0)));
+      vs_metadata_set_mtime (ret, atoi (vs_list_get (list, 1)));
+      vs_metadata_set_title (ret, vs_list_get (list, 2));
+      vs_metadata_set_album (ret, vs_list_get (list, 3));
+      vs_metadata_set_genre (ret, vs_list_get (list, 4));
+      vs_metadata_set_composer (ret, vs_list_get (list, 5));
+      vs_metadata_set_artist (ret, vs_list_get (list, 6));
+      vs_metadata_set_album_artist (ret, vs_list_get (list, 7));
+      vs_metadata_set_track (ret, vs_list_get (list, 8));
+      vs_metadata_set_comment (ret, vs_list_get (list, 9));
+      vs_metadata_set_year (ret, vs_list_get (list, 10));
       }
     else
       {

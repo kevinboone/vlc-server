@@ -14,9 +14,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-#include <vlc-server/vs_list.h>
 #include <vlc-server/api-client.h>
-#include <vlc-server/media_database_constraints.h>
 #include <ncursesw/curses.h>
 #include "keys.h" 
 #include "message.h" 
@@ -25,18 +23,35 @@
 
 /*======================================================================
   
+  view_misc_run_scanner
+
+======================================================================*/
+void view_misc_run_scanner (LibVlcServerClient *lvsc)
+  {
+  char *message = NULL;
+  VSApiError err_code;
+  libvlc_server_client_scan (lvsc, &err_code, &message);
+  if (message)
+    {
+    message_show (message);
+    free (message);
+    }
+  }
+
+/*======================================================================
+  
   view_misc_toggle_pause 
 
 ======================================================================*/
 void view_misc_toggle_pause (LibVlcServerClient *lvsc)
   {
-  char *error = NULL;
+  char *message = NULL;
   VSApiError err_code;
-  libvlc_server_client_toggle_pause (lvsc, &err_code, &error);
-  if (error)
+  libvlc_server_client_toggle_pause (lvsc, &err_code, &message);
+  if (message)
     {
-    message_show (error);
-    free (error);
+    message_show (message);
+    free (message);
     }
   }
 
@@ -47,13 +62,13 @@ void view_misc_toggle_pause (LibVlcServerClient *lvsc)
 ======================================================================*/
 void view_misc_stop (LibVlcServerClient *lvsc)
   {
-  char *error = NULL;
+  char *message = NULL;
   VSApiError err_code;
-  libvlc_server_client_stop (lvsc, &err_code, &error);
-  if (error)
+  libvlc_server_client_stop (lvsc, &err_code, &message);
+  if (message)
     {
-    message_show (error);
-    free (error);
+    message_show (message);
+    free (message);
     }
   }
 
@@ -64,13 +79,13 @@ void view_misc_stop (LibVlcServerClient *lvsc)
 ======================================================================*/
 void view_misc_next (LibVlcServerClient *lvsc)
   {
-  char *error = NULL;
+  char *message = NULL;
   VSApiError err_code;
-  libvlc_server_client_next (lvsc, &err_code, &error);
-  if (error)
+  libvlc_server_client_next (lvsc, &err_code, &message);
+  if (message)
     {
-    message_show (error);
-    free (error);
+    message_show (message);
+    free (message);
     }
   }
 
@@ -81,13 +96,13 @@ void view_misc_next (LibVlcServerClient *lvsc)
 ======================================================================*/
 void view_misc_prev (LibVlcServerClient *lvsc)
   {
-  char *error = NULL;
+  char *message = NULL;
   VSApiError err_code;
-  libvlc_server_client_prev (lvsc, &err_code, &error);
-  if (error)
+  libvlc_server_client_prev (lvsc, &err_code, &message);
+  if (message)
     {
-    message_show (error);
-    free (error);
+    message_show (message);
+    free (message);
     }
   }
 
@@ -98,27 +113,27 @@ void view_misc_prev (LibVlcServerClient *lvsc)
 ======================================================================*/
 void view_misc_volume_down (LibVlcServerClient *lvsc)
   {
-  char *error = NULL;
+  char *message = NULL;
   VSApiError err_code;
-  libvlc_server_client_volume_down (lvsc, &err_code, &error);
-  if (error)
+  libvlc_server_client_volume_down (lvsc, &err_code, &message);
+  if (message)
     {
-    message_show (error);
-    free (error);
+    message_show (message);
+    free (message);
     }
   else
     {
-    LibVlcServerStat *stat = libvlc_server_client_stat 
+    VSServerStat *stat = libvlc_server_client_stat 
          (lvsc, &err_code, NULL);
     if (err_code == 0)
       {
       char s[30];
       sprintf (s, "Volume %d%%", 
-         libvlc_server_stat_get_volume (stat));
+         vs_server_stat_get_volume (stat));
       message_show (s);
       }
     if (stat) 
-      libvlc_server_stat_destroy (stat);
+      vs_server_stat_destroy (stat);
     }
   }
 
@@ -129,27 +144,27 @@ void view_misc_volume_down (LibVlcServerClient *lvsc)
 ======================================================================*/
 void view_misc_volume_up (LibVlcServerClient *lvsc)
   {
-  char *error = NULL;
+  char *message = NULL;
   VSApiError err_code;
-  libvlc_server_client_volume_up (lvsc, &err_code, &error);
-  if (error)
+  libvlc_server_client_volume_up (lvsc, &err_code, &message);
+  if (message)
     {
-    message_show (error);
-    free (error);
+    message_show (message);
+    free (message);
     }
   else
     {
-    LibVlcServerStat *stat = libvlc_server_client_stat 
+    VSServerStat *stat = libvlc_server_client_stat 
          (lvsc, &err_code, NULL);
     if (err_code == 0)
       {
       char s[30];
       sprintf (s, "Volume %d%%", 
-         libvlc_server_stat_get_volume (stat));
+         vs_server_stat_get_volume (stat));
       message_show (s);
       }
     if (stat) 
-      libvlc_server_stat_destroy (stat);
+      vs_server_stat_destroy (stat);
     }
   }
 
@@ -251,6 +266,9 @@ void view_list (WINDOW *main_window, LibVlcServerClient *lvsc,
      current_index, list_length, title);
   while ((ch = getch ()) != keys_quit || kiosk)
     {
+    //char s[20];
+    //sprintf (s, "%d", ch);
+    //message_show (s);
     if (ch == keys_line_down)
       {
       if (current_index < list_length - 1) current_index++;

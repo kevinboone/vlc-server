@@ -14,9 +14,9 @@
 
 #include <vlc-server/vs_defs.h> 
 #include <vlc-server/vs_list.h> 
-#include <vlc-server/audio_metadata.h> 
+#include <vlc-server/vs_metadata.h> 
 #include <vlc-server/libvlc_media_database.h> 
-#include <vlc-server/media_database_constraints.h> 
+#include <vlc-server/vs_search_constraints.h> 
 
 struct _MediaDatabase;
 typedef struct _MediaDatabase MediaDatabase;
@@ -52,27 +52,27 @@ extern void media_database_destroy (MediaDatabase *self);
        specified by the 'column' argument. */
 extern void media_database_search (MediaDatabase *self,
         MediaDatabaseColumn column, VSList *results, 
-       const MediaDatabaseConstraints *constraints,  char **error);
+       const VSSearchConstraints *constraints,  char **error);
 
 /** As media_database_search(), except that this method only returns the
        number of hits. */
 extern int media_database_search_count (MediaDatabase *self, 
        MediaDatabaseColumn column,   
-       const MediaDatabaseConstraints *constraints, char **error);
+       const VSSearchConstraints *constraints, char **error);
 
 /** Returns TRUE if the sqlite database got initialized correctly. */
 extern BOOL media_database_is_init (const MediaDatabase *self);
 
-/** Get an AudioMetadata object for a specific path. If there is
+/** Get an VSMetadata object for a specific path. If there is
       not such path, or there was an error, return NULL. The caller
       must from the metadata object if it is not NULL. */
-extern AudioMetadata *media_database_get_amd (MediaDatabase *self, 
+extern VSMetadata *media_database_get_amd (MediaDatabase *self, 
           const char *path);
 
-/** Set all the fields of an AudioMetadata object that have columns in the
+/** Set all the fields of an VSMetadata object that have columns in the
       database, given a specific path. */
 extern BOOL media_database_set_amd (MediaDatabase *self, 
-          const AudioMetadata *amd, char **error);
+          const VSMetadata *amd, char **error);
 
 /* Return TRUE if the path is in the database, whatever data is associated 
      with it.  If not found, or on error, returns FALSE. This function is
@@ -98,10 +98,10 @@ extern void media_database_remove_nonexistent (MediaDatabase *self);
       representation in SQL. */
 extern char *media_database_escape_sql (const char *sql);
 
-/**** MediaDatabaseConstraints methods *****/
+/**** VSSearchConstraints methods *****/
 
-extern MediaDatabaseConstraints *media_database_constraints_new (void);
-extern void media_database_constraints_destroy (MediaDatabaseConstraints *self);
+extern VSSearchConstraints *vs_search_constraints_new (void);
+extern void vs_search_constraints_destroy (VSSearchConstraints *self);
 
 END_CDECLS
 
