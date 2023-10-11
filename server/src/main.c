@@ -226,7 +226,7 @@ int main (int argc, char* argv[])
         }
 
       // We can continue without a media database
- 
+
       if (flag_foreground)
         {
         vs_log_syslog = FALSE;

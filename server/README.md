@@ -236,9 +236,19 @@ Of course, using `plughw` enables _bad_ conversions as well. If the
 audio hardware is set up to allow only 16-bit samples, and you play
 a 24-bit file, ALSA will silently downsample.
 
-In sort, if you care about optimal sound quality, you really have to
+In short, if you care about optimal sound quality, you really have to
 understand how ALSA (or Pulse) works, and know the capabilities of
 your audio hardware. 
+
+Incidentally, I've had problems on systems that use PipeWire -- the
+ALSA device cannot be opened, with a message like this: 
+
+    ERROR The audio device "iec958:CARD=I20,DEV=0" could not be used:
+    Device or resource busy.
+    ERROR module not functional
+
+Killing the `pipewire-pulse` process fixes this, at least in the short
+term. It just gets restarted :/
 
 ### Volume control
 

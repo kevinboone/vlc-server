@@ -1,0 +1,5 @@
+MEDIA_DIR="/run/media/kevin/Extreme SSD/mediafiles/audio_music"
+# You can get a list of ALSA devices using 'aplay -L'
+ALSA_DEV="iec958:CARD=I20,DEV=0"
+PORT=30000
+
