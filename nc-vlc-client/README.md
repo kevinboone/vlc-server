@@ -1,6 +1,6 @@
 # nc-vlc-client
 
-Version 0.1c, March 2023
+Version 0.1d, November 2023
 
 ## What is this?
 
@@ -31,9 +31,36 @@ function but, at a pinch, only four keys are needed.
 
 The reason for this design is so `nv-vlc-client` can be used as 
 a player interface in an embedded Linux system, that may have no
-keyboard. USB numeric keypads are widely available and dirt cheap, 
+keyboard. USB numeric keypads and remote controls are widely 
+available and dirt cheap, 
 and can easily be dismantled and integrated into a custom hardware
-design.  
+design. I particularly favour the Microsoft Media Centre 
+remotes, that have a USB receiver. The only problem with this 
+cheap devices is that the button are a bit bouncy, so sometimes
+extra button-presses get generated.
+
+
+
+## Key bindings
+
+The whole menu structure is designed to be navigated using a 
+Microsoft Media Centre remote control with USB receiver. So the key
+bindings are a little odd, for keyboard users. In particularly,
+to select a menu item, use the cursor-right key. To navigate to
+the previous item, use cursor-left. On the remote, all navigation
+can be done using the four-way navigation pad, which generates
+cursor-movement keystrokes.
+
+The interface also responds to page-up and page-down keys, which
+have corresponding buttons on the remote. Play/pause/stop on the remote
+work, as doe previous/next. Use the 'help' menu to see the
+console key bindings. The correspondong keys on the remote are not
+very easy to document, but I hope they are reasonably self-explanatory. 
+
+`nc-vlc-client` will run in a terminal emulator, but also in the
+kernel console, so it will work in a system with no graphical
+desktop or X support. But Unicode support is a little tricky
+in this set-up (see below).
 
 ## Limitations
 
@@ -62,6 +89,9 @@ support UTF-8 wide characters, but it must have the necessary fonts to
 render these characters.  There really isn't much that `nc-vlc-client` can
 do to correct deficiencies in the console.
 
- 
+## Revision history
+
+0.1d November 2023
+- Added 'system info' menu item 
 
 

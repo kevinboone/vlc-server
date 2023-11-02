@@ -351,4 +351,18 @@ Reduces the audio volume in 10% steps.
 
 Increases the audio volume in 10% steps.
 
+### version 
+
+    /api/version
+
+Returns the server version as a JSON string. 
+
+    {"status": 0, "version": "0.1c"}
+
+Note that there is, at present, no particular format for the version
+string. There really isn't much that a client can do, other than
+check it matches its own version. If it doesn't, most likely the 
+API request would have failed, anyway. Clients might want to display
+the server version for troubleshooting purposes.
+
 

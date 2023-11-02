@@ -1,6 +1,6 @@
 # vlc-server
 
-Version 0.1c, February 2023
+Version 0.1d, November 2023
 
 ## What is this?
 
@@ -307,5 +307,12 @@ image larger than 64x64 pixels. That is the size that the cover art images
 are displayed on web pages; if they are larger, the browser will have
 to scale them down. And, of course, transferring a larger image from
 the server to the browser takes longer. 
+
+## Revision history
+
+0.1d November 2023
+- Added /version API request, so that non-web clients can check that they
+  have matching versions.
+- Various bug fixes
 
 

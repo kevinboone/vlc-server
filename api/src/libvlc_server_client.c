@@ -1248,4 +1248,51 @@ void libvlc_server_client_volume_up (LibVlcServerClient *self,
   OUT
   }
 
+/*======================================================================
+
+  libvlc_server_client_get_version
+
+======================================================================*/
+char *libvlc_server_client_get_version (const LibVlcServerClient *self, 
+         VSApiError *err_code, char **msg)
+  {
+  IN
+  char *ret = NULL;
+  char *request = NULL;
+  asprintf (&request, "version");
+  char *response = libvlc_server_client_request (self, request, err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+  	cJSON *j = cJSON_GetObjectItem (root, "version"); 
+        if (j) 
+          ret = strdup (j->valuestring);
+        else
+          {
+          *err_code = VSAPI_ERR_COMMS;
+          if (*msg) *msg = strdup (INV_JSON_MSG);
+          ret = NULL;
+          }
+        }
+
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  
+  if (response) free (response);
+  free (request);
+  OUT
+  
+  return ret;
+  }
+
 

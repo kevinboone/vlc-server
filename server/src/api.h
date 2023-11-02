@@ -135,3 +135,6 @@ extern char *api_get_dir_for_album (MediaDatabase *mdb, const char *album);
 extern VSApiError api_scan (MediaDatabase *mdb, const char *media_root);
 extern char *api_scan_js (MediaDatabase *mdb, const char *media_root);
 
+/* Get the server version as a JSON object. */
+extern char *api_version_js (void);
+

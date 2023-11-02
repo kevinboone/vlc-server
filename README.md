@@ -56,6 +56,8 @@ Done:
 - There is an API library that can be used by clients. This exercises
   the server's REST API
 - There is a basic command-line client
+- There is a basic ncurses-based console client. It is limited to 
+  selecting music by album
 - Although there is no specific support for Internet radio streams, such
   streams can be integrated into the media database and played (see the
   scripts and documentation in the `radio_support/` directory)
@@ -71,6 +73,7 @@ Still to do:
 - The ncurses client is very limited -- it plays only albums, in track order
 - Text-based search in the web interface is very slow on low-powered systems
   like the Pi.
+- The ncurses client is very basic. Everything remains to be done.
 
 ## In this repository
 
@@ -89,6 +92,8 @@ communication with a `vlc-server` server instance.
 
 `common/` contains general-purpose functions that are used by all 
 the other components, such as string and list manipulation.
+
+`nc-curses-client/` contains the ncurses-based console client.
 
 `radio_support/` documentation on how to use `vlc-server` with Internet
 radio stations, and sample scripts for maintaining a station list.

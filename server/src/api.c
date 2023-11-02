@@ -1283,4 +1283,17 @@ char *api_scan_js (MediaDatabase *mdb, const char *media_root)
   return ret;
   }
 
+/*======================================================================
+
+  api_version_js
+
+======================================================================*/
+char *api_version_js (void)
+  {
+  char *ret;
+  asprintf (&ret, "{\"status\": 0, \"version\": \"%s\"}\r\n", VERSION);
+  return ret;
+  }
+
+
 

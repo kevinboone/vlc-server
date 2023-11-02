@@ -1,6 +1,6 @@
 # vlc-server-client
 
-Version 0.1c, March 2023
+Version 0.1d, November 2023
 
 ## What is this
 
@@ -31,4 +31,11 @@ a local file or directory. If a local directory is specified, then
 all files in that directory will be added. The server should probably
 have been configured so tha non-media files are not accepted into
 the playlist -- but this is not under the control of the client.
+
+## Revision history
+
+0.1d November 2023
+- added 'version' command
+
+
 

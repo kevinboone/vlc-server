@@ -24,11 +24,13 @@
 #include "view_albums.h" 
 #include "view_playlist.h" 
 #include "view_help.h" 
+#include "view_sys_info.h" 
 #include "view_main_menu.h" 
 
 #define MENU_ALBUMS "Albums"
 #define MENU_PLAYLIST "Playlist"
 #define MENU_CONTROL "Control"
+#define MENU_SYS_INFO "System info"
 #define MENU_HELP "Help"
 
 extern WINDOW *main_window; 
@@ -44,6 +46,7 @@ static VSList *populate_main_menu (void)
   vs_list_append (ret, strdup (MENU_ALBUMS));
   vs_list_append (ret, strdup (MENU_PLAYLIST));
   vs_list_append (ret, strdup (MENU_CONTROL));
+  vs_list_append (ret, strdup (MENU_SYS_INFO));
   vs_list_append (ret, strdup (MENU_HELP));
   return ret;
   }
@@ -64,6 +67,8 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line)
       view_help (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
   else if (strcmp (line, MENU_CONTROL) == 0)
       view_control (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
+  else if (strcmp (line, MENU_SYS_INFO) == 0)
+      view_sys_info (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
   }
 
 /*======================================================================

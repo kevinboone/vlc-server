@@ -167,5 +167,10 @@ void libvlc_server_client_play_album
         (const LibVlcServerClient *self, VSApiError *err_code,
            char **msg, const char *album);
 
+/** Gets the server version, as a char* that the client must
+    free. If the return value is NULL, err_code should have been written. */
+char *libvlc_server_client_get_version (const LibVlcServerClient *self, 
+         VSApiError *err_code, char **msg);
+
 END_CDECLS
 

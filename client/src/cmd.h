@@ -88,3 +88,6 @@ extern int cmd_list_tracks (const char *argv0, int argc, char **new_argv,
 extern void cmd_handle_response (const char *argv0, 
   int err_code, char *msg);
 
+extern int cmd_version (const char *argv0, int argc, char **new_argv, 
+  const CmdContext *context);
+
