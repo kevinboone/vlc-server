@@ -161,6 +161,18 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }
+  else if (strcmp (url, "play_random_tracks") == 0) 
+    {
+    char *aret = api_play_random_tracks_js (self->player, self->mdb);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strcmp (url, "play_random_album") == 0) 
+    {
+    char *aret = api_play_random_album_js (self->player, self->mdb);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
   else if (strcmp (url, "volume_up") == 0)
     {
     char *aret = api_volume_up_js (self->player);

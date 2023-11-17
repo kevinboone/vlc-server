@@ -50,7 +50,8 @@ void gui_albums_album_cell (VSString *body, const char *album,
     vs_string_append (body, "\"/>\n");
     }
 
-  char *enc2 = media_database_escape_sql (album);
+  //char *enc2 = media_database_escape_sql (album);
+  char *enc2 = strdup (album);
   VSString *enc_album = http_util_encode_for_js (enc2); 
 
   vs_string_append (body, "<a href=\"javascript:cmd_add_album('");

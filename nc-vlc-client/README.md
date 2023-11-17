@@ -39,7 +39,10 @@ remotes, that have a USB receiver. The only problem with this
 cheap devices is that the button are a bit bouncy, so sometimes
 extra button-presses get generated.
 
-
+If there is full keyboard attached, the letter keys select the
+starting point in the current display. In the 'ablums' page, for
+example, hitting 'C' will move the display to the first album whose
+name begins with 'C' (or 'c').
 
 ## Key bindings
 
@@ -61,6 +64,19 @@ very easy to document, but I hope they are reasonably self-explanatory.
 kernel console, so it will work in a system with no graphical
 desktop or X support. But Unicode support is a little tricky
 in this set-up (see below).
+
+## Screen navigation
+
+Use the cursor keys (or 4-way pad on a remote) to select menu items,
+and to return to a previous menu. If the a page is displayed for
+15 seconds with no activity, control returns to the main menu.
+Other than in kiosk mode (see below), if there is no activity in the
+main meny for 15 seconds, the program exits.
+
+## Kiosk mode
+
+When run with the `-k` switch, `nc-vlc-client` will not exist, either 
+by navigating back from the main menu, or by inactivity timeout.
 
 ## Limitations
 

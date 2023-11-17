@@ -397,6 +397,49 @@ VSList *media_database_sql_query (MediaDatabase *self, const char *sql,
   return ret;
   }
 
+/*======================================================================
+  media_database_select_random
+======================================================================*/
+void media_database_select_random (MediaDatabase *self, 
+       MediaDatabaseColumn column,  int limit, VSList *results, 
+       char **error)
+  {
+//SELECT * FROM table ORDER BY RANDOM() LIMIT 1;
+  VSString *sql = vs_string_create ("select ");
+
+  vs_string_append (sql, media_database_col_name (column));
+
+  vs_string_append_printf (sql, " from files order by random() limit %d", limit);
+
+  //printf ("Executing sql %s\n", vs_string_cstr (sql));
+  vs_log_debug ("Executing sql %s\n", vs_string_cstr (sql));
+
+  int hits = 0;
+  int cols = 0;
+  char **result = NULL;
+  char *e = NULL;
+  sqlite3_get_table (self->sqlite, vs_string_cstr (sql), &result, 
+     &hits, &cols, &e);
+  if (e == NULL)
+    {
+    vs_log_debug ("Query returned %d hits", hits);
+
+    for (int i = 0; i < hits; i++)
+      {
+      char *res = result [i + 1];
+      vs_list_append (results, strdup (res));
+      }
+
+    sqlite3_free_table (result);
+    }
+  else
+    {
+    *error = strdup (e);
+    sqlite3_free (e);
+    }
+
+  vs_string_destroy (sql);
+  }
 
 /*======================================================================
   media_database_search
@@ -416,6 +459,7 @@ void media_database_search (MediaDatabase *self,
     vs_string_append (sql, " where ");
     //char *escaped_where = media_database_escape_sql (constraints->where);
     //vs_string_append (sql, escaped_where);
+    printf ("constaints_where=%s\n", constraints->where);
     vs_string_append (sql, constraints->where);
     //free (escaped_where);
     }

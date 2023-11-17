@@ -93,6 +93,144 @@ char *api_play_js (Player *player, const char *path)
 
 /*======================================================================
 
+  api_play_random_tracks
+
+======================================================================*/
+VSApiError api_play_random_tracks (Player *player, MediaDatabase *mdb)
+  {
+  VSApiError ret = 0;
+  if (media_database_is_init (mdb))
+    {
+    VSList *tracks = vs_list_create (free);
+    char *error = NULL;
+    // TODO -- make the number '50' of tracks configurable
+    media_database_select_random (mdb, MDB_COL_PATH, 50, tracks, &error);
+    if (tracks)
+      {
+      int len = vs_list_length (tracks);
+      if (len > 0)
+        {
+        player_clear (player);
+        player_stop (player);
+        int added = 0;
+        for (int i = 0; i < len; i++)
+          {
+          const char *path = vs_list_get (tracks, i);
+          int this_added = 0; // Should always end up '1'
+          char *rel_path;
+          asprintf (&rel_path, "@/%s", path);
+          if (player_add (player, rel_path, &this_added) == 0)
+            added += this_added;
+          free (rel_path);
+          }
+
+        if (added > 0)
+          ret = player_start (player);
+        else
+          {
+          // And unusual error: there are items in the media database and, after a
+          // random selection, none can actually be played
+          vs_log_warning ("%s", "Of a random select of tracks, none could be played");
+          ret = VSAPI_ERR_GEN_DB;
+          }
+        }
+      else
+        {
+        ret = VSAPI_ERR_NO_FILES;
+        }
+      vs_list_destroy (tracks);
+      }
+    else
+      {
+      vs_log_warning ("%s", error);
+      free (error);
+      ret = VSAPI_ERR_GEN_DB;
+      }
+    }
+  else
+   ret = VSAPI_ERR_INIT_DB;
+  return ret;
+  }
+
+/*======================================================================
+
+  api_play_random_album
+
+======================================================================*/
+VSApiError api_play_random_album (Player *player, MediaDatabase *mdb)
+  {
+  VSApiError ret = 0;
+  if (media_database_is_init (mdb))
+    {
+    VSList *albums = vs_list_create (free);
+    char *error = NULL;
+    media_database_select_random (mdb, MDB_COL_ALBUM, 1, albums, &error);
+    if (albums)
+      {
+      int len = vs_list_length (albums);
+      if (len > 0)
+        {
+        const char *album = vs_list_get (albums, 0);
+        player_clear (player);
+        player_stop (player);
+        int added = 0;
+        ret = api_add_album (player, mdb, album, &added);
+        if (added > 0)
+          ret = player_start (player);
+        }
+      else
+        {
+        ret = VSAPI_ERR_NO_ALBUMS;
+        }
+      vs_list_destroy (albums);
+      }
+    else
+      {
+      vs_log_warning ("%s", error);
+      free (error);
+      ret = VSAPI_ERR_GEN_DB;
+      }
+    }
+  else
+   ret = VSAPI_ERR_INIT_DB;
+  return ret;
+  }
+
+
+/*======================================================================
+
+ play_random_tracks_js
+
+======================================================================*/
+char *api_play_random_tracks_js (Player *player, MediaDatabase *mdb)
+  {
+  char *ret;
+  int ret2 = api_play_random_tracks (player, mdb);
+  char *j_error = api_escape_json (vs_util_strerror (ret2));
+  asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+    ret2, j_error);
+  free (j_error);
+  return ret;
+  }
+
+/*======================================================================
+
+ play_random_album_js
+
+======================================================================*/
+char *api_play_random_album_js (Player *player, MediaDatabase *mdb)
+  {
+  char *ret;
+  int ret2 = api_play_random_album (player, mdb);
+  char *j_error = api_escape_json (vs_util_strerror (ret2));
+  asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+    ret2, j_error);
+  free (j_error);
+  return ret;
+  }
+
+/*======================================================================
+
  api_add_js
 
 ======================================================================*/
@@ -120,7 +258,7 @@ char *api_add_js (Player *player, const char *path)
 
 /*======================================================================
 
- api_add_album_js
+ api_add_album
 
 ======================================================================*/
 VSApiError api_add_album (Player *player, MediaDatabase *mdb, 
@@ -131,7 +269,14 @@ VSApiError api_add_album (Player *player, MediaDatabase *mdb,
   mdc->start = 0;
   mdc->count = -1;
   char *where;
-  asprintf (&where, "album='%s'", album);
+
+  char *escaped_album = media_database_escape_sql (album);
+
+  //asprintf (&where, "album='%s'", album);
+
+  asprintf (&where, "album='%s'", escaped_album);
+  free (escaped_album);
+
   vs_search_constraints_set_where (mdc, where); 
   free (where);
   VSList *list = api_list_tracks (mdb, 

@@ -50,6 +50,12 @@ extern char *api_add_album_js (struct _Player *player, MediaDatabase *mdb,
 extern char *api_play_album_js (struct _Player *player, MediaDatabase *mdb, 
             const char *album);
 
+extern VSApiError api_play_random_tracks (struct _Player *player, MediaDatabase *mdb);
+extern char *api_play_random_tracks_js (struct _Player *player, MediaDatabase *mdb);
+
+extern VSApiError api_play_random_album (struct _Player *player, MediaDatabase *mdb);
+extern char *api_play_random_album_js (struct _Player *player, MediaDatabase *mdb);
+
 /** Start playback from the start of the playlist, or from the
     current position if paused. Returns an error status if there
     is nothing in the playlist to play. */

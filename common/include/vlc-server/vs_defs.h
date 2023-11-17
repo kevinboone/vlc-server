@@ -69,7 +69,13 @@ typedef enum _VSApiError
   // Can't initialize the VLC library 
   VSAPI_ERR_INIT_VLC = 10,
   // The media database was not initialized
-  VSAPI_ERR_INIT_DB = 11
+  VSAPI_ERR_INIT_DB = 11,
+  // The media database exists, but is completely empty
+  VSAPI_ERR_NO_FILES = 12,
+  // The media database exists, but has no albums
+  VSAPI_ERR_NO_ALBUMS = 13,
+  // Some other database-related error (look in log!) 
+  VSAPI_ERR_GEN_DB = 14
   } VSApiError;
 
 typedef enum _VSApiTransportStatus

@@ -1,5 +1,5 @@
 NAME    := vlc-server-client
-VERSION := 0.1d
+VERSION := 0.1e
 CC      := gcc
 LIBPATH1 := ../api
 LIBPATH2 := ../common

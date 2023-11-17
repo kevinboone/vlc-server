@@ -1,5 +1,16 @@
-Everything is still to do :) The ncurses-based console client is particularly
-rudimentary.
+The main server is generally functional. It provides a graphic web
+interface and a REST API for other clients. The API exposes much of
+the functionality that a client might need, but my no means all. The
+API calls are rather fine-grained, so a client might need to make
+many calls to accomplish a simple action.
+
+The real deficiencies are in the clients. At present, there are two:
+a command-line client, and a curses-based console client.  Both are
+very crude, and offer limited functionality.  The console client is,
+at least, useable, if a media collection is organized by album. But
+it really needs a lot of work, to be genuinely useful. It's difficult
+because the client is designed to be run on a Linux console using a
+four-way navigation pad, not a screen and keyboard. 
 
 Please see the TODO files in the specific sub-modules for details.
 

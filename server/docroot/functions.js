@@ -58,6 +58,19 @@ function cmd_play(path)
   make_fn_request (apiFn, response_callback_gen_status);
   }
 
+function cmd_play_random_album()
+  {
+  var apiFn = API_BASE + "play_random_album";
+  make_fn_request (apiFn, response_callback_gen_status);
+  }
+
+function cmd_play_random_tracks()
+  {
+  var apiFn = API_BASE + "play_random_tracks";
+  make_fn_request (apiFn, response_callback_gen_status);
+  }
+
+
 function cmd_prev()
   {
   var apiFn = API_BASE + "prev?dummy";

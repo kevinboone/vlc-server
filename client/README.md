@@ -1,6 +1,6 @@
 # vlc-server-client
 
-Version 0.1d, November 2023
+Version 0.1e, November 2023
 
 ## What is this
 
@@ -22,6 +22,9 @@ To get a full list of commands, run
 
     $ vlc-server-client --help
 
+After installation, you should be able to run `man vlc-server-client`
+for more information.
+
 The `add-url` and `play` commands take one or more URLs or files as 
 arguments. The difference between these commands is that `add-url` just
 adds to the playlist, whilst `play` replaces the playlist with new files.
@@ -33,6 +36,9 @@ have been configured so tha non-media files are not accepted into
 the playlist -- but this is not under the control of the client.
 
 ## Revision history
+
+0.13 November 2023
+- added 'play-random-XXX' commands
 
 0.1d November 2023
 - added 'version' command

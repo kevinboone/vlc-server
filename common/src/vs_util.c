@@ -40,6 +40,12 @@ const char *vs_util_strerror (VSApiError e)
       return "can't initialize the VLC library";
     case VSAPI_ERR_INIT_DB:
       return "media database is not initialized";
+    case VSAPI_ERR_NO_ALBUMS:
+      return "media database has no albums";
+    case VSAPI_ERR_NO_FILES:
+      return "media database is empty";
+    case VSAPI_ERR_GEN_DB:
+      return "general media database problem";
     default:
       return "unknown error";
     }

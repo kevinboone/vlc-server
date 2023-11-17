@@ -51,6 +51,8 @@ static CmdEntry cmd_table[] =
   { "next", cmd_next , "skip to next item in playlist" },
   { "pause", cmd_pause , "pause playback" },
   { "play", cmd_play , "play the items immediately" },
+  { "play-random-album", cmd_play_random_album , "play a randomly-selected album" },
+  { "play-random-tracks", cmd_play_random_tracks , "play some randomly-selected tracks" },
   { "playlist", cmd_playlist , "show the playlist" },
   { "prev", cmd_prev , "skip to previous item in the playlist" },
   { "shutdown", cmd_shutdown , "shut down the server" },

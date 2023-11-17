@@ -35,9 +35,6 @@ utility is to allow for remote control, there seems to be little purpose in
 using it to play video. The server can optionally be provided with a list of
 filename patterns that it will allow to play (e.g., `*.flac,*.mp3`).
 
-The package also contains a simple command-line client for Linux, that can
-exercise all the functionality of the server.
-
 I have tested this software on Fedora and Ubuntu, as well as Raspberry Pi.
 The Pi, and systems like it, are the main target platform for this software.
 
@@ -73,11 +70,11 @@ Still to do:
 - The ncurses client is very limited -- it plays only albums, in track order
 - Text-based search in the web interface is very slow on low-powered systems
   like the Pi.
-- The ncurses client is very basic. Everything remains to be done.
+- The ncurses client is very basic. Pretty much everything remains to be done.
 
 ## In this repository
 
-This repository has four main directories.
+This repository has six main directories.
 
 `server/` contains the HTTP server implementation. This has a dependency
 on `libvlc`, which is part of the VLC media player.

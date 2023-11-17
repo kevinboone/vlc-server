@@ -5,3 +5,7 @@ Everything is to do:
 - Read key bindings from a file
 - Colour display, if the hardware supports it
 
+Ideally, all of this needs to be done using no navigation other
+than cursor keys, so that the interface works with an IR remote
+control or front-panel navigation pad.
+

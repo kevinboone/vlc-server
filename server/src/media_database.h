@@ -60,6 +60,10 @@ extern int media_database_search_count (MediaDatabase *self,
        MediaDatabaseColumn column,   
        const VSSearchConstraints *constraints, char **error);
 
+extern void media_database_select_random (MediaDatabase *self, 
+       MediaDatabaseColumn column,  int limit, VSList *results, 
+       char **error);
+
 /** Returns TRUE if the sqlite database got initialized correctly. */
 extern BOOL media_database_is_init (const MediaDatabase *self);
 

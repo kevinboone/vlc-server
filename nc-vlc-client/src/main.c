@@ -149,11 +149,11 @@ int main (int argc, char **argv)
           {
           if (error) 
             {
-            fprintf (stderr, ":\n%s\n", error);
+            fprintf (stderr, "%s\n", error);
             free (error);
             }
           printf ("Waiting for server to start...\n");
-          usleep (1000000);
+          usleep (3000000);
           }
         } while (err_code);
       }

@@ -262,10 +262,12 @@ void view_list (WINDOW *main_window, LibVlcServerClient *lvsc,
   int list_length = vs_list_length ((VSList *)list);
   int first_index_on_screen = 0;
   int current_index = 0;
+  int timeouts = 0;
   update_window (my_window, list, h - 2, w, first_index_on_screen,
      current_index, list_length, title);
   while ((ch = getch ()) != keys_quit || kiosk)
     {
+    if (ch != ERR) timeouts = 0;
     //char s[20];
     //sprintf (s, "%d", ch);
     //message_show (s);
@@ -363,9 +365,16 @@ void view_list (WINDOW *main_window, LibVlcServerClient *lvsc,
       {
       status_update (lvsc);
       message_show ("");
+      if (!kiosk)
+        {
+        timeouts++;
+        if (timeouts >= 3) 
+          goto quit;
+        }
       }
     }
 
+quit:
   delwin (my_window);
   echo();
   curs_set (1);

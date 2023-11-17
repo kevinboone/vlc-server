@@ -167,6 +167,18 @@ void libvlc_server_client_play_album
         (const LibVlcServerClient *self, VSApiError *err_code,
            char **msg, const char *album);
 
+/** Play a random album. The randomization is done
+      in the database, so this functionality can't efficiently be implemented
+      by getting a huge list of albums and selecting one of them. */
+void libvlc_server_client_play_random_album
+        (const LibVlcServerClient *self, VSApiError *err_code, char **msg);
+
+/** Play a random selection of tracks (typically 50). The randomization is done
+      in the database, so this functionality can't efficiently be implemented
+      by getting a huge list of tracks and selecting some of them. */
+void libvlc_server_client_play_random_tracks
+        (const LibVlcServerClient *self, VSApiError *err_code, char **msg);
+
 /** Gets the server version, as a char* that the client must
     free. If the return value is NULL, err_code should have been written. */
 char *libvlc_server_client_get_version (const LibVlcServerClient *self, 

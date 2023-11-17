@@ -1,32 +1,55 @@
-There are things that the web interface can do, that are not exposed in the
-REST API. For completeness, and to make it easier to implement new clients,
-these API calls need to be added.
+## API
 
-Database scan progress needs to be written to disk, and details shown in the
-Web UI.
+There are things that the web interface can do, that are not exposed
+in the REST API. For completeness, and to make it easier to implement
+new clients, these API calls need to be added.
 
-Implement API for full scan (current /api/scan) only does a "quick" scan.
+Implement API for full scan (current /api/scan) only does a "quick"
+scan.
 
-Implement seek within file/stream. It would nice to do this in the web UI using
-a slider (like the volume slide).
+Implement seek within file/stream. It would nice to do this in the
+web UI using a slider (like the volume slide).
 
-Split path components in files/directories display, to make navigation easier.
+## Web interface
+
+The biggest problem with the Web interface is that it is not
+at all ergonomic was large search results (e.g., large album
+collections). Results are displayed page-by-page, and there's
+really not way to know which page is the right one. It would
+be better if the search results page automatically expanded
+when scrolled to the bottom (like it does in the Qobuz web
+interface). But this would require a radical revision of the
+web interface, and probably API changes as well.  
+
+Split path components in files/directories display, to make
+navigation easier.
 
 Put an "up" link in the files/directories display
  
-Search in files/folders -- this should be done using the media database:
-searching the whole media root in a Web UI action would be inappropriate.
+Search in files/folders -- this should be done using the media
+database: searching the whole media root in a Web UI action would be
+inappropriate.
 
-Read RC file at server start (rather than needing to specify a long command
-line).
- 
-The Web interface doesn't show the file part of the media URL in the interface
-at all, if it contains an "#" character. This is an oddity of the rather ugly
-parse_uri() function. This won't be easy to fix.
+Put message line somewhere it will always be seen (and not scrolled
+out of the way).
 
-Complete documentation
+The Web interface doesn't show the file part of the media URL in the
+interface at all, if it contains an "#" character. This is an oddity
+of the rather ugly parse_uri() function. This won't be easy to fix.
+
+In the playlist, replace the filename with track info from the media
+database, where possible.
+
+## General
+
+Read an RC file at server start (rather than needing to specify a
+long command line).
 
 Document regex limitations
 
-Put message line somewhere it will always be seen (and not scrolled out of the way).
+There are probably many outstanding problems related to quoting and
+escaping strings. Quotation marks are particularly troublesome, 
+because they have to be escaped different for URL, for JavaScript
+calls, and for SQL. 
+
 

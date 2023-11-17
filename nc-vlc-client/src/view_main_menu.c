@@ -28,6 +28,7 @@
 #include "view_main_menu.h" 
 
 #define MENU_ALBUMS "Albums"
+#define MENU_PLAY_SOMETHING "Play something"
 #define MENU_PLAYLIST "Playlist"
 #define MENU_CONTROL "Control"
 #define MENU_SYS_INFO "System info"
@@ -44,6 +45,7 @@ static VSList *populate_main_menu (void)
   {
   VSList *ret = vs_list_create (free);
   vs_list_append (ret, strdup (MENU_ALBUMS));
+  vs_list_append (ret, strdup (MENU_PLAY_SOMETHING));
   vs_list_append (ret, strdup (MENU_PLAYLIST));
   vs_list_append (ret, strdup (MENU_CONTROL));
   vs_list_append (ret, strdup (MENU_SYS_INFO));
@@ -51,6 +53,22 @@ static VSList *populate_main_menu (void)
   return ret;
   }
 
+/*======================================================================
+  
+  play_something 
+
+======================================================================*/
+static void play_something (LibVlcServerClient *lvsc)
+  {
+  char *message = NULL;
+  VSApiError err_code;
+  libvlc_server_client_play_random_album (lvsc, &err_code, &message);
+  if (message)
+    {
+    message_show (message);
+    free (message);
+    }
+  }
 
 /*======================================================================
   
@@ -69,6 +87,8 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line)
       view_control (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
   else if (strcmp (line, MENU_SYS_INFO) == 0)
       view_sys_info (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
+  else if (strcmp (line, MENU_PLAY_SOMETHING) == 0)
+      play_something (lvsc);
   }
 
 /*======================================================================

@@ -53,7 +53,7 @@ under the media root -- multiple media roots are not supported, but
 symlinks could be used to create a similar effect.
 
 Operations that take a path/file/URI argument can optionally be specified
-relative to the media root, by prepending the "@" character. For example,
+relative to the media root, but prepending the "@" character. For example,
 the `add` API can use absolute pathnames, or remote URLs -- it doesn't have
 to refer to the media root. However, `list-files` and `list-dirs` all
 work relative to the media root: we wouldn't want to provide a way that
@@ -71,15 +71,15 @@ here is that the actual filesystem contents are concealed from clients.
 Note that none of the above is remotely relevant when playing 
 network streams.
 
-The `vlc-server` program includes APIs for listing files because
+The `libvlc-server` utility includes APIs for listing files because
 it is intended for use in remote control applications. The client that
 is coordinating the media playback will likely not be on the same host
 as the server, and probably will not know what files are available
-except by querying the `vlc-server` instance.
+except by querying the `libvlc-server` instance.
 
 ## Playlist
 
-Everything played by `vlc-server` is in a playlist, even if it's
+Everything played by `libvlc-server` is in a playlist, even if it's
 a list of only one item. The general procedure for playing
 media is:
 
@@ -90,10 +90,6 @@ media is:
 All three operations can be combined in an invocation of the `play` API.
 
 ## API details
-
-*NOTE: some API function names have the underscore (_) character as*
-*a separator, and some have a minus (-). This is for historical reasons,*
-*and not easy to change.*
 
 ### add
 
@@ -123,14 +119,6 @@ there could well be unplayable files in a directory (cover art, for
 example), so indiscriminate adding of a directory's contents should
 be avoided. 
 
-### add\_album
-
-    /api/add_album/{album-name}
-
-Adds all the tracks from the specified album to the playlist. This
-API function only works if the media database is enabled and the 
-media root has been scanned.
-
 ### clear
 
     /api/clear
@@ -138,27 +126,6 @@ media root has been scanned.
 Clear the playlist. If something is playing, it will contine to play
 until the end. The playback will continue from the start of any
 new playlist items.
-
-## list-albums
-
-    /api/list-albums?where=[where clause]
-
-List all albums in the database that match the where clause. If there is
-no where clause, return a list of all albums.
-
-## list-artists
-
-    /api/list-artists?where=[where clause]
-
-List all artists in the database that match the where clause. If there is
-no where clause, return a list of all artists.
-
-## list-composers
-
-    /api/list-composers?where=[where clause]
-
-List all composers in the database that match the where clause. If there is
-no where clause, return a list of all composers.
 
 ## list-dirs
 
@@ -190,20 +157,6 @@ The format of the JSON response is:
     {"status": 0, "list": [
      "path/to/file1", "path/to/file2", ... ] }
 
-## list-genres
-
-    /api/list-genres?where=[where clause]
-
-List all genres in the database that match the where clause. If there is
-no where clause, return a list of all genres.
-
-## list-tracks
-
-    /api/list-tracks?where=[where clause]
-
-List all tracks in the database that match the where clause. If there is
-no where clause, return a list of all tracks.
-
 ## next
 
     /api/next
@@ -230,32 +183,6 @@ be played, that won't become apparent until after the current playlist
 has been cleared. `/api/play` will stop the current playback and clear
 the playlist anyway.
 
-### play\_album
-
-    /api/play_album/{album-name}
-
-Plays the specified album immediately. That is, clear the playlist,
-add the tracks from the album, and start playback. This
-API function only works if the media database is enabled and the 
-media root has been scanned.
-
-### play\_random\_album
-
-    /api/play_random_album
-
-Selects a random album and plays it, clearing any existing playlist.  Note
-that, by doing the randomization in the media database, this API call is much
-faster then getting a complete list of albums and selecting one of them.
-
-### play\_random\_tracks
-
-    /api/play_random_tracks
-
-Selects 50 (by default) tracks and starts playing them, clearing any existing
-playlist.  Note that, by doing the randomization in the media database, this
-API call is much faster then getting a complete list of tracks and selecting
-some of them. 
-
 ### playlist
 
 Returns the current playlist as a JSON array.
@@ -276,11 +203,6 @@ Start playback from the previous playlist item. It isn't considered an
 error if there is nothing earlier in the playlist. Playback always
 goes to the previous item (if there is one) even if the playback position
 is only a few seconds into the current one.
-
-### scan
-
-Start a scan of the media root, and a database update. This is a 'quick' 
-scan -- items that are in the database already will not be scanned again.
 
 ### shutdown
 
@@ -367,19 +289,5 @@ Reduces the audio volume in 10% steps.
     /api/volume_up
 
 Increases the audio volume in 10% steps.
-
-### version 
-
-    /api/version
-
-Returns the server version as a JSON string. 
-
-    {"status": 0, "version": "0.1c"}
-
-Note that there is, at present, no particular format for the version
-string. There really isn't much that a client can do, other than
-check it matches its own version. If it doesn't, most likely the 
-API request would have failed, anyway. Clients might want to display
-the server version for troubleshooting purposes.
 
 

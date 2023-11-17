@@ -1,6 +1,6 @@
 # vlc-server
 
-Version 0.1d, November 2023
+Version 0.1e, November 2023
 
 ## What is this?
 
@@ -309,6 +309,9 @@ to scale them down. And, of course, transferring a larger image from
 the server to the browser takes longer. 
 
 ## Revision history
+
+0.1e November 2023
+- Added 'play random album' function to API and Web interface
 
 0.1d November 2023
 - Added /version API request, so that non-web clients can check that they

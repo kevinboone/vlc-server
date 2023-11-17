@@ -1295,4 +1295,65 @@ char *libvlc_server_client_get_version (const LibVlcServerClient *self,
   return ret;
   }
 
+/*======================================================================
+
+  libvlc_server_client_play_random_album
+
+======================================================================*/
+void libvlc_server_client_play_random_album
+        (const LibVlcServerClient *self, VSApiError *err_code, char **msg)
+  {
+  IN
+  char *response = libvlc_server_client_request (self, "play_random_album", err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+        // Nothing to do
+        }
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  OUT
+  }
+
+/*======================================================================
+
+  libvlc_server_client_play_random_tracks
+
+======================================================================*/
+void libvlc_server_client_play_random_tracks
+        (const LibVlcServerClient *self, VSApiError *err_code, char **msg)
+  {
+  IN
+  char *response = libvlc_server_client_request (self, "play_random_tracks", err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+        // Nothing to do
+        }
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  OUT
+  }
 

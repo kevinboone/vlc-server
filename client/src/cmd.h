@@ -46,6 +46,12 @@ extern int cmd_playlist (const char *argv0, int argc, char **new_argv,
 extern int cmd_play (const char *argv0, int argc, char **new_argv, 
   const CmdContext *context);
 
+extern int cmd_play_random_album (const char *argv0, int argc, char **new_argv, 
+  const CmdContext *context);
+
+extern int cmd_play_random_tracks (const char *argv0, int argc, char **new_argv, 
+  const CmdContext *context);
+
 extern int cmd_start (const char *argv0, int argc, char **new_argv, 
   const CmdContext *context);
 

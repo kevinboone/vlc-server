@@ -1,9 +1,17 @@
-Combine list-dirs and list-files into one command, and show both files and
-directories.
+This command-line client is very crude and inconsistent. For example,
+there is a 'list-albums' command, but no way to play a specific
+album. Moreover, there is no way to impose search constraints so you
+can't, for example, show albums by a specific artist.  Really, the
+utility is only workable for handling specific files, not metadata. 
 
-"vlc-server-client stat" shows real media file location, because the "stat"
-API call does. We should really substitute "@" for the media root if the
-file is relative to the media root. However, this leads to a broker
-URL -- file:///@/something. This won't easily parse in the JavaScript
-method response_callback_refresh_status, so no URL will be displayed.
+Combine list-dirs and list-files into one command, and show both
+files and directories.
+
+"vlc-server-client stat" shows real media file location, because the
+"stat" API call does. We should really substitute "@" for the media
+root if the file is relative to the media root. However, this leads
+to a broker URL -- file:///@/something. This won't easily parse in
+the JavaScript method response_callback_refresh_status, so no URL
+will be displayed.
+
 
