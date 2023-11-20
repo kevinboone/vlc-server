@@ -1,6 +1,6 @@
 # nc-vlc-client
 
-Version 0.1d, November 2023
+Version 0.1f, November 2023
 
 ## What is this?
 
@@ -16,6 +16,10 @@ playlist. Selecting an album from the list plays it; selecting a
 track from the playlist moves playback to that point. There are
 key bindings for pausing and resuming playback, moving between 
 items in the playlist, etc.
+
+As of version 0.1f, you can list artists and genres, and get a list
+of albums that match the artist or genre. However, the interface
+is still entirely album-based.
 
 `nc-vlc-client` has a long way to go before it can be considered a
 fully-featured, console-based music player. It's also important to
@@ -106,6 +110,13 @@ render these characters.  There really isn't much that `nc-vlc-client` can
 do to correct deficiencies in the console.
 
 ## Revision history
+
+0.1f November 2023
+- Added genre list and artist list
+
+0.1e November 2023
+- Various bug fixes, mostly involving escaping special characters 
+
 
 0.1d November 2023
 - Added 'system info' menu item 

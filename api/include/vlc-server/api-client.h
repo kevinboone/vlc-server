@@ -184,5 +184,16 @@ void libvlc_server_client_play_random_tracks
 char *libvlc_server_client_get_version (const LibVlcServerClient *self, 
          VSApiError *err_code, char **msg);
 
+/*======================================================================
+  
+  Utility functions 
+
+======================================================================*/
+/** A helper function for API calls that take an SQL-like 'where'
+      argument. Returns the input string with SQL special characters
+      escaped. There will always be a return value, and the caller
+      must free() it after use. */
+char *libvlc_escape_sql (const char *s);
+
 END_CDECLS
 

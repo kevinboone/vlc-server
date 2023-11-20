@@ -23,11 +23,15 @@
 #include "view_control.h" 
 #include "view_albums.h" 
 #include "view_playlist.h" 
+#include "view_genres.h" 
+#include "view_artists.h" 
 #include "view_help.h" 
 #include "view_sys_info.h" 
 #include "view_main_menu.h" 
 
 #define MENU_ALBUMS "Albums"
+#define MENU_GENRES "Genres"
+#define MENU_ARTISTS "Artists"
 #define MENU_PLAY_SOMETHING "Play something"
 #define MENU_PLAYLIST "Playlist"
 #define MENU_CONTROL "Control"
@@ -45,6 +49,8 @@ static VSList *populate_main_menu (void)
   {
   VSList *ret = vs_list_create (free);
   vs_list_append (ret, strdup (MENU_ALBUMS));
+  vs_list_append (ret, strdup (MENU_GENRES));
+  vs_list_append (ret, strdup (MENU_ARTISTS));
   vs_list_append (ret, strdup (MENU_PLAY_SOMETHING));
   vs_list_append (ret, strdup (MENU_PLAYLIST));
   vs_list_append (ret, strdup (MENU_CONTROL));
@@ -78,7 +84,12 @@ static void play_something (LibVlcServerClient *lvsc)
 static void select_menu (LibVlcServerClient *lvsc, const char *line)
   {
   if (strcmp (line, MENU_ALBUMS) == 0)
-      view_albums (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
+      view_albums (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0, 
+        NULL, NULL);
+  else if (strcmp (line, MENU_GENRES) == 0)
+      view_genres (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
+  else if (strcmp (line, MENU_ARTISTS) == 0)
+      view_artists (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
   else if (strcmp (line, MENU_PLAYLIST) == 0)
       view_playlist (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
   else if (strcmp (line, MENU_HELP) == 0)

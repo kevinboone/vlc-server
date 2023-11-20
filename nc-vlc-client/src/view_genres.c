@@ -2,7 +2,7 @@
   
   nv-vlc-client 
 
-  nc-vlc-client/src/view_albums.c
+  nc-vlc-client/src/view_genres.c
 
   Copyright (c)2022 Kevin Boone, GPL v3.0
 
@@ -23,18 +23,21 @@
 #include "keys.h" 
 #include "view_misc.h" 
 #include "view_albums.h" 
+#include "view_genres.h" 
+
+extern WINDOW *main_window; 
 
 /*======================================================================
   
-  populate_album_list
+  populate_genre_list
 
 ======================================================================*/
-static VSList *populate_album_list (LibVlcServerClient *lvsc, 
-         const char *where, char **error)
+static VSList *populate_genre_list (LibVlcServerClient *lvsc, 
+         char **error)
   {
   VSApiError err_code;
-  VSList *list = libvlc_server_client_list_albums (lvsc, 
-      where, &err_code, error);
+  VSList *list = libvlc_server_client_list_genres (lvsc, 
+      NULL, &err_code, error);
   if (list)
     return list;
   else
@@ -44,34 +47,31 @@ static VSList *populate_album_list (LibVlcServerClient *lvsc,
 
 /*======================================================================
   
-  play_album 
+  show_genre 
 
 ======================================================================*/
-void play_album (LibVlcServerClient *lvsc, const char *album)
+static void show_genre (LibVlcServerClient *lvsc, const char *genre)
   {
-  VSApiError err_code;
-  char *error = NULL;
-  libvlc_server_client_play_album (lvsc, 
-     &err_code, &error, album);
-  if (error)
-    {
-    message_show (error);
-    free (error);
-    }
+  char *where;
+  char *escaped_genre = libvlc_escape_sql (genre);
+  asprintf (&where, "genre='%s'", escaped_genre);
+  view_albums (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0, 
+     "Genres", where);
+  free (escaped_genre);
+  free (where);
   }
 
 /*======================================================================
   
-  view_albums 
+  view_genres
 
 ======================================================================*/
-void view_albums (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col, const char *caption_prefix, 
-       const char *where)
+void view_genres (WINDOW *main_window, LibVlcServerClient *lvsc, 
+       int h, int w, int row, int col)
   {
   char *error = NULL;
-  message_show ("Loading albums...");
-  VSList *album_list = populate_album_list (lvsc, where, &error);
+  message_show ("Loading genres...");
+  VSList *genre_list = populate_genre_list (lvsc, &error);
 
   if (error)
     {
@@ -80,19 +80,10 @@ void view_albums (WINDOW *main_window, LibVlcServerClient *lvsc,
     }
   else
     {
-    char *caption;
-    asprintf (&caption, "%s%s%s", 
-       caption_prefix ? caption_prefix : "", 
-       caption_prefix ? "->" :  "", 
-       where ? "Albums [filtered]" : "Albums [all]");
-
-
-    view_list (main_window, lvsc, h, w, row, col, album_list, play_album,
-       caption, FALSE);
-
-    free (caption);
+    view_list (main_window, lvsc, h, w, row, col, genre_list, show_genre,
+       "Genres", FALSE);
     }
 
-  if (album_list) vs_list_destroy (album_list);
+  if (genre_list) vs_list_destroy (genre_list);
   }
 

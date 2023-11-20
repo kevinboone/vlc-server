@@ -459,7 +459,7 @@ void media_database_search (MediaDatabase *self,
     vs_string_append (sql, " where ");
     //char *escaped_where = media_database_escape_sql (constraints->where);
     //vs_string_append (sql, escaped_where);
-    printf ("constaints_where=%s\n", constraints->where);
+    //printf ("constaints_where=%s\n", constraints->where);
     vs_string_append (sql, constraints->where);
     //free (escaped_where);
     }
