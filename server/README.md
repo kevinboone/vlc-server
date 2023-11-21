@@ -310,6 +310,9 @@ the server to the browser takes longer.
 
 ## Revision history
 
+0.1f November 2023
+- Separated 'strict search' and 'relaxed search' in the web GUI
+
 0.1e November 2023
 - Added 'play random album' function to API and Web interface
 

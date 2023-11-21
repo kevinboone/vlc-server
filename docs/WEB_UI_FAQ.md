@@ -86,10 +86,35 @@ these are in plain text, not recognized date-time formats. If you
 use these date/time fields, and do so consistently, you could use
 the Custom SQL Query feature to search on them.
 
+_Why is search so slow?_
+
+The 'strict' search tends to be slow on low-powered systems like the
+Raspberry Pi, because it can't rely on database indexing. Instead,
+every field in the database has to be examined in turn, and the
+field text compared with the sarch pattern in a specific way. 
+The tricky part is
+deciding whether the search text comprises a complete piece of text,
+rather than a substring. The server uses regular expression matching
+for this test, because it proved to be faster than hard-coded tests.
+But it's still slow, because of the huge amount of computation involved.
+
+The 'relaxed' search is much faster, because it a simple substring text
+in a field that is indexed in the database.
+
 _What does 'database is locked' mean?_
 
 Probably the media scanner is running. It will lock the database during
 this process. It's also possible that a lock file got left behind, if
 the scanner process crashed or was killed. The lock file has the same
 name as the media database file, but with `.lock` appended.
+
+_Why does the web GUI show that files are being scanned, when they are not?_
+
+Probably because the server crashed or was killed before it could clean
+up. Delete the file `/tmp/vlc-scanner.progress`.
+
+Note that the media scanner runs as a separate process from the
+main server, even though it has the same name. Shutting down the main
+server does not necessarily shut down the media scanner. 
+
 

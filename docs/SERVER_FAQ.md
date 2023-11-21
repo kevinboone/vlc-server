@@ -12,7 +12,7 @@ or that it can be compiled using anything other than GCC.
 
 _What are the runtime dependencies of `vlc-server`?_
 
-VLC, `libmicrohttd`, `libcurl` (probably called `libcurl4-openssel`
+VLC, `libmicrohttd`, `libcurl` (probably called `libcurl4-openssl`
 or `libcurl4-gnutls` on Ubuntu and similar). VLC is the biggest of
 these, by far -- it has many dependencies of its own. On mainstream
 Linux platforms, the package manager will take care of installing

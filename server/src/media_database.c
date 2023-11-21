@@ -63,7 +63,7 @@ void media_database_daysold (sqlite3_context* context, int argc,
 /*======================================================================
   media_database_regexp
 ======================================================================*/
-void media_database_regexp (sqlite3_context* context, int argc,
+static void media_database_regexp (sqlite3_context* context, int argc,
       sqlite3_value** values)
   {
   int ret;
@@ -123,7 +123,7 @@ void media_database_regexp (sqlite3_context* context, int argc,
   else
     {
     sqlite3_result_error (context,
-      "SQL function regexp() requires two arguments.\n", -1);
+      "SQL function regexp() requires two arguments", -1);
     }
   }
 

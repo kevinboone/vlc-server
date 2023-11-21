@@ -49,8 +49,20 @@ Albums modified or updated in the last 30 days --
 <h3>Search</h3>
 <h4>General search</h4>
 <p>
-Search in albums, artists, tracks, etc.
+Relaxed search in albums, artists, tracks, etc. 'stone' will match
+'Rolling Stones' and 'Stone Temple Pilots'.
 <form action="/gui/search" method="get">
+  <label for="keyword">Keyword:</label>
+  <input type="text" id="keyword" name="keyword"/>
+  <input type="text" id="covers" name="covers" value="1" hidden/>
+  <input type="submit" value="Search"/>
+</form>
+</p>
+<p>
+Strict search in albums, artists, tracks, etc. Only whole words
+will match. 'stone' will match 'Stone Temple Pilots', but not
+'Rolling Stones'.
+<form action="/gui/strictsearch" method="get">
   <label for="keyword">Keyword:</label>
   <input type="text" id="keyword" name="keyword"/>
   <input type="text" id="covers" name="covers" value="1" hidden/>

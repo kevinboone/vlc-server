@@ -27,6 +27,7 @@
 #include "gui_genres.h"
 #include "gui_home.h"
 #include "gui_help.h"
+#include "gui_strictsearch.h"
 #include "gui_search.h"
 #include "gui_tracks.h"
 #include "media_database.h"
@@ -144,6 +145,16 @@ BOOL gui_process_request (Player *player, const char *media_root,
       {
       VSString *body = gui_composers_get_body (url + 6,
         arguments, matches_per_page, mdb);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Composers"); 
+      vs_string_destroy (body);
+      }
+    else if (strncmp (url, "strictsearch", 12) == 0)
+      {
+      VSString *body = gui_strictsearch_get_body (mdb, 
+           arguments, 10 /* todo */);;
       template_manager_substitute_placeholder 
           (s, "BODY", vs_string_cstr (body));
       template_manager_substitute_placeholder 
@@ -472,7 +483,7 @@ VSString *gui_get_limited_results_page (
         }
       else
         {
-	vs_string_append (body, "No matches found\n");
+	vs_string_append (body, "<p>No matches found</p>\n");
         }
       }
     else

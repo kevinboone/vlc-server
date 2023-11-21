@@ -23,15 +23,15 @@
 #include "gui_genres.h"
 #include "gui_composers.h"
 #include "gui_tracks.h"
-#include "gui_search.h"
+#include "gui_strictsearch.h"
 #include "gui.h"
 
 /*======================================================================
   
-  gui_search_get_body
+  gui_strictsearch_get_body
 
 ======================================================================*/
-VSString *gui_search_get_body (MediaDatabase *mdb, 
+VSString *gui_strictsearch_get_body (MediaDatabase *mdb, 
            const VSProps *_arguments, int matches_per_page)
   {
   IN
@@ -50,7 +50,7 @@ VSString *gui_search_get_body (MediaDatabase *mdb,
 
     // Albums
     char *where;
-    asprintf (&where, "album like '%%%s%%'", esc_keyword);
+    asprintf (&where, "album regexp '\\b%s\\b'", esc_keyword);
     vs_props_add (arguments, "where", where); 
     VSString *fragment = gui_get_limited_results_page 
        (arguments, matches_per_page, 
@@ -62,7 +62,7 @@ VSString *gui_search_get_body (MediaDatabase *mdb,
     vs_string_destroy (fragment);
     
     // Paths
-    asprintf (&where, "title like '%%%s%%'", esc_keyword);
+    asprintf (&where, "title regexp '\\b%s\\b'", esc_keyword);
     vs_props_add (arguments, "where", where); 
     fragment = gui_get_limited_results_page 
        (arguments, matches_per_page,
@@ -74,7 +74,7 @@ VSString *gui_search_get_body (MediaDatabase *mdb,
     vs_string_destroy (fragment);
     
     // Artists 
-    asprintf (&where, "artist like '%%%s%%'", esc_keyword);
+    asprintf (&where, "artist regexp '\\b%s\\b'", esc_keyword);
     vs_props_add (arguments, "where", where); 
     fragment = gui_get_limited_results_page 
        (arguments, matches_per_page,
@@ -86,7 +86,7 @@ VSString *gui_search_get_body (MediaDatabase *mdb,
     vs_string_destroy (fragment);
     
     // Album artists 
-    asprintf (&where, "album_artist like '%%%s%%'", esc_keyword);
+    asprintf (&where, "album_artist regexp '\\b%s\\b'", esc_keyword);
     vs_props_add (arguments, "where", where); 
     fragment = gui_get_limited_results_page 
        (arguments, matches_per_page,
@@ -98,7 +98,7 @@ VSString *gui_search_get_body (MediaDatabase *mdb,
     vs_string_destroy (fragment);
     
     // Composers 
-    asprintf (&where, "composer like '%%%s%%'", esc_keyword);
+    asprintf (&where, "composer regexp '\\b%s\\b'", esc_keyword);
     vs_props_add (arguments, "where", where); 
     fragment = gui_get_limited_results_page 
        (arguments, matches_per_page,
@@ -110,7 +110,7 @@ VSString *gui_search_get_body (MediaDatabase *mdb,
     vs_string_destroy (fragment);
     
     // Genres 
-    asprintf (&where, "genre like '%%%s%%'", esc_keyword);
+    asprintf (&where, "genre regexp '\\b%s\\b'", esc_keyword);
     vs_props_add (arguments, "where", where); 
     fragment = gui_get_limited_results_page 
        (arguments, matches_per_page, 
