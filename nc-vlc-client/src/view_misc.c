@@ -20,6 +20,7 @@
 #include "message.h" 
 #include "status.h" 
 #include "view_misc.h" 
+#include "info_window.h" 
 
 /*======================================================================
   
@@ -166,27 +167,6 @@ void view_misc_volume_up (LibVlcServerClient *lvsc)
     if (stat) 
       vs_server_stat_destroy (stat);
     }
-  }
-
-/*======================================================================
-  
-  view_misc_fit_string
-
-  NOTE this won't work for strings that contain wide characters, and
-    it may even corrupt them.
-
-======================================================================*/
-char *view_misc_fit_string (const char *s, int w)
-  {
-  int l = strlen (s);
-  if (l <= w) return strdup (s);
-  int remove = l - w; 
-  int first = (l - remove) / 2;
-  char *ret = strdup (s);
-  ret[first] = 0;
-  strcat (ret, "...");
-  strcat (ret, s + first + remove + 3);
-  return ret; 
   }
 
 /*======================================================================
@@ -364,17 +344,22 @@ void view_list (WINDOW *main_window, LibVlcServerClient *lvsc,
     else if (ch == ERR) 
       {
       status_update (lvsc);
-      message_show ("");
-      if (!kiosk)
+      message_show("");
+
+      timeouts++;
+      if (timeouts >= 3) 
         {
-        timeouts++;
-        if (timeouts >= 3) 
-          goto quit;
+        message_show("");
+        info_window_run (main_window, lvsc);
+        update_window (my_window, list, h - 2, w, 
+	  first_index_on_screen, current_index, list_length, title);
+        status_update (lvsc);
+        timeouts = 0;
+        message_show("");
         }
       }
     }
 
-quit:
   delwin (my_window);
   echo();
   curs_set (1);

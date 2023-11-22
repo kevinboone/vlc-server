@@ -18,24 +18,9 @@
 #include "view_misc.h" 
 #include "message.h" 
 #include "status.h" 
+#include "util.h" 
 
 extern WINDOW *status_window; 
-
-/*======================================================================
-  
-  ms_to_hms 
-
-======================================================================*/
-static void ms_to_hms (int msec, int *h, int *m, int *s)
-  {
-  if (msec < 0) msec = 0;
-  int sec = msec / 1000;
-  *h = sec / 3600;
-  sec -= *h * 3600;
-  *m = sec / 60;
-  sec -= *m * 60;
-  *s = sec; 
-  }
 
 /*======================================================================
   
@@ -77,7 +62,7 @@ void status_update (LibVlcServerClient *lvsc)
       ms_to_hms (vs_server_stat_get_position (stat), &p_h, &p_m, &p_s);
       ms_to_hms (vs_server_stat_get_duration (stat), &d_h, &d_m, &d_s);
       char s[30];
-      sprintf (s, "%3d", vs_server_stat_get_index (stat));
+      sprintf (s, "%3d", vs_server_stat_get_index (stat) + 1);
       mvwaddnstr (status_window, 1, 12, s, 4);
       sprintf (s, "%02d:%02d:%02d %02d:%02d:%02d",
         p_h, p_m, p_s, d_h, d_m, d_s); 
@@ -88,7 +73,7 @@ void status_update (LibVlcServerClient *lvsc)
       if (!title || !title[0])
         title = vs_server_stat_get_mrl (stat);
 
-      char *fittitle = view_misc_fit_string (title, COLS - 2); 
+      char *fittitle = fit_string (title, COLS - 2); 
       mvwaddnstr (status_window, 2, 1, fittitle, COLS - 2);
       free (fittitle);
 
@@ -99,7 +84,7 @@ void status_update (LibVlcServerClient *lvsc)
 	const char *album = vs_metadata_get_album (amd);
 	if (album)
 	  {
-	  char *fitalbum = view_misc_fit_string (album, COLS - 2); 
+	  char *fitalbum = fit_string (album, COLS - 2); 
 	  mvwaddnstr (status_window, 3, 1, fitalbum, COLS - 2);
 	  free (fitalbum);
 	  }

@@ -66,7 +66,9 @@ int main (int argc, char **argv)
   BOOL flag_version = FALSE;
   BOOL flag_help = FALSE;
   BOOL flag_kiosk = FALSE;
-  int log_level = VSLOG_INFO;
+  // No point setting a sensible log level, as the logging will be
+  //   lost under ncurses windows anyway.
+  int log_level = VSLOG_ERROR;
 
   static struct option long_options[] =
     {

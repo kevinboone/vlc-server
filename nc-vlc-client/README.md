@@ -11,15 +11,10 @@ The client defaults to communicating with a `vlc-server` instance on
 the same host, and port 30000, although these properties can be
 changed using the `--host` and `--port` switches. 
 
-At present, the client displays a list of albums, or the current
-playlist. Selecting an album from the list plays it; selecting a 
-track from the playlist moves playback to that point. There are
-key bindings for pausing and resuming playback, moving between 
-items in the playlist, etc.
-
-As of version 0.1f, you can list artists and genres, and get a list
+As of version 0.1f, the client can list artists and genres, and get a list
 of albums that match the artist or genre. However, the interface
-is still entirely album-based.
+is still entirely album-based. The 'play something' menu command
+will select a random album to play.
 
 `nc-vlc-client` has a long way to go before it can be considered a
 fully-featured, console-based music player. It's also important to
@@ -79,8 +74,28 @@ main meny for 15 seconds, the program exits.
 
 ## Kiosk mode
 
-When run with the `-k` switch, `nc-vlc-client` will not exist, either 
+When run with the `-k` switch, `nc-vlc-client` will not exit, either 
 by navigating back from the main menu, or by inactivity timeout.
+
+## Standby info display
+
+After a period with no user-interface activity (currently 15 seconds)
+the menu will be replaced by a 'standby' information display. Pressing any
+key will restore the menu. Although, this information display seems
+more useful than just keeping the menu on the screen at all times,
+it does mean that controls like 'play' and 'pause' don't have
+immediate effect -- the first keypress wil restore the menu first.
+
+I suppose it would possible to have specific keys, like play/pause,
+operate while in the standby mode.
+
+One reason for implementing the standby information display was to
+do something to limit screen burn-in. However, some elements of
+the standby display are unchanging, so its utility for the purpose
+is suspect.
+
+If screen burn-in is a real risk, it's still possible to implement
+screen blanking at the operating system level. 
 
 ## Limitations
 
@@ -113,6 +128,7 @@ do to correct deficiencies in the console.
 
 0.1f November 2023
 - Added genre list and artist list
+- Added standby info display
 
 0.1e November 2023
 - Various bug fixes, mostly involving escaping special characters 
