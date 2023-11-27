@@ -171,6 +171,52 @@ void view_misc_volume_up (LibVlcServerClient *lvsc)
 
 /*======================================================================
   
+  view_misc_handle_non_menu_key
+
+======================================================================*/
+BOOL view_misc_handle_non_menu_key (LibVlcServerClient *lvsc, int ch)
+  {
+  if (ch == keys_toggle_pause)
+      {
+      view_misc_toggle_pause (lvsc);
+      status_update (lvsc);
+      return TRUE;
+      }
+  else if (ch == keys_stop)
+      {
+      view_misc_stop (lvsc);
+      status_update (lvsc);
+      return TRUE;
+      }
+  else if (ch == keys_volume_down)
+      {
+      view_misc_volume_down (lvsc);
+      status_update (lvsc);
+      return TRUE;
+      }
+  else if (ch == keys_volume_up)
+      {
+      view_misc_volume_up (lvsc);
+      status_update (lvsc);
+      return TRUE;
+      }
+  else if (ch == keys_next)
+      {
+      view_misc_next (lvsc);
+      status_update (lvsc);
+      return TRUE;
+      }
+  else if (ch == keys_prev)
+      {
+      view_misc_prev (lvsc);
+      status_update (lvsc);
+      return TRUE;
+      }
+  return FALSE;
+  }
+
+/*======================================================================
+  
   update_window 
 
 ======================================================================*/
@@ -229,7 +275,7 @@ static int find_in_list (const VSList *list, int list_length,
 void view_list (WINDOW *main_window, LibVlcServerClient *lvsc, 
        int h, int w, int row, int col, const VSList *list,
        VMSelectFunction select_function, const char *title,
-       BOOL kiosk)
+       const VMContext *context)
   {
   int ch;
   halfdelay (50);  
@@ -245,7 +291,7 @@ void view_list (WINDOW *main_window, LibVlcServerClient *lvsc,
   int timeouts = 0;
   update_window (my_window, list, h - 2, w, first_index_on_screen,
      current_index, list_length, title);
-  while ((ch = getch ()) != keys_quit || kiosk)
+  while ((ch = getch ()) != keys_quit || context->kiosk)
     {
     if (ch != ERR) timeouts = 0;
     //char s[20];
@@ -291,42 +337,19 @@ void view_list (WINDOW *main_window, LibVlcServerClient *lvsc,
       const char *s= vs_list_get ((VSList *)list, current_index);
       curs_set (1);
       echo();
-      select_function (lvsc, s);
+      VMContext temp_context;
+      memcpy (&temp_context, context, sizeof (VMContext));
+      temp_context.kiosk = FALSE;
+      select_function (lvsc, s, &temp_context);
       noecho();
       curs_set (0);
       update_window (my_window, list, h - 2, w, 
 	  first_index_on_screen, current_index, list_length, title);
       status_update (lvsc);
       }
-    else if (ch == keys_toggle_pause)
+    else if (view_misc_handle_non_menu_key (lvsc, ch))
       {
-      view_misc_toggle_pause (lvsc);
-      status_update (lvsc);
-      }
-    else if (ch == keys_stop)
-      {
-      view_misc_stop (lvsc);
-      status_update (lvsc);
-      }
-    else if (ch == keys_volume_down)
-      {
-      view_misc_volume_down (lvsc);
-      status_update (lvsc);
-      }
-    else if (ch == keys_volume_up)
-      {
-      view_misc_volume_up (lvsc);
-      status_update (lvsc);
-      }
-    else if (ch == keys_next)
-      {
-      view_misc_next (lvsc);
-      status_update (lvsc);
-      }
-    else if (ch == keys_prev)
-      {
-      view_misc_prev (lvsc);
-      status_update (lvsc);
+      // Nothing to do
       }
     else if isalnum (ch)
       {

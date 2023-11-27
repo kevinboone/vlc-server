@@ -50,13 +50,15 @@ static VSList *populate_artist_list (LibVlcServerClient *lvsc,
   show_artist 
 
 ======================================================================*/
-static void show_artist (LibVlcServerClient *lvsc, const char *artist)
+static void show_artist (LibVlcServerClient *lvsc, const char *artist,
+     const VMContext *context)
   {
+  (void)context;
   char *where;
   char *escaped_artist = libvlc_escape_sql (artist);
   asprintf (&where, "artist='%s'", escaped_artist);
   view_albums (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0, 
-     "Genres", where);
+     "Genres", where, context);
   free (escaped_artist);
   free (where);
   }
@@ -67,7 +69,7 @@ static void show_artist (LibVlcServerClient *lvsc, const char *artist)
 
 ======================================================================*/
 void view_artists (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col)
+       int h, int w, int row, int col, const VMContext *context)
   {
   char *error = NULL;
   message_show ("Loading artists...");
@@ -81,7 +83,7 @@ void view_artists (WINDOW *main_window, LibVlcServerClient *lvsc,
   else
     {
     view_list (main_window, lvsc, h, w, row, col, artist_list, show_artist,
-       "Genres", FALSE);
+       "Genres", context);
     }
 
   if (artist_list) vs_list_destroy (artist_list);

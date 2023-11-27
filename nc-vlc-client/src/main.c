@@ -19,6 +19,7 @@
 #include <ncursesw/curses.h>
 #include "message.h" 
 #include "status.h" 
+#include "view_misc.h" 
 #include "view_control.h" 
 #include "view_albums.h" 
 #include "view_playlist.h" 
@@ -66,6 +67,12 @@ int main (int argc, char **argv)
   BOOL flag_version = FALSE;
   BOOL flag_help = FALSE;
   BOOL flag_kiosk = FALSE;
+  /* local is TRUE unless the user gives a hostname for the server. 
+     In local mode, the server and this client are assumed to be on the
+     same host, which changes the menu selections slightly. It follows
+     that users should not set a hostname specifically unless the
+     server is actually on a different host. */
+  BOOL local = TRUE;
   // No point setting a sensible log level, as the logging will be
   //   lost under ncurses windows anyway.
   int log_level = VSLOG_ERROR;
@@ -102,6 +109,7 @@ int main (int argc, char **argv)
       case 'h':
         if (host) free (host);
         host = strdup (optarg); 
+        local = false;
         break;
       case 'v':
         flag_version = TRUE;
@@ -174,7 +182,15 @@ int main (int argc, char **argv)
       message_window = subwin (main_window, 3, COLS, LINES - 3, 0);
 
       status_update (lvsc);
-      view_main_menu (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0, flag_kiosk);
+
+      VMContext context;
+      memset (&context, 0, sizeof (context));
+      context.kiosk = flag_kiosk;
+      context.local = local;
+      context.port = port;
+      context.host = host;
+      view_main_menu (main_window, lvsc, LINES - 3 - 5, COLS, 
+         5, 0, &context); 
       //view_albums (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);
 
       delwin (status_window);

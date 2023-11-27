@@ -21,6 +21,7 @@
 #include "message.h" 
 #include "status.h" 
 #include "info_window.h" 
+#include "view_misc.h" 
 #include "util.h" 
 
 
@@ -57,11 +58,11 @@ static void info_window_update (WINDOW *info_window,
       case VSAPI_TS_PAUSED: s_stat = "Paused"; break;
       case VSAPI_TS_OPENING: s_stat = "Opening"; break;
       case VSAPI_TS_BUFFERING: s_stat = "Buffering"; break;
-      case VSAPI_TS_ENDED: s_stat = "Finished"; break;
+      case VSAPI_TS_ENDED: s_stat = "Finished playlist"; break;
       default:;
       }
 
-    mvwaddnstr (info_window, 3, 1, s_stat, 10);
+    mvwaddnstr (info_window, 3, 1, s_stat, COLS - 2);
 
     if ((ts == VSAPI_TS_PLAYING) || (ts == VSAPI_TS_PAUSED))
       {
@@ -80,52 +81,52 @@ static void info_window_update (WINDOW *info_window,
       const char *title = vs_metadata_get_title (amd);
       if (!title || !title[0])
         title = vs_server_stat_get_mrl (stat);
-      char *fittitle = fit_string (title, COLS - 2); 
-      mvwaddnstr (info_window, 6, 1, fittitle, COLS - 2);
+      char *fittitle = fit_string (title, COLS - 3); 
+      mvwaddnstr (info_window, 6, 1, fittitle, COLS - 3);
       free (fittitle);
 
-      mvwaddnstr (info_window, 7, 1, "Album:", COLS - 2);
+      mvwaddnstr (info_window, 7, 1, "Album:", COLS - 3);
       const char *album = vs_metadata_get_album (amd);
       if (album)
         {
-        char *fitalbum = fit_string (album, COLS - 2); 
-        mvwaddnstr (info_window, 7, 8, fitalbum, COLS - 2 - 8);
+        char *fitalbum = fit_string (album, COLS - 3); 
+        mvwaddnstr (info_window, 7, 8, fitalbum, COLS - 3 - 8);
         free (fitalbum);
         }
 
-      mvwaddnstr (info_window, 8, 1, "Artist:", COLS - 2);
+      mvwaddnstr (info_window, 8, 1, "Artist:", COLS - 3);
       const char *artist = vs_metadata_get_artist (amd);
       if (artist)
         {
-        char *fitartist = fit_string (artist, COLS - 2); 
-        mvwaddnstr (info_window, 8, 9, fitartist, COLS - 2 - 9);
+        char *fitartist = fit_string (artist, COLS - 3); 
+        mvwaddnstr (info_window, 8, 9, fitartist, COLS - 3 - 9);
         free (fitartist);
         }
 
-      mvwaddnstr (info_window, 9, 1, "Album artist:", COLS - 2);
+      mvwaddnstr (info_window, 9, 1, "Album artist:", COLS - 3);
       const char *album_artist = vs_metadata_get_album_artist (amd);
       if (album_artist)
         {
-        char *fitalbumartist = fit_string (album_artist, COLS - 2); 
-        mvwaddnstr (info_window, 9, 15, fitalbumartist, COLS - 2 - 15);
+        char *fitalbumartist = fit_string (album_artist, COLS - 3); 
+        mvwaddnstr (info_window, 9, 15, fitalbumartist, COLS - 3 - 15);
         free (fitalbumartist);
         }
 
-      mvwaddnstr (info_window, 10, 1, "Genre:", COLS - 2);
+      mvwaddnstr (info_window, 10, 1, "Genre:", COLS - 3);
       const char *genre = vs_metadata_get_genre (amd);
       if (genre)
         {
-        char *fitgenre = fit_string (genre, COLS - 2); 
-        mvwaddnstr (info_window, 10, 8, fitgenre, COLS - 2 - 8);
+        char *fitgenre = fit_string (genre, COLS - 3); 
+        mvwaddnstr (info_window, 10, 8, fitgenre, COLS - 3 - 8);
         free (fitgenre);
         }
 
-      mvwaddnstr (info_window, 11, 1, "Composer:", COLS - 2);
+      mvwaddnstr (info_window, 11, 1, "Composer:", COLS - 3);
       const char *composer = vs_metadata_get_composer (amd);
       if (genre)
         {
-        char *fitcomposer = fit_string (composer, COLS - 2); 
-        mvwaddnstr (info_window, 11, 11, fitcomposer, COLS - 2 - 8);
+        char *fitcomposer = fit_string (composer, COLS - 3); 
+        mvwaddnstr (info_window, 11, 11, fitcomposer, COLS - 3 - 11);
         free (fitcomposer);
         }
       }
@@ -167,7 +168,12 @@ void info_window_run (WINDOW *main_window, LibVlcServerClient *lvsc)
     int ch;
     while (!info_done && (ch = getch ()))
       {
-      if (ch == ERR)
+      if (view_misc_handle_non_menu_key (lvsc, ch))
+        {
+        // Nothing to do
+        info_done = TRUE;
+        } 
+      else if (ch == ERR)
         {
         info_window_update (info_window, lvsc);
         }

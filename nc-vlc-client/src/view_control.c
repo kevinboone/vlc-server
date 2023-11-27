@@ -54,8 +54,10 @@ static VSList *populate_control_menu (void)
   select_menu 
 
 ======================================================================*/
-static void select_menu (LibVlcServerClient *lvsc, const char *line)
+static void select_menu (LibVlcServerClient *lvsc, const char *line,
+         const VMContext *context)
   {
+  (void)context;
   if (strcmp (line, MENU_STOP) == 0)
      view_misc_stop (lvsc); 
   else if (strcmp (line, MENU_PLAY_PAUSE) == 0)
@@ -78,12 +80,12 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line)
 
 ======================================================================*/
 void view_control (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col)
+       int h, int w, int row, int col, const VMContext *context)
   {
   VSList *list = populate_control_menu ();
 
   view_list (main_window, lvsc, h, w, row, col, list, 
-       select_menu, "Control", FALSE);
+       select_menu, "Control", context);
 
   vs_list_destroy (list);
   }

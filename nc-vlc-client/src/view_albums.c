@@ -47,8 +47,10 @@ static VSList *populate_album_list (LibVlcServerClient *lvsc,
   play_album 
 
 ======================================================================*/
-void play_album (LibVlcServerClient *lvsc, const char *album)
+void play_album (LibVlcServerClient *lvsc, const char *album, 
+      const VMContext *context)
   {
+  (void)context;
   VSApiError err_code;
   char *error = NULL;
   libvlc_server_client_play_album (lvsc, 
@@ -67,8 +69,9 @@ void play_album (LibVlcServerClient *lvsc, const char *album)
 ======================================================================*/
 void view_albums (WINDOW *main_window, LibVlcServerClient *lvsc, 
        int h, int w, int row, int col, const char *caption_prefix, 
-       const char *where)
+       const char *where, const VMContext *context)
   {
+  (void)context;
   char *error = NULL;
   message_show ("Loading albums...");
   VSList *album_list = populate_album_list (lvsc, where, &error);
@@ -88,7 +91,7 @@ void view_albums (WINDOW *main_window, LibVlcServerClient *lvsc,
 
 
     view_list (main_window, lvsc, h, w, row, col, album_list, play_album,
-       caption, FALSE);
+       caption, context);
 
     free (caption);
     }

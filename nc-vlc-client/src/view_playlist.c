@@ -72,8 +72,10 @@ static VSList *populate_playlist (LibVlcServerClient *lvsc,
   play_index
 
 ======================================================================*/
-void play_index (LibVlcServerClient *lvsc, const char *line)
+void play_index (LibVlcServerClient *lvsc, const char *line, 
+       const VMContext *context)
   {
+  (void)context;
   VSApiError err_code;
   char *error = NULL;
   int index = atoi (line + 1) - 1;
@@ -93,7 +95,7 @@ void play_index (LibVlcServerClient *lvsc, const char *line)
 
 ======================================================================*/
 void view_playlist (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col)
+       int h, int w, int row, int col, const VMContext *context)
   {
   char *error = NULL;
   message_show ("Loading playlist...");
@@ -102,7 +104,7 @@ void view_playlist (WINDOW *main_window, LibVlcServerClient *lvsc,
   if (playlist)
     {
     view_list (main_window, lvsc, h, w, row, col, playlist, 
-       play_index, "Playlist", FALSE);
+       play_index, "Playlist", context);
     vs_list_destroy (playlist);
     }
   else

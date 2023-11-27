@@ -9,7 +9,8 @@ media player server, which is in turn an interface to the VLC media player.
 
 The client defaults to communicating with a `vlc-server` instance on
 the same host, and port 30000, although these properties can be
-changed using the `--host` and `--port` switches. 
+changed using the `--host` and `--port` switches (but see 'local mode'
+below).
 
 As of version 0.1f, the client can list artists and genres, and get a list
 of albums that match the artist or genre. However, the interface
@@ -34,7 +35,7 @@ keyboard. USB numeric keypads and remote controls are widely
 available and dirt cheap, 
 and can easily be dismantled and integrated into a custom hardware
 design. I particularly favour the Microsoft Media Centre 
-remotes, that have a USB receiver. The only problem with this 
+remotes, which have a USB receiver. The only problem with these
 cheap devices is that the button are a bit bouncy, so sometimes
 extra button-presses get generated.
 
@@ -80,14 +81,11 @@ by navigating back from the main menu, or by inactivity timeout.
 ## Standby info display
 
 After a period with no user-interface activity (currently 15 seconds)
-the menu will be replaced by a 'standby' information display. Pressing any
-key will restore the menu. Although, this information display seems
-more useful than just keeping the menu on the screen at all times,
-it does mean that controls like 'play' and 'pause' don't have
-immediate effect -- the first keypress wil restore the menu first.
-
-I suppose it would possible to have specific keys, like play/pause,
-operate while in the standby mode.
+the menu will be replaced by a 'standby' information display. Pressing 
+any key will restore the menu. Menu-related keys are not processed
+immediately, because it makes no sense to do so when the menu is
+not on screen. However, play/pause/next/previous, etc., are
+processed before the menu display is redrawn. 
 
 One reason for implementing the standby information display was to
 do something to limit screen burn-in. However, some elements of
@@ -96,6 +94,18 @@ is suspect.
 
 If screen burn-in is a real risk, it's still possible to implement
 screen blanking at the operating system level. 
+
+## Local mode
+
+If the command-line does not include a `--host` argument, this 
+interface and the `vlc-server` server must be running on the same
+host. In that case, `nc-vlc-client` is running in 'local' mode.
+At present, the only difference this makes is that, when displaying
+the system informat page, the local IP number is displayed in the
+URL for attaching a web browser. It would make no sense to display
+`localhost` here. 
+
+Additional 'local' operations may be added in future.
 
 ## Limitations
 
@@ -125,6 +135,10 @@ render these characters.  There really isn't much that `nc-vlc-client` can
 do to correct deficiencies in the console.
 
 ## Revision history
+
+0.1g November 2023
+- Added 'local' mode
+- Fixed a nasty memory leak
 
 0.1f November 2023
 - Added genre list and artist list

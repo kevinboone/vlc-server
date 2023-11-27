@@ -67,7 +67,8 @@ VSServerStat *vs_server_stat_new (VSApiTransportStatus ts,
 void vs_server_stat_destroy (VSServerStat *self)
   {
   if (self->mrl) free (self->mrl);
-  if (self->amd) free (self->amd);
+  //if (self->amd) free (self->amd);
+  if (self->amd) vs_metadata_destroy (self->amd);
   free (self);
   }
 

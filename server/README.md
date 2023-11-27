@@ -310,6 +310,9 @@ the server to the browser takes longer.
 
 ## Revision history
 
+0.1g November 2023
+- Fixed a nasty memory leak 
+
 0.1f November 2023
 - Separated 'strict search' and 'relaxed search' in the web GUI
 

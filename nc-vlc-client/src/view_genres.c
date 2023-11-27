@@ -50,13 +50,15 @@ static VSList *populate_genre_list (LibVlcServerClient *lvsc,
   show_genre 
 
 ======================================================================*/
-static void show_genre (LibVlcServerClient *lvsc, const char *genre)
+static void show_genre (LibVlcServerClient *lvsc, const char *genre,
+     const VMContext *context)
   {
+  (void)context;
   char *where;
   char *escaped_genre = libvlc_escape_sql (genre);
   asprintf (&where, "genre='%s'", escaped_genre);
   view_albums (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0, 
-     "Genres", where);
+     "Genres", where, context);
   free (escaped_genre);
   free (where);
   }
@@ -67,8 +69,9 @@ static void show_genre (LibVlcServerClient *lvsc, const char *genre)
 
 ======================================================================*/
 void view_genres (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col)
+       int h, int w, int row, int col, const VMContext *context)
   {
+  (void)context;
   char *error = NULL;
   message_show ("Loading genres...");
   VSList *genre_list = populate_genre_list (lvsc, &error);
@@ -81,7 +84,7 @@ void view_genres (WINDOW *main_window, LibVlcServerClient *lvsc,
   else
     {
     view_list (main_window, lvsc, h, w, row, col, genre_list, show_genre,
-       "Genres", FALSE);
+       "Genres", context);
     }
 
   if (genre_list) vs_list_destroy (genre_list);

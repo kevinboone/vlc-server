@@ -84,22 +84,28 @@ static char *view_sys_info_server_version (LibVlcServerClient *lvsc)
   populate_sys_info
 
 ======================================================================*/
-static VSList *populate_sys_info (LibVlcServerClient *lvsc)
+static VSList *populate_sys_info (LibVlcServerClient *lvsc, 
+          const VMContext *context)
   {
   VSList *ret = vs_list_create (free);
   char *s;
   char ipbuff[20];
-  if (get_my_ip (ipbuff, sizeof (ipbuff) + 1) == 0)
-    asprintf (&s, "IP address: %s", ipbuff);
+  if (get_my_ip (ipbuff, sizeof (ipbuff) + 1) != 0)
+     strcpy (ipbuff, "?.?.?.?");
+
+  if (context->local)
+    asprintf (&s, "Browser URL: http://%s:%d", ipbuff, context->port);
   else
-    asprintf (&s, "Can't determine IP address");
+    asprintf (&s, "Browser URL: http://%s:%d", context->host, context->port);
   vs_list_append (ret, s);
+
   asprintf (&s, "Client version: " VERSION);
   vs_list_append (ret, s);
   char *version = view_sys_info_server_version (lvsc);
   asprintf (&s, "Server version: %s", version);
   free (version);
   vs_list_append (ret, s);
+
   return ret;
   }
 
@@ -109,9 +115,10 @@ static VSList *populate_sys_info (LibVlcServerClient *lvsc)
   select_menu 
 
 ======================================================================*/
-static void select_menu (LibVlcServerClient *lvsc, const char *line)
+static void select_menu (LibVlcServerClient *lvsc, const char *line, 
+        const VMContext *context)
   {
-  (void)lvsc; (void)line;
+  (void)lvsc; (void)line; (void)context;
   message_show ("Can't select in this page");
   }
 
@@ -121,13 +128,14 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line)
 
 ======================================================================*/
 void view_sys_info (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col)
+       int h, int w, int row, int col, const VMContext *context)
   {
-  VSList *list = populate_sys_info (lvsc);
+  VSList *list = populate_sys_info (lvsc, context);
 
   view_list (main_window, lvsc, h, w, row, col, list, 
-       select_menu, "System info", FALSE);
+       select_menu, "System info", context);
 
   vs_list_destroy (list);
   }
+
 

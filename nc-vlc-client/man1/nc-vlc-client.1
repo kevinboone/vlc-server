@@ -4,7 +4,7 @@
 .\" included, that it is not sold for profit, and that this copyright notice
 .\" is retained.
 .\"
-.TH vlc-server 1 "March 2023"
+.TH vlc-server 1 "November 2023"
 .SH NAME
 nc-vlc-client -- a console-based interface for vlc-server media player 
 
@@ -17,7 +17,7 @@ nc-vlc-client -- a console-based interface for vlc-server media player
 \fInc-vlc-client\fR is an ncurses-based, console client for the  
 \fIvlc-server\fR media player, which is itself an HTTP interface to the VLC
 player. The client allows the audio library to be browsed and played
-by album. Other features may be added later. 
+by album, artist, or genre. Other features may be added later. 
 
 .SH "OPTIONS"
 
@@ -32,6 +32,12 @@ Default: localhost.
 .LP
 Specify the IP port number of the \fIvlc-server\fR instance.
 Default: 30000.
+
+.TP
+.BI -k,\-\-kiosk
+.LP
+Kiosk mode -- user can't exit the program with menu actions
+(but ctrl-c, etc., are not blocked).
 
 .SH "DEFAULT KEY BINDINGS"
 

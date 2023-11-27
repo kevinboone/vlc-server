@@ -12,5 +12,5 @@
 #include <vlc-server/api-client.h>
 
 extern void view_playlist (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col);
+       int h, int w, int row, int col, const VMContext *context);
 

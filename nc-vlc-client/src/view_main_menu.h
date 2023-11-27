@@ -13,5 +13,5 @@
 #include <vlc-server/api-client.h>
 
 extern void view_main_menu (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col, BOOL kiosk);
+       int h, int w, int row, int col, const VMContext *context); 
 

@@ -81,9 +81,10 @@ static VSList *populate_help (void)
   select_menu 
 
 ======================================================================*/
-static void select_menu (LibVlcServerClient *lvsc, const char *line)
+static void select_menu (LibVlcServerClient *lvsc, const char *line,
+         const VMContext *context)
   {
-  (void)lvsc; (void)line;
+  (void)lvsc; (void)line; (void)context;
   message_show ("Can't select in this page");
   }
 
@@ -93,12 +94,12 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line)
 
 ======================================================================*/
 void view_help (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col)
+       int h, int w, int row, int col, const VMContext *context)
   {
   VSList *list = populate_help ();
 
   view_list (main_window, lvsc, h, w, row, col, list, 
-       select_menu, "Help", FALSE);
+       select_menu, "Help", context);
 
   vs_list_destroy (list);
   }
