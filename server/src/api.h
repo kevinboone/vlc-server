@@ -26,6 +26,7 @@
 #include <vlc-server/vs_list.h>
 #include <vlc-server/vs_props.h>
 #include <vlc-server/vs_server_stat.h>
+#include <vlc-server/vs_storage.h>
 #include <vlc-server/vs_search_constraints.h>
 #include "media_database.h"
 
@@ -127,6 +128,11 @@ extern char *api_list_tracks_js (MediaDatabase *mdb,
 /* Return the player status, including what is playing and the position. */
 extern VSServerStat *api_stat (const struct _Player *player, VSApiError *e);
 extern char *api_stat_js (const struct _Player *player);
+
+extern VSStorage *api_storage (const MediaDatabase *mdb, 
+         const struct _Player *player, VSApiError *e);
+extern char *api_storage_js (const MediaDatabase *mdb,
+         const struct _Player *player);
 
 /* Get a URL that can be requested by a browser, to retrieve the cover
      art for a specific album. The caller will form the complete URL

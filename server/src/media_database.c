@@ -509,7 +509,7 @@ void media_database_search (MediaDatabase *self,
 /*======================================================================
   media_database_search_count
 ======================================================================*/
-int media_database_search_count (MediaDatabase *self, 
+int media_database_search_count (const MediaDatabase *self, 
        MediaDatabaseColumn column,   
        const VSSearchConstraints *constraints, char **error)
   {
@@ -520,7 +520,7 @@ int media_database_search_count (MediaDatabase *self,
 
   vs_string_append (sql, ") from files ");
 
-  if (constraints->where)
+  if (constraints && constraints->where)
     {
     vs_string_append (sql, " where ");
     //char *escaped_where = media_database_escape_sql (constraints->where);

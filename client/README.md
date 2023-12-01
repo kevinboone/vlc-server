@@ -1,6 +1,6 @@
 # vlc-server-client
 
-Version 0.1e, November 2023
+Version 0.1f, December 2023
 
 ## What is this
 
@@ -37,7 +37,10 @@ the playlist -- but this is not under the control of the client.
 
 ## Revision history
 
-0.13 November 2023
+0.1f December 2023
+- added 'storage' command
+
+0.1e November 2023
 - added 'play-random-XXX' commands
 
 0.1d November 2023

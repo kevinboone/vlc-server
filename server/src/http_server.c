@@ -309,6 +309,12 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }
+  else if (strcmp (url, "storage") == 0) 
+    {
+    char *aret = api_storage_js (self->mdb, self->player);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
   else
     { 
     ret = http_server_make_response 

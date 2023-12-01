@@ -17,6 +17,7 @@
 #include <vlc-server/vs_list.h>
 #include <vlc-server/vs_playlist.h>
 #include <vlc-server/vs_server_stat.h>
+#include <vlc-server/vs_storage.h>
 
 /*======================================================================
   
@@ -50,6 +51,11 @@ void libvlc_server_client_destroy (LibVlcServerClient  *self);
 /** Get the server status in a VSServerStat object. The caller must
     destroy this object, if it is not NULL. */
 VSServerStat *libvlc_server_client_stat (LibVlcServerClient *self, 
+        VSApiError *err_code, char **msg);
+
+/** Get the server's torage status in a VSStorage object. The caller must
+    destroy this object, if it is not NULL. */
+VSStorage *libvlc_server_client_storage (LibVlcServerClient *self, 
         VSApiError *err_code, char **msg);
 
 /** Get the server's playlist as a VSPlayList object. The caller must

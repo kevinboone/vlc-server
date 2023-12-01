@@ -37,6 +37,9 @@ extern int cmd_add_urls (const char *argv0, int argc, char **new_argv,
 extern int cmd_stop (const char *argv0, int argc, char **new_argv, 
   const CmdContext *context);
 
+extern int cmd_storage (const char *argv0, int argc, char **new_argv, 
+  const CmdContext *context);
+
 extern int cmd_pause (const char *argv0, int argc, char **new_argv, 
   const CmdContext *context);
 

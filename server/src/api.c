@@ -16,10 +16,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <vlc-server/vs_string.h>
 #include <vlc-server/vs_log.h>
 #include <vlc-server/vs_util.h>
 #include <vlc-server/vs_server_stat.h>
+#include <vlc-server/vs_storage.h>
 #include <vlc-server/libvlc_media_database.h>
 #include "http_server.h"
 #include "player.h"
@@ -625,6 +627,72 @@ VSServerStat *api_stat (const Player *player, VSApiError *e)
   *e = 0; // No errors possible in this function
   free (mrl);
   return stat;
+  }
+
+/*======================================================================
+
+  api_storage
+
+======================================================================*/
+VSStorage *api_storage (const MediaDatabase *mdb, 
+             const struct _Player *player, VSApiError *)
+  {
+  int capacity_mb = -1;
+  int free_mb = -1;
+  int albums = -1;
+  int tracks = -1;
+  const char *media_root = player_get_media_root (player);
+  struct statvfs stat;
+  if (statvfs(media_root, &stat) == 0)
+    {
+    capacity_mb = (int) (stat.f_bsize * stat.f_blocks / 1000000L);
+    free_mb = (int) (stat.f_bsize * stat.f_bfree/ 1000000L);
+    }
+
+  if (media_database_is_init (mdb))
+    {
+    albums = media_database_search_count (mdb, MDB_COL_ALBUM,
+       NULL, NULL);
+    tracks = media_database_search_count (mdb, MDB_COL_PATH,
+       NULL, NULL);
+    }
+
+  VSStorage *ret = vs_storage_new (capacity_mb, free_mb, albums, tracks);
+  return ret;
+  }
+
+/*======================================================================
+
+  api_storage_js
+
+======================================================================*/
+char *api_storage_js (const MediaDatabase *mdb, const struct _Player *player)
+  {
+  char *ret;
+  VSApiError e;
+  VSStorage *storage = api_storage (mdb, player, &e);
+  if (storage)
+    {
+    int capacity_mb = vs_storage_get_capacity_mb (storage);
+    int free_mb = vs_storage_get_free_mb (storage);
+    int albums = vs_storage_get_albums (storage);
+    int tracks = vs_storage_get_tracks (storage);
+    asprintf (&ret, "{\"status\": %d, \
+\"capacity_mb\": %d, \
+\"free_mb\": %d, \
+\"albums\": %d, \
+\"tracks\": %d}\r\n", 
+      0, capacity_mb, free_mb, albums, tracks);
+    vs_storage_destroy (storage);
+    }
+  else
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  return ret;
   }
 
 /*======================================================================

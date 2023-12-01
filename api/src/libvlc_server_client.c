@@ -279,6 +279,58 @@ VSServerStat *libvlc_server_client_stat (LibVlcServerClient *self,
 
 /*======================================================================
 
+  libvlc_server_client_storage
+
+======================================================================*/
+VSStorage *libvlc_server_client_storage (LibVlcServerClient *self, 
+        VSApiError *err_code, char **msg)
+  {
+  IN
+  VSStorage *ret = NULL;
+  char *response = libvlc_server_client_request (self, 
+            "storage", err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+        int capacity_mb = -1; 
+        int free_mb = -1; 
+        int albums = -1; 
+        int tracks = -1; 
+  	cJSON *j = cJSON_GetObjectItem (root, "capacity_mb"); 
+        if (j)
+          capacity_mb = j->valueint; 
+  	j = cJSON_GetObjectItem (root, "free_mb"); 
+        if (j)
+          free_mb = j->valueint; 
+  	j = cJSON_GetObjectItem (root, "albums"); 
+        if (j)
+          albums = j->valueint; 
+  	j = cJSON_GetObjectItem (root, "tracks"); 
+        if (j)
+          tracks = j->valueint; 
+
+        ret = vs_storage_new (capacity_mb, free_mb, albums, tracks);
+        }
+
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  return ret;
+  OUT
+  }
+
+/*======================================================================
+
   libvlc_server_client_clear
 
 ======================================================================*/

@@ -56,7 +56,7 @@ extern void media_database_search (MediaDatabase *self,
 
 /** As media_database_search(), except that this method only returns the
        number of hits. */
-extern int media_database_search_count (MediaDatabase *self, 
+extern int media_database_search_count (const MediaDatabase *self, 
        MediaDatabaseColumn column,   
        const VSSearchConstraints *constraints, char **error);
 

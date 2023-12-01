@@ -63,7 +63,7 @@ int get_my_ip (char *buffer, size_t buflen)
 
 /*======================================================================
   
-  view_misc_volume_up
+  view_sys_info_server_version
 
 ======================================================================*/
 static char *view_sys_info_server_version (LibVlcServerClient *lvsc)
@@ -106,6 +106,41 @@ static VSList *populate_sys_info (LibVlcServerClient *lvsc,
   asprintf (&s, "Server version: %s", version);
   free (version);
   vs_list_append (ret, s);
+
+  VSApiError err_code;
+  VSStorage *storage = libvlc_server_client_storage (lvsc, &err_code, NULL);
+  if (storage)
+    {
+    int capacity_mb = vs_storage_get_capacity_mb (storage);
+    int free_mb = vs_storage_get_free_mb (storage);
+    int albums = vs_storage_get_albums (storage);
+    int tracks = vs_storage_get_tracks (storage);
+
+    char *s;
+    if (capacity_mb > 0)
+      asprintf (&s, "Storage capacity: %d Mb", capacity_mb);
+    else
+      asprintf (&s, "Storage capacity: ?? Mb");
+    vs_list_append (ret, s);
+    if (free_mb > 0)
+      asprintf (&s, "Storage free: %d Mb (%d%%)", free_mb,
+        capacity_mb > 0 ? free_mb * 100 / capacity_mb : 0);
+    else
+      asprintf (&s, "Storage free: ?? Mb");
+    vs_list_append (ret, s);
+    if (tracks >= 0)
+      asprintf (&s, "Tracks: %d", tracks);
+    else
+      asprintf (&s, "Tracks: ??");
+    vs_list_append (ret, s);
+    if (albums >= 0)
+      asprintf (&s, "Albums: %d", albums);
+    else
+      asprintf (&s, "Albums: ??");
+    vs_list_append (ret, s);
+
+    vs_storage_destroy (storage);
+    }
 
   return ret;
   }

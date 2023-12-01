@@ -77,23 +77,32 @@ main meny for 15 seconds, the program exits.
 
 When run with the `-k` switch, `nc-vlc-client` will not exit, either 
 by navigating back from the main menu, or by inactivity timeout.
+In addition, it will keep trying to connect to the `vlc-server` server
+process indefintely. There is no timeout -- the logic is that, in 
+kiosk mode, there simply is nothing to be done if the server is
+not contactable.
+
+During the initial connection process in kiosk mode, `nc-vlc-client`
+does not display error messages if they are 'connection refused'. This
+is taken to be normal, because the client will likely start up more 
+quickly than the server.
 
 ## Standby info display
 
-After a period with no user-interface activity (currently 15 seconds)
-the menu will be replaced by a 'standby' information display. Pressing 
-any key will restore the menu. Menu-related keys are not processed
-immediately, because it makes no sense to do so when the menu is
-not on screen. However, play/pause/next/previous, etc., are
-processed before the menu display is redrawn. 
+After a period with no user-interface activity (currently 15 seconds) the menu
+will be replaced by a 'standby' information display.  It shows file meta-data
+(artist, album...), and position in the playlist. Pressing any key will restore
+the menu. Menu-related keys are not processed immediately, because it makes no
+sense to do so when the menu is not on screen. However,
+play/pause/next/previous, etc., are processed before the menu display is
+redrawn. 
 
-One reason for implementing the standby information display was to
-do something to limit screen burn-in. However, some elements of
-the standby display are unchanging, so its utility for the purpose
-is suspect.
+One reason for implementing the standby information display was to do something
+to limit screen burn-in. However, some elements of the standby display are
+unchanging, so its utility for the purpose is suspect.
 
-If screen burn-in is a real risk, it's still possible to implement
-screen blanking at the operating system level. 
+If screen burn-in is a real risk, it's still possible to implement screen
+blanking at the operating system level. 
 
 ## Colour
 
@@ -109,7 +118,7 @@ If the command-line does not include a `--host` argument, this
 interface and the `vlc-server` server must be running on the same
 host. In that case, `nc-vlc-client` is running in 'local' mode.
 At present, the only difference this makes is that, when displaying
-the system informat page, the local IP number is displayed in the
+the system information page, the local IP number is displayed in the
 URL for attaching a web browser. It would make no sense to display
 `localhost` here. 
 
@@ -146,6 +155,7 @@ do to correct deficiencies in the console.
 
 0.1i December 2023
 - Added preliminary colour support 
+- Added server storage reporting 
 
 0.1h November 2023
 - Added 'play random' key binding 

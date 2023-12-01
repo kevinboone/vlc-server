@@ -60,6 +60,7 @@ static CmdEntry cmd_table[] =
   { "start", cmd_start , "play from start, or resume if paused" },
   { "stat", cmd_stat , "show the current player status" },
   { "stop", cmd_stop , "stop playback, reset to start of playlist" },
+  { "storage", cmd_storage , "report storage information" },
   { "version", cmd_version , "show version information" },
   { "volume", cmd_volume , "get or set audio volume, in range 0-100" },
   { NULL, NULL, NULL }

@@ -158,6 +158,7 @@ int main (int argc, char **argv)
     char *error = NULL;
     if (flag_kiosk)
       {
+      printf ("Connecting to music server...\n");
       do
         {
         stat = libvlc_server_client_stat (lvsc, &err_code,
@@ -166,13 +167,15 @@ int main (int argc, char **argv)
           {
           if (error) 
             {
-            fprintf (stderr, "%s\n", error);
+            if (!strstr (error, "refused"))
+              fprintf (stderr, "%s\n", error);
             free (error);
             }
-          printf ("Waiting for server to start...\n");
-          usleep (3000000);
+          printf ("Please wait...\n");
+          usleep (3000000); // 3 sec
           }
         } while (err_code);
+      printf ("Connected.\n");
       }
     else
       {

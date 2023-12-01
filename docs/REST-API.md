@@ -341,6 +341,34 @@ something is playing -- check the "transport\_status" field.
 Stops playback, and resets the playlist to the beginning. Note 
 that the whole playlist is reset, not just the current track.
 
+### storage
+
+    /api/storage
+
+Reports the storage usage of the server, as follows: 
+
+    {"status": 0, 
+    "capacity_mb": 511035, 
+    "free_mb": 108204, 
+    "albums": 110, 
+    "tracks": 1789}
+
+The capacity and free space figures are taken from the filesystem that 
+contains the media root. Of course there's no easy way for the program
+to exclude other files in the same filesystem.
+
+Album and track counts come from the media database -- it would be too slow
+to enumerate the media root and count the actual files.
+
+This API always succeeds, and returns a zero status. However, any one of
+the individual metrics may be meaningless, depending on the system
+status. An error condition is usually indicated by a value of -1. There
+will be -1 tracks and albums, for example, if the media database did not
+initialize properly. Clients should be careful about working out the
+proportion of storage that is free by dividing anything by `capacity_mb`:
+it may be zero, because Linux is unable to report the capacity for some
+filesystem types.
+
 ### volume
 
     /api/volume/N
