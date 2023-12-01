@@ -26,4 +26,5 @@ extern int keys_volume_up;
 extern int keys_next;
 extern int keys_prev;
 extern int keys_quit;
+extern int keys_play_random;
 

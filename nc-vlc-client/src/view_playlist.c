@@ -18,6 +18,7 @@
 #include "message.h" 
 #include "status.h" 
 #include "keys.h" 
+#include "app_context.h" 
 #include "view_misc.h" 
 #include "view_playlist.h" 
 
@@ -27,7 +28,7 @@
 
 ======================================================================*/
 static VSList *populate_playlist (LibVlcServerClient *lvsc, 
-         char **error)
+         const AppContext *context, char **error)
   {
   (void)error;
   VSApiError err_code;
@@ -59,7 +60,7 @@ static VSList *populate_playlist (LibVlcServerClient *lvsc,
     {
     if (msg)
       {
-      message_show (msg);
+      message_show (msg, context);
       free (msg);
       }
     }
@@ -73,7 +74,7 @@ static VSList *populate_playlist (LibVlcServerClient *lvsc,
 
 ======================================================================*/
 void play_index (LibVlcServerClient *lvsc, const char *line, 
-       const VMContext *context)
+       const AppContext *context)
   {
   (void)context;
   VSApiError err_code;
@@ -84,7 +85,7 @@ void play_index (LibVlcServerClient *lvsc, const char *line,
      &err_code, &error, index);
   if (error)
     {
-    message_show (error);
+    message_show (error, context);
     free (error);
     }
   }
@@ -95,11 +96,11 @@ void play_index (LibVlcServerClient *lvsc, const char *line,
 
 ======================================================================*/
 void view_playlist (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col, const VMContext *context)
+       int h, int w, int row, int col, const AppContext *context)
   {
   char *error = NULL;
-  message_show ("Loading playlist...");
-  VSList *playlist = populate_playlist (lvsc, &error);
+  message_show ("Loading playlist...", context);
+  VSList *playlist = populate_playlist (lvsc, context, &error);
 
   if (playlist)
     {
@@ -111,7 +112,7 @@ void view_playlist (WINDOW *main_window, LibVlcServerClient *lvsc,
     {
     if (error)
       {
-      message_show (error); 
+      message_show (error, context); 
       free (error);
       }
     }

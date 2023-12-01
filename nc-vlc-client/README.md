@@ -1,6 +1,6 @@
 # nc-vlc-client
 
-Version 0.1f, November 2023
+Version 0.1i, November 2023
 
 ## What is this?
 
@@ -95,6 +95,14 @@ is suspect.
 If screen burn-in is a real risk, it's still possible to implement
 screen blanking at the operating system level. 
 
+## Colour
+
+`nc-vlc-client` has a colour mode, which can be enabled using the
+`-c` switch if the terminal supports colour. Colour is used sparingly,
+even when it is used at all, because the small screens on the embedded
+systems for which this application is intended often do not render
+colour well. That's also the reason why it isn't enabled by default.
+
 ## Local mode
 
 If the command-line does not include a `--host` argument, this 
@@ -135,6 +143,12 @@ render these characters.  There really isn't much that `nc-vlc-client` can
 do to correct deficiencies in the console.
 
 ## Revision history
+
+0.1i December 2023
+- Added preliminary colour support 
+
+0.1h November 2023
+- Added 'play random' key binding 
 
 0.1g November 2023
 - Added 'local' mode

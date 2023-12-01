@@ -21,6 +21,7 @@
 #include "message.h" 
 #include "status.h" 
 #include "keys.h" 
+#include "app_context.h" 
 #include "view_misc.h" 
 #include "view_albums.h" 
 #include "view_genres.h" 
@@ -51,7 +52,7 @@ static VSList *populate_genre_list (LibVlcServerClient *lvsc,
 
 ======================================================================*/
 static void show_genre (LibVlcServerClient *lvsc, const char *genre,
-     const VMContext *context)
+     const AppContext *context)
   {
   (void)context;
   char *where;
@@ -69,16 +70,16 @@ static void show_genre (LibVlcServerClient *lvsc, const char *genre,
 
 ======================================================================*/
 void view_genres (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col, const VMContext *context)
+       int h, int w, int row, int col, const AppContext *context)
   {
   (void)context;
   char *error = NULL;
-  message_show ("Loading genres...");
+  message_show ("Loading genres...", context);
   VSList *genre_list = populate_genre_list (lvsc, &error);
 
   if (error)
     {
-    message_show (error); 
+    message_show (error, context); 
     free (error);
     }
   else

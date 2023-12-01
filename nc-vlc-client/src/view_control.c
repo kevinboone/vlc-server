@@ -19,8 +19,9 @@
 #include "message.h" 
 #include "status.h" 
 #include "keys.h" 
-#include "view_misc.h" 
+#include "app_context.h" 
 #include "view_control.h" 
+#include "control.h" 
 
 #define MENU_STOP "Stop"
 #define MENU_PLAY_PAUSE "Play/pause"
@@ -29,6 +30,7 @@
 #define MENU_VOL_UP "Volume up"
 #define MENU_VOL_DOWN "Volume down"
 #define MENU_SCAN "Run scanner"
+#define MENU_PLAY_RANDOM "Play random album"
 
 /*======================================================================
   
@@ -40,6 +42,7 @@ static VSList *populate_control_menu (void)
   VSList *ret = vs_list_create (free);
   vs_list_append (ret, strdup (MENU_PLAY_PAUSE));
   vs_list_append (ret, strdup (MENU_STOP));
+  vs_list_append (ret, strdup (MENU_PLAY_RANDOM));
   vs_list_append (ret, strdup (MENU_NEXT));
   vs_list_append (ret, strdup (MENU_PREV));
   vs_list_append (ret, strdup (MENU_VOL_UP));
@@ -55,23 +58,25 @@ static VSList *populate_control_menu (void)
 
 ======================================================================*/
 static void select_menu (LibVlcServerClient *lvsc, const char *line,
-         const VMContext *context)
+         const AppContext *context)
   {
   (void)context;
   if (strcmp (line, MENU_STOP) == 0)
-     view_misc_stop (lvsc); 
+     control_stop (lvsc, context); 
   else if (strcmp (line, MENU_PLAY_PAUSE) == 0)
-     view_misc_toggle_pause (lvsc); 
+     control_toggle_pause (lvsc, context); 
   else if (strcmp (line, MENU_NEXT) == 0)
-     view_misc_next (lvsc); 
+     control_next (lvsc, context); 
   else if (strcmp (line, MENU_PREV) == 0)
-     view_misc_prev (lvsc); 
+     control_prev (lvsc, context); 
   else if (strcmp (line, MENU_VOL_UP) == 0)
-     view_misc_volume_up (lvsc); 
+     control_volume_up (lvsc, context); 
   else if (strcmp (line, MENU_VOL_DOWN) == 0)
-     view_misc_volume_down (lvsc); 
+     control_volume_down (lvsc, context); 
   else if (strcmp (line, MENU_SCAN) == 0)
-     view_misc_run_scanner (lvsc); 
+     control_run_scanner (lvsc, context); 
+  else if (strcmp (line, MENU_PLAY_RANDOM) == 0)
+     control_play_random_album (lvsc, context); 
   }
 
 /*======================================================================
@@ -80,7 +85,7 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line,
 
 ======================================================================*/
 void view_control (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col, const VMContext *context)
+       int h, int w, int row, int col, const AppContext *context)
   {
   VSList *list = populate_control_menu ();
 

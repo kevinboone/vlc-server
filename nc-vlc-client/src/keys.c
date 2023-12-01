@@ -25,6 +25,7 @@ int keys_volume_up = '+';
 int keys_volume_down = '-';
 int keys_next = 'N' - 64;
 int keys_prev = 'P' - 64;
+int keys_play_random = 'R' - 64;
 int keys_quit = KEY_LEFT; 
 
 

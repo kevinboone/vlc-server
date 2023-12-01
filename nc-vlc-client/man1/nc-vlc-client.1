@@ -4,7 +4,7 @@
 .\" included, that it is not sold for profit, and that this copyright notice
 .\" is retained.
 .\"
-.TH vlc-server 1 "November 2023"
+.TH vlc-server 1 "December 2023"
 .SH NAME
 nc-vlc-client -- a console-based interface for vlc-server media player 
 
@@ -20,6 +20,13 @@ player. The client allows the audio library to be browsed and played
 by album, artist, or genre. Other features may be added later. 
 
 .SH "OPTIONS"
+
+.TP
+.BI -c,\-\-colour
+.LP
+Use limited colour in the display, if the hardware allows it. This is
+not the default, because some screens in embedded systems display
+colour badly, even when it is notionally supported.
 
 .TP
 .BI -h,\-\-host={hostname]

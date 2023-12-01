@@ -18,6 +18,7 @@
 #include "message.h" 
 #include "status.h" 
 #include "keys.h" 
+#include "app_context.h" 
 #include "view_misc.h" 
 #include "view_help.h" 
 
@@ -46,11 +47,13 @@ static VSList *populate_help (void)
   {
   VSList *ret = vs_list_create (free);
   char *s;
-  asprintf (&s, "Letters a-z select the starting point in the album list");
+  asprintf (&s, "Letters a-z select starting point in list/menu");
   vs_list_append (ret, s);
   asprintf (&s, "Play/pause: '%s'", mykeyname(keys_toggle_pause));
   vs_list_append (ret, s);
   asprintf (&s, "Stop: '%s'", mykeyname(keys_stop));
+  vs_list_append (ret, s);
+  asprintf (&s, "Play random: '%s'", mykeyname(keys_play_random));
   vs_list_append (ret, s);
   asprintf (&s, "Previous menu/quit: '%s'", mykeyname(keys_quit));
   vs_list_append (ret, s);
@@ -82,10 +85,10 @@ static VSList *populate_help (void)
 
 ======================================================================*/
 static void select_menu (LibVlcServerClient *lvsc, const char *line,
-         const VMContext *context)
+         const AppContext *context)
   {
   (void)lvsc; (void)line; (void)context;
-  message_show ("Can't select in this page");
+  message_show ("Can't select in this page", context);
   }
 
 /*======================================================================
@@ -94,7 +97,7 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line,
 
 ======================================================================*/
 void view_help (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col, const VMContext *context)
+       int h, int w, int row, int col, const AppContext *context)
   {
   VSList *list = populate_help ();
 

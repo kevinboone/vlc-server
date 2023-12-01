@@ -10,7 +10,8 @@
 #pragma once
 
 #include <vlc-server/api-client.h>
+#include "app_context.h" 
 
 extern void view_playlist (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col, const VMContext *context);
+       int h, int w, int row, int col, const AppContext *context);
 

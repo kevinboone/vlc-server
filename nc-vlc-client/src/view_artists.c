@@ -21,6 +21,7 @@
 #include "message.h" 
 #include "status.h" 
 #include "keys.h" 
+#include "app_context.h" 
 #include "view_misc.h" 
 #include "view_albums.h" 
 #include "view_artists.h" 
@@ -51,7 +52,7 @@ static VSList *populate_artist_list (LibVlcServerClient *lvsc,
 
 ======================================================================*/
 static void show_artist (LibVlcServerClient *lvsc, const char *artist,
-     const VMContext *context)
+     const AppContext *context)
   {
   (void)context;
   char *where;
@@ -69,15 +70,15 @@ static void show_artist (LibVlcServerClient *lvsc, const char *artist,
 
 ======================================================================*/
 void view_artists (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col, const VMContext *context)
+       int h, int w, int row, int col, const AppContext *context)
   {
   char *error = NULL;
-  message_show ("Loading artists...");
+  message_show ("Loading artists...", context);
   VSList *artist_list = populate_artist_list (lvsc, &error);
 
   if (error)
     {
-    message_show (error); 
+    message_show (error, context); 
     free (error);
     }
   else

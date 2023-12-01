@@ -23,6 +23,7 @@
 #include "status.h" 
 #include "keys.h" 
 #include "view_misc.h" 
+#include "app_context.h" 
 #include "view_sys_info.h" 
 
 /*======================================================================
@@ -85,7 +86,7 @@ static char *view_sys_info_server_version (LibVlcServerClient *lvsc)
 
 ======================================================================*/
 static VSList *populate_sys_info (LibVlcServerClient *lvsc, 
-          const VMContext *context)
+          const AppContext *context)
   {
   VSList *ret = vs_list_create (free);
   char *s;
@@ -116,10 +117,10 @@ static VSList *populate_sys_info (LibVlcServerClient *lvsc,
 
 ======================================================================*/
 static void select_menu (LibVlcServerClient *lvsc, const char *line, 
-        const VMContext *context)
+        const AppContext *context)
   {
   (void)lvsc; (void)line; (void)context;
-  message_show ("Can't select in this page");
+  message_show ("Can't select in this page", context);
   }
 
 /*======================================================================
@@ -128,7 +129,7 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line,
 
 ======================================================================*/
 void view_sys_info (WINDOW *main_window, LibVlcServerClient *lvsc, 
-       int h, int w, int row, int col, const VMContext *context)
+       int h, int w, int row, int col, const AppContext *context)
   {
   VSList *list = populate_sys_info (lvsc, context);
 

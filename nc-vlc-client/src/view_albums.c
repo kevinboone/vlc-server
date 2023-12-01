@@ -21,6 +21,7 @@
 #include "message.h" 
 #include "status.h" 
 #include "keys.h" 
+#include "app_context.h" 
 #include "view_misc.h" 
 #include "view_albums.h" 
 
@@ -48,7 +49,7 @@ static VSList *populate_album_list (LibVlcServerClient *lvsc,
 
 ======================================================================*/
 void play_album (LibVlcServerClient *lvsc, const char *album, 
-      const VMContext *context)
+      const AppContext *context)
   {
   (void)context;
   VSApiError err_code;
@@ -57,7 +58,7 @@ void play_album (LibVlcServerClient *lvsc, const char *album,
      &err_code, &error, album);
   if (error)
     {
-    message_show (error);
+    message_show (error, context);
     free (error);
     }
   }
@@ -69,16 +70,16 @@ void play_album (LibVlcServerClient *lvsc, const char *album,
 ======================================================================*/
 void view_albums (WINDOW *main_window, LibVlcServerClient *lvsc, 
        int h, int w, int row, int col, const char *caption_prefix, 
-       const char *where, const VMContext *context)
+       const char *where, const AppContext *context)
   {
   (void)context;
   char *error = NULL;
-  message_show ("Loading albums...");
+  message_show ("Loading albums...", context);
   VSList *album_list = populate_album_list (lvsc, where, &error);
 
   if (error)
     {
-    message_show (error); 
+    message_show (error, context); 
     free (error);
     }
   else

@@ -19,11 +19,12 @@
 #include <ncursesw/curses.h>
 #include "message.h" 
 #include "status.h" 
-#include "view_misc.h" 
+#include "app_context.h" 
 #include "view_control.h" 
 #include "view_albums.h" 
 #include "view_playlist.h" 
 #include "view_main_menu.h" 
+#include "colour.h" 
 
 WINDOW *status_window = NULL; 
 WINDOW *message_window = NULL; 
@@ -37,10 +38,11 @@ WINDOW *main_window = NULL;
 void show_help (void)
   {
   printf ("Usage: " NAME " [options] {command} [arguments]\n");
-  printf ("  -v                      show version\n");
+  printf ("  -c,--colour             Use colour\n");
   printf ("  -h,--host {hostname}    VLC server host (localhost)\n");
-  printf ("  -p,--port {number}      VLC server port (30000)\n");
   printf ("  -k,--kiosk              Kiosk mode (no exit)\n");
+  printf ("  -p,--port {number}      VLC server port (30000)\n");
+  printf ("  -v                      show version\n");
   }
 
 /*======================================================================
@@ -66,6 +68,7 @@ int main (int argc, char **argv)
   int port = 30000;
   BOOL flag_version = FALSE;
   BOOL flag_help = FALSE;
+  BOOL flag_colour = FALSE;
   BOOL flag_kiosk = FALSE;
   /* local is TRUE unless the user gives a hostname for the server. 
      In local mode, the server and this client are assumed to be on the
@@ -84,6 +87,7 @@ int main (int argc, char **argv)
       {"port", required_argument, NULL, 'p'},
       {"host", required_argument, NULL, 'h'},
       {"kiosk", no_argument, NULL, 'k'},
+      {"colour", no_argument, NULL, 'c'},
       {"log-level", required_argument, NULL, 'l'},
       {0, 0, 0, 0}
     };
@@ -94,7 +98,7 @@ int main (int argc, char **argv)
   while (ret == 0)
     {
     int option_index = 0;
-    opt = getopt_long (argc, argv, "?h:kl:vp:w:", long_options, &option_index);
+    opt = getopt_long (argc, argv, "?h:kl:vp:w:c", long_options, &option_index);
 
     if (opt == -1) break;
 
@@ -105,6 +109,9 @@ int main (int argc, char **argv)
         break;
       case 'k':
         flag_kiosk = TRUE;
+        break;
+      case 'c':
+        flag_colour = TRUE;
         break;
       case 'h':
         if (host) free (host);
@@ -178,17 +185,34 @@ int main (int argc, char **argv)
       if (stat) vs_server_stat_destroy (stat);
 
       main_window = initscr();
-      status_window = subwin (main_window, 5, COLS, 0, 0);
-      message_window = subwin (main_window, 3, COLS, LINES - 3, 0);
 
-      status_update (lvsc);
-
-      VMContext context;
+      AppContext context;
       memset (&context, 0, sizeof (context));
       context.kiosk = flag_kiosk;
       context.local = local;
       context.port = port;
       context.host = host;
+
+      if (has_colors() && flag_colour)
+        context.colour = TRUE;
+      else
+        context.colour = FALSE; 
+
+      if (context.colour)
+        {
+        start_color();
+        init_pair (CPAIR_MENU_HIGHLIGHT, 
+          FGCOLOUR_MENU_HIGHLIGHT, BGCOLOUR_MENU_HIGHLIGHT);
+        init_pair (CPAIR_BOX, 
+          FGCOLOUR_BOX, BGCOLOUR_BOX);
+        init_pair (CPAIR_MENU_CAPTION, 
+          FGCOLOUR_MENU_CAPTION, BGCOLOUR_MENU_CAPTION);
+        }
+
+      status_window = subwin (main_window, 5, COLS, 0, 0);
+      message_window = subwin (main_window, 3, COLS, LINES - 3, 0);
+
+      status_update (lvsc, &context);
       view_main_menu (main_window, lvsc, LINES - 3 - 5, COLS, 
          5, 0, &context); 
       //view_albums (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0);

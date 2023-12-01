@@ -10,6 +10,8 @@
 #pragma once
 
 #include <vlc-server/api-client.h>
+#include "app_context.h" 
 
-extern void status_update (LibVlcServerClient *lvsc);
+extern void status_update (LibVlcServerClient *lvsc, 
+         const AppContext *context);
 

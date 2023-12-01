@@ -15,10 +15,11 @@
 #include <errno.h>
 #include <vlc-server/api-client.h>
 #include <ncursesw/curses.h>
-#include "view_misc.h" 
+#include "app_context.h" 
 #include "message.h" 
 #include "status.h" 
 #include "util.h" 
+#include "colour.h" 
 
 extern WINDOW *status_window; 
 
@@ -27,10 +28,14 @@ extern WINDOW *status_window;
   status_update  
 
 ======================================================================*/
-void status_update (LibVlcServerClient *lvsc)
+void status_update (LibVlcServerClient *lvsc, const AppContext *context)
   {
   werase (status_window);
+  if (context->colour)
+    wattron (status_window, COLOR_PAIR (CPAIR_BOX));
   box (status_window, 0, 0);
+  if (context->colour)
+    wattroff (status_window, COLOR_PAIR (CPAIR_BOX));
   char *error = NULL;
   VSApiError err_code;
   VSServerStat *stat = libvlc_server_client_stat (lvsc, &err_code,
@@ -107,7 +112,7 @@ void status_update (LibVlcServerClient *lvsc)
     {
     if (error)
       {
-      message_show (error);
+      message_show (error, context);
       free (error);
       }
     }

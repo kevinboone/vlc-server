@@ -2,15 +2,22 @@
   
   nv-vlc-client 
 
-  nc-vlc-client/src/message.h
+  nc-vlc-client/src/app_context.h
 
   Copyright (c)2022 Kevin Boone, GPL v3.0
 
 ======================================================================*/
 #pragma once
 
-#include "app_context.h"
+#include <vlc-server/vs_defs.h>
 
-extern void message_show (const char *message, const AppContext *context);
+typedef struct _AppContext
+  {
+  BOOL local;
+  BOOL kiosk;
+  BOOL colour;
+  int port;
+  const char *host;
+  } AppContext;
 
 

@@ -158,7 +158,8 @@ static void info_window_update (WINDOW *info_window,
   info_window_run
 
 ======================================================================*/
-void info_window_run (WINDOW *main_window, LibVlcServerClient *lvsc)
+void info_window_run (WINDOW *main_window, LibVlcServerClient *lvsc,
+       const AppContext *context)
   {
   WINDOW *info_window = subwin (main_window, LINES, COLS, 0, 0);
   info_window_update (info_window, lvsc);
@@ -168,7 +169,7 @@ void info_window_run (WINDOW *main_window, LibVlcServerClient *lvsc)
     int ch;
     while (!info_done && (ch = getch ()))
       {
-      if (view_misc_handle_non_menu_key (lvsc, ch))
+      if (view_misc_handle_non_menu_key (lvsc, ch, context))
         {
         // Nothing to do
         info_done = TRUE;
