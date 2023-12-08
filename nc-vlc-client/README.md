@@ -153,6 +153,9 @@ do to correct deficiencies in the console.
 
 ## Revision history
 
+0.1j December 2023
+- Added 'full scan' menu command 
+
 0.1i December 2023
 - Added preliminary colour support 
 - Added server storage reporting 

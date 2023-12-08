@@ -27,6 +27,8 @@ extern void control_toggle_pause (LibVlcServerClient *lvsc,
               const AppContext *context);
 extern void control_run_scanner (LibVlcServerClient *lvsc, 
               const AppContext *context);
+extern void control_run_full_scanner (LibVlcServerClient *lvsc, 
+              const AppContext *context);
 extern void control_play_random_album (LibVlcServerClient *lvsc, 
               const AppContext *context);
 

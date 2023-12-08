@@ -29,7 +29,8 @@
 #define MENU_PREV "Previous track"
 #define MENU_VOL_UP "Volume up"
 #define MENU_VOL_DOWN "Volume down"
-#define MENU_SCAN "Run scanner"
+#define MENU_SCAN "Run quick scan"
+#define MENU_FULLSCAN "Run full scan (slow)"
 #define MENU_PLAY_RANDOM "Play random album"
 
 /*======================================================================
@@ -48,6 +49,7 @@ static VSList *populate_control_menu (void)
   vs_list_append (ret, strdup (MENU_VOL_UP));
   vs_list_append (ret, strdup (MENU_VOL_DOWN));
   vs_list_append (ret, strdup (MENU_SCAN));
+  vs_list_append (ret, strdup (MENU_FULLSCAN));
   return ret;
   }
 
@@ -75,6 +77,8 @@ static void select_menu (LibVlcServerClient *lvsc, const char *line,
      control_volume_down (lvsc, context); 
   else if (strcmp (line, MENU_SCAN) == 0)
      control_run_scanner (lvsc, context); 
+  else if (strcmp (line, MENU_FULLSCAN) == 0)
+     control_run_full_scanner (lvsc, context); 
   else if (strcmp (line, MENU_PLAY_RANDOM) == 0)
      control_play_random_album (lvsc, context); 
   }

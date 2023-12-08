@@ -1482,6 +1482,24 @@ VSApiError api_scan (MediaDatabase *mdb, const char *media_root)
 
 /*======================================================================
 
+  api_fullscan
+
+======================================================================*/
+VSApiError api_fullscan (MediaDatabase *mdb, const char *media_root)
+  {
+  const char *filename = media_database_get_filename (mdb);
+  char exec[PATH_MAX];
+  readlink ("/proc/self/exe", exec, sizeof (exec) - 1);
+  char *cmd;
+  asprintf (&cmd, "%s -s -d '%s' -r '%s'", exec, filename, media_root); 
+  vs_log_info ("Running command '%s'", cmd);
+  system (cmd);
+  free (cmd);
+  return 0;
+  }
+
+/*======================================================================
+
   api_scan_js
 
 ======================================================================*/
@@ -1489,6 +1507,22 @@ char *api_scan_js (MediaDatabase *mdb, const char *media_root)
   {
   char *ret;
   int ret2 = api_scan (mdb, media_root); 
+  char *j_error = api_escape_json (vs_util_strerror (ret2));
+  asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+    ret2, j_error);
+  free (j_error);
+  return ret;
+  }
+
+/*======================================================================
+
+  api_fullscan_js
+
+======================================================================*/
+char *api_fullscan_js (MediaDatabase *mdb, const char *media_root)
+  {
+  char *ret;
+  int ret2 = api_fullscan (mdb, media_root); 
   char *j_error = api_escape_json (vs_util_strerror (ret2));
   asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
     ret2, j_error);

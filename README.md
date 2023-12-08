@@ -7,8 +7,8 @@
 provides an HTTP interface for playback of audio files and URLs.  There is a
 rudimentary web interface that can be used with a browser, and also a REST-like
 API that can be used by other kinds of client. The web interface, and the REST
-API, allow audio files to be viewed and selected using metadata (tags), but
-this is only partially implemented at present.
+API, allow audio files to be viewed and selected using metadata (tags), or
+just filesystem layout. 
 
 The bundle includes a simple C library for controlling the the server using the
 REST API, and command-line and ncurses utilities that uses this library.
@@ -61,16 +61,12 @@ Done:
 
 Still to do:
 
-- Database management needs to be tidied up a lot. The best way at present
-  to scan the media and populate the database is to run the scanner at
-  the command line. The built-in scan works fine for adding new media when
-  the database has been generated, but doesn't work from an empty database.
-  The scanner's progress is not viisble in the web user interface at all
 - There are many ways in which the web user interface can be tidied up
-- The ncurses client is very limited -- it plays only albums, in track order
-- Text-based search in the web interface is very slow on low-powered systems
-  like the Pi.
 - The ncurses client is very basic. Pretty much everything remains to be done.
+- It would be nice to have a graphical client for a built-in display on
+  embedded systems. A web browser is not a practical interface on such
+  a display, and the ncurses interface is rather basic.
+- The way that Internet radio is handled needs to be overhauled completely.
 
 ## In this repository
 

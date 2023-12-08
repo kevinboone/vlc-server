@@ -42,6 +42,24 @@ void control_run_scanner (LibVlcServerClient *lvsc,
 
 /*======================================================================
   
+  control_run_full_scanner
+
+======================================================================*/
+void control_run_full_scanner (LibVlcServerClient *lvsc,
+       const AppContext *context)
+  {
+  char *message = NULL;
+  VSApiError err_code;
+  libvlc_server_client_fullscan (lvsc, &err_code, &message);
+  if (message)
+    {
+    message_show (message, context);
+    free (message);
+    }
+  }
+
+/*======================================================================
+  
   control_toggle_pause 
 
 ======================================================================*/

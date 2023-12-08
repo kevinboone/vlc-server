@@ -310,6 +310,10 @@ the server to the browser takes longer.
 
 ## Revision history
 
+0.1i December 2023
+- Added 'fullscan' API 
+- Make quick scan sensitive to file mtime
+
 0.1h December 2023
 - Added storage monitoring API
 

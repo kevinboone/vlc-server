@@ -79,6 +79,10 @@ void libvlc_server_client_start (LibVlcServerClient *self,
 void libvlc_server_client_shutdown (LibVlcServerClient *self, 
         VSApiError *err_code, char **msg);
 
+/** Start a full scan of the media root. */ 
+void libvlc_server_client_fullscan (LibVlcServerClient *self, 
+        VSApiError *err_code, char **msg);
+
 /** Start a rescan of the media root. */ 
 void libvlc_server_client_scan (LibVlcServerClient *self, 
         VSApiError *err_code, char **msg);

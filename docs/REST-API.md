@@ -139,6 +139,16 @@ Clear the playlist. If something is playing, it will contine to play
 until the end. The playback will continue from the start of any
 new playlist items.
 
+### fullscan
+
+    /api/fullscan
+
+Start a scan of the media root, and a database update. This is a slow scan: 
+it's even slower that deleting the whole database and doing a quick
+scan. This because each file scanned requires a row of the database
+to be modifed, which is slower than appending a row that does not already
+exist.
+
 ## list-albums
 
     /api/list-albums?where=[where clause]
@@ -278,6 +288,8 @@ goes to the previous item (if there is one) even if the playback position
 is only a few seconds into the current one.
 
 ### scan
+
+    /api/scan
 
 Start a scan of the media root, and a database update. This is a 'quick' 
 scan -- items that are in the database already will not be scanned again.

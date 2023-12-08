@@ -28,6 +28,9 @@ extern int cmd_clear (const char *argv0, int argc, char **new_argv,
 extern int cmd_stat (const char *argv0, int argc, char **new_argv, 
   const CmdContext *context);
 
+extern int cmd_fullscan (const char *argv0, int argc, char **new_argv, 
+  const CmdContext *context);
+
 extern int cmd_scan (const char *argv0, int argc, char **new_argv, 
   const CmdContext *context);
 

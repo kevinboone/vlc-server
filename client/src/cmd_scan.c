@@ -37,5 +37,29 @@ int cmd_scan (const char *argv0, int argc, char **new_argv,
   }
 
 
+/*======================================================================
+  
+  cmd_fullscan
+
+======================================================================*/
+int cmd_fullscan (const char *argv0, int argc, char **new_argv, 
+    const CmdContext *context)
+  {
+  LibVlcServerClient *client = libvlc_server_client_new 
+    (context->host, context->port);
+  char *msg = NULL;
+  VSApiError err_code;
+  libvlc_server_client_fullscan (client, &err_code, &msg);
+  cmd_handle_response (argv0, err_code, msg);
+
+  libvlc_server_client_destroy (client);
+
+  return 0;
+  }
+
+
+
+
+
 
 

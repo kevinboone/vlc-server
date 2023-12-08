@@ -85,6 +85,9 @@ extern BOOL media_database_set_amd (MediaDatabase *self,
 extern BOOL media_database_has_path (MediaDatabase *self, 
           const char *path);
 
+extern void media_database_delete_by_path (MediaDatabase *self,
+          const char *path);
+
 /** Call the specified callback function for every path in the database. */
 extern BOOL media_database_iterate_all_paths (MediaDatabase *self,
         DBPathIteratorCallback callback, void *user_data, char **error);

@@ -4,9 +4,6 @@ There are things that the web interface can do, that are not exposed
 in the REST API. For completeness, and to make it easier to implement
 new clients, these API calls need to be added.
 
-Implement API for full scan (current /api/scan) only does a "quick"
-scan.
-
 Implement seek within file/stream. It would nice to do this in the
 web UI using a slider (like the volume slide).
 

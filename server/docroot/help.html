@@ -32,7 +32,7 @@ can enter a remote URL to, for example, an Internet radio station.
 <p>
 In general, the server will only show a limited number of results -- with
 or without cover images -- on a particular page. The limit is set by
-the server administrator, and defaults to thirty.
+the server administrator, and defaults to 30.
 </p>
 <p>
 This limit is to protect the server and the browser from searches that
@@ -40,7 +40,7 @@ might return thousands of results. With a large audio library, that would
 certainly be possible.
 </p>
 <p>
-If the number of results is large than the limit, then navigation links
+If the number of results is larger than the limit, then navigation links
 will be shown at the top of the page.
 </p>
 
@@ -80,16 +80,17 @@ take a while to transfer, which will make the display slow to update.
 
 <h3 id="searching">Searching</h3>
 <p>
-There is a general search form on the <a href="/gui/home">home page</a>.
-This will search for a specific keyword in all of the database fields
-that the server supports. Only the first few matches of each type
-are displayed: there will be a link to the full list if there are
-more.
+There are two general search forms on the <a href="/gui/home">home page</a>.
+'strict' search will look for a specific keyword in all of the database fields
+that the server supports. This search matches whole words, so 'part' will match
+'part one', but it won't match 'parting'. The 'relaxed' search will match
+both -- the search text can appear anywhere. The relaxed search is usually
+much faster.
 </p>
 <p>
-The text search matches whole words, so 'part' will match 'part one',
-but it won't match 'parting'. If you need more flexibility than this,
-you can use a customer SQL query on the database.
+Only the first few matches of each type
+are displayed: there will be a link to the full list if there are
+more.
 </p>
 
 <h3 id="custom_sql_queries">Custom SQL queries</h3>
@@ -171,5 +172,28 @@ artist regexp \bAC\b''
 will match 'AC/DC', but it won't match "Flac". Regular expression
 tests are case-insensitive.
 </p>
+
+<h3 id="scanning_the_media">Scanning the media</h3>
+<p>
+There is a link on the home page to scan the media collection. This is a
+'quick' scan, although "quick" might be an optimistic description. This
+scan only updates the database if files have been added, removed, or
+updated. A file is 'updated' if its modification time is more recent than
+the time stored in the database during the last scan.
+</p>
+<p>
+The console client and the command-line utility `vlc-server-client` both
+have a way to force a 'full' scan. A full scan is very slow -- it's
+much slower than simply deleting the database file and doing an ordinary
+scan. The only reason for doing a full scan is that, for some reason,
+you can't shut the server down. Deleting the database file with the
+server running would have strange results.
+</p>
+<p>
+It's possible to use the web interface whilst media is being scanned,
+but you might encounter the occasional 'database in use' message.
+</p>
+
+
 
 

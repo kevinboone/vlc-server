@@ -533,6 +533,39 @@ void libvlc_server_client_start (LibVlcServerClient *self,
 
 /*======================================================================
 
+  libvlc_server_client_fullscan
+
+======================================================================*/
+void libvlc_server_client_fullscan (LibVlcServerClient *self, 
+        VSApiError *err_code, char **msg)
+  {
+  IN
+  char *response = libvlc_server_client_request 
+   (self, "fullscan", err_code, msg); 
+  if (*err_code == 0)
+    {
+    cJSON *root = cJSON_Parse (response);
+    if (root)
+      {
+      if (libvlc_server_client_checkjson (root, err_code, msg))
+        {
+        // Nothing to do
+        }
+
+      cJSON_Delete (root);
+      }
+    else
+      {
+      *err_code = VSAPI_ERR_COMMS;
+      if (*msg) *msg = strdup (INV_JSON_MSG);
+      }
+    }
+  if (response) free (response);
+  OUT
+  }
+
+/*======================================================================
+
   libvlc_server_client_scan
 
 ======================================================================*/

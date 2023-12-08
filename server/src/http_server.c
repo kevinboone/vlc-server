@@ -297,6 +297,12 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }
+  else if (strcmp (url, "fullscan") == 0) 
+    {
+    char *aret = api_fullscan_js (self->mdb, self->media_root);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
   else if (strcmp (url, "scan") == 0) 
     {
     char *aret = api_scan_js (self->mdb, self->media_root);

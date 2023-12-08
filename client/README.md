@@ -37,6 +37,9 @@ the playlist -- but this is not under the control of the client.
 
 ## Revision history
 
+0.1g December 2023
+- added 'fullscan' command
+
 0.1f December 2023
 - added 'storage' command
 

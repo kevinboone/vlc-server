@@ -33,6 +33,7 @@ static CmdEntry cmd_table[] =
   {
   { "add-urls", cmd_add_urls, "add one or more URLs or files to the playlist" },
   { "clear", cmd_clear , "clear the playlist" },
+  { "fullscan", cmd_fullscan , "start an exhaustive rescan of the media directory" },
   { "index", cmd_index , "selects a specific item in the playlist" },
   { "list-albums", cmd_list_albums, 
        "list albums in media database" },

@@ -115,7 +115,7 @@ static void scanner_write_cover (const unsigned char *data, int len,
 
 /*======================================================================
   
-  scanner_do_file
+  scanner_update_progress
 
 ======================================================================*/
 void scanner_update_progress (int num)
@@ -162,6 +162,43 @@ void scanner_delete_progress_file (void)
  
 /*======================================================================
   
+  scanner_should_update
+
+======================================================================*/
+static BOOL scanner_should_update (MediaDatabase *mdb, 
+         const char *rel_path, const char *abs_path, BOOL *exists)
+  {
+  *exists = FALSE;
+  // If the file is not in the database, we should always update
+  if (!media_database_has_path (mdb, rel_path)) return TRUE;
+  VSMetadata *amd = media_database_get_amd (mdb, rel_path);
+  // If get metadata fails, we also update; but this should never
+  //   happen
+  if (!amd) return TRUE;
+  time_t stored_mtime = vs_metadata_get_mtime (amd);
+  vs_metadata_destroy (amd);
+
+  struct stat sb;
+
+  // There's no point updating the database if the file can't
+  //   actually be read
+  if (stat (abs_path, &sb)) return FALSE;
+  vs_log_debug ("stored mtime=%ld file_mtime=%ld \n", stored_mtime, sb.st_mtime);
+  // Update if the file is more than three seconds more recent than the
+  //   stored time. VFAT filesystems have ~2 sec timestamp precision, and
+  //   we don't want to update for nothing. 
+  if (sb.st_mtime - stored_mtime > 3) 
+    {
+    vs_log_debug ("%s is nore recent", abs_path);
+    *exists = TRUE;
+    return TRUE;
+    }
+  return FALSE;
+  }
+
+
+/*======================================================================
+  
   scanner_do_file
 
 ======================================================================*/
@@ -180,7 +217,8 @@ static void scanner_do_file (const char *abs_path,
     (*considered)++;
     if ((*considered) % 10 == 0)
       scanner_update_progress (*considered);
-    if (!media_database_has_path (mdb, rel_path) || full)
+    BOOL update_db = FALSE;
+    if (full || scanner_should_update (mdb, rel_path, abs_path, &update_db))
       {
       TagData *tags; 
       if (tag_get_tags (abs_path, &tags) == TAG_OK)
@@ -216,6 +254,8 @@ static void scanner_do_file (const char *abs_path,
           }
 
         char *error = NULL;
+        if (full || update_db)
+          media_database_delete_by_path (mdb, rel_path);
         media_database_set_amd (mdb, amd, &error);
         if (error)
           {

@@ -814,6 +814,23 @@ void media_database_remove_nonexistent (MediaDatabase *self)
   }
 
 /*======================================================================
+  media_database_delete_by_path
+======================================================================*/
+void media_database_delete_by_path (MediaDatabase *self, const char *path)
+  {
+  IN
+  char *sql;
+  char *esc_path = media_database_escape_sql 
+    (SAFE (path));
+  asprintf (&sql, "delete from files where path='%s'", esc_path);
+  media_database_exec_log_error 
+    (self, sql);
+  free (esc_path);
+  free (sql);
+  OUT
+  }
+
+/*======================================================================
   media_database_get_filename
 ======================================================================*/
 const char *media_database_get_filename (const MediaDatabase *self)
