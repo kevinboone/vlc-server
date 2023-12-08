@@ -18,7 +18,7 @@ So this is what the `.bashrc` file looks like:
     if [[ $TTY =~ "tty2" ]] ; then
       vlc-server -r /path/to/media/root -- \
         -A alsa --alsa-audio-device plughw:CARD=C10,DEV=0 &
-      exec nc-vlc-client -k
+      exec nc-vlc-client -k -c -t "My music player"
     fi
 
 The test for `tty2` is to ensure that the server and client are only

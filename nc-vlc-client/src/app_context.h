@@ -18,6 +18,7 @@ typedef struct _AppContext
   BOOL colour;
   int port;
   const char *host;
+  const char *title;
   } AppContext;
 
 

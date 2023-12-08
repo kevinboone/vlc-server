@@ -153,6 +153,9 @@ do to correct deficiencies in the console.
 
 ## Revision history
 
+0.1k December 2023
+- Made title configurable on command line 
+
 0.1j December 2023
 - Added 'full scan' menu command 
 

@@ -33,6 +33,20 @@ void ms_to_hms (int msec, int *h, int *m, int *s)
 
 /*======================================================================
   
+  ms_to_minsec
+
+======================================================================*/
+void ms_to_minsec (int msec, int *m, int *s)
+  {
+  if (msec < 0) msec = 0;
+  int sec = msec / 1000;
+  *m = sec / 60;
+  sec -= *m * 60;
+  *s = sec; 
+  }
+
+/*======================================================================
+  
   fit_string
 
   NOTE this won't work for strings that contain wide characters, and

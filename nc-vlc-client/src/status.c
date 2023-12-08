@@ -36,6 +36,11 @@ void status_update (LibVlcServerClient *lvsc, const AppContext *context)
   box (status_window, 0, 0);
   if (context->colour)
     wattroff (status_window, COLOR_PAIR (CPAIR_BOX));
+  if (context->colour)
+    wattron (status_window, COLOR_PAIR (CPAIR_MENU_CAPTION));
+  mvwaddstr (status_window, 0, 3, context->title);
+  if (context->colour)
+    wattroff (status_window, COLOR_PAIR (CPAIR_MENU_CAPTION));
   char *error = NULL;
   VSApiError err_code;
   VSServerStat *stat = libvlc_server_client_stat (lvsc, &err_code,
@@ -63,14 +68,14 @@ void status_update (LibVlcServerClient *lvsc, const AppContext *context)
     int scanner_progress = vs_server_stat_get_scanner_progress (stat);
     if ((ts == VSAPI_TS_PLAYING) || (ts == VSAPI_TS_PAUSED))
       {
-      int p_h, p_m, p_s, d_h, d_m, d_s;
-      ms_to_hms (vs_server_stat_get_position (stat), &p_h, &p_m, &p_s);
-      ms_to_hms (vs_server_stat_get_duration (stat), &d_h, &d_m, &d_s);
+      int p_m, p_s, d_m, d_s;
+      ms_to_minsec (vs_server_stat_get_position (stat), &p_m, &p_s);
+      ms_to_minsec (vs_server_stat_get_duration (stat), &d_m, &d_s);
       char s[30];
       sprintf (s, "%3d", vs_server_stat_get_index (stat) + 1);
       mvwaddnstr (status_window, 1, 12, s, 4);
-      sprintf (s, "%02d:%02d:%02d %02d:%02d:%02d",
-        p_h, p_m, p_s, d_h, d_m, d_s); 
+      sprintf (s, "%02d:%02d %02d:%02d",
+        p_m, p_s, d_m, d_s); 
       mvwaddnstr (status_window, 1, 16, s, 17);
       const VSMetadata *amd = vs_server_stat_get_metadata (stat); 
       

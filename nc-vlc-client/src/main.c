@@ -42,6 +42,7 @@ void show_help (void)
   printf ("  -h,--host {hostname}    VLC server host (localhost)\n");
   printf ("  -k,--kiosk              Kiosk mode (no exit)\n");
   printf ("  -p,--port {number}      VLC server port (30000)\n");
+  printf ("  -t,--title {text}       Set displayed program title\n");
   printf ("  -v                      show version\n");
   }
 
@@ -65,6 +66,7 @@ void show_version (void)
 int main (int argc, char **argv)
   {
   char *host = strdup ("localhost");
+  char *title = strdup (NAME);
   int port = 30000;
   BOOL flag_version = FALSE;
   BOOL flag_help = FALSE;
@@ -88,6 +90,7 @@ int main (int argc, char **argv)
       {"host", required_argument, NULL, 'h'},
       {"kiosk", no_argument, NULL, 'k'},
       {"colour", no_argument, NULL, 'c'},
+      {"title", required_argument, NULL, 't'},
       {"log-level", required_argument, NULL, 'l'},
       {0, 0, 0, 0}
     };
@@ -98,7 +101,7 @@ int main (int argc, char **argv)
   while (ret == 0)
     {
     int option_index = 0;
-    opt = getopt_long (argc, argv, "?h:kl:vp:w:c", long_options, &option_index);
+    opt = getopt_long (argc, argv, "?h:kl:vp:w:ct:", long_options, &option_index);
 
     if (opt == -1) break;
 
@@ -117,6 +120,10 @@ int main (int argc, char **argv)
         if (host) free (host);
         host = strdup (optarg); 
         local = false;
+        break;
+      case 't':
+        if (title) free (title);
+        title = strdup (optarg); 
         break;
       case 'v':
         flag_version = TRUE;
@@ -195,6 +202,7 @@ int main (int argc, char **argv)
       context.local = local;
       context.port = port;
       context.host = host;
+      context.title = title;
 
       if (has_colors() && flag_colour)
         context.colour = TRUE;
@@ -243,6 +251,7 @@ int main (int argc, char **argv)
     }
 
   if (host) free (host);
+  if (title) free (title);
 
   if (ret == -1) ret = 0;
   return ret;

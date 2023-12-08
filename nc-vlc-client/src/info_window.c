@@ -22,6 +22,7 @@
 #include "status.h" 
 #include "info_window.h" 
 #include "view_misc.h" 
+#include "colour.h" 
 #include "util.h" 
 
 
@@ -31,15 +32,26 @@
 
 ======================================================================*/
 static void info_window_update (WINDOW *info_window, 
-              LibVlcServerClient *lvsc)
+              LibVlcServerClient *lvsc, const AppContext *context)
   {
   werase (info_window);
   //box (info_window, 0, 0);
 
+  int row = 1;
+  if (context->colour)
+    wattron (info_window, COLOR_PAIR (CPAIR_MENU_CAPTION));
+  mvwaddnstr (info_window, row, 1, context->title, 24);
+  if (context->colour)
+    wattroff (info_window, COLOR_PAIR (CPAIR_MENU_CAPTION));
+  row++;
+
   time_t now = time (NULL);
-  char *s_time = ctime (&now);
-  s_time[16] = 0;
-  mvwaddnstr (info_window, 2, 1, s_time, 24);
+  const struct tm* tm = localtime (&now);
+  char s_time[20];
+  strftime (s_time, sizeof(s_time) - 1, "%a %b %d %H:%M", tm);
+
+  mvwaddnstr (info_window, row, 1, s_time, 24);
+  row++;
 
   char *error = NULL;
   VSApiError err_code;
@@ -62,71 +74,74 @@ static void info_window_update (WINDOW *info_window,
       default:;
       }
 
-    mvwaddnstr (info_window, 3, 1, s_stat, COLS - 2);
+    mvwaddnstr (info_window, row, 1, s_stat, COLS - 2);
+    row++;
 
     if ((ts == VSAPI_TS_PLAYING) || (ts == VSAPI_TS_PAUSED))
       {
-      int p_h, p_m, p_s, d_h, d_m, d_s;
-      ms_to_hms (vs_server_stat_get_position (stat), &p_h, &p_m, &p_s);
-      ms_to_hms (vs_server_stat_get_duration (stat), &d_h, &d_m, &d_s);
+      int p_m, p_s, d_m, d_s;
+      ms_to_minsec (vs_server_stat_get_position (stat), &p_m, &p_s);
+      ms_to_minsec (vs_server_stat_get_duration (stat), &d_m, &d_s);
       char s[30];
       sprintf (s, "Item %d in playlist", 
          vs_server_stat_get_index (stat) + 1);
-      mvwaddnstr (info_window, 4, 1, s, 20);
-      sprintf (s, "%02d:%02d:%02d %02d:%02d:%02d",
-        p_h, p_m, p_s, d_h, d_m, d_s); 
-      mvwaddnstr (info_window, 5, 1, s, 17);
+      mvwaddnstr (info_window, row, 1, s, 20);
+      row++;
+      sprintf (s, "%02d:%02d %02d:%02d", p_m, p_s, d_m, d_s); 
+      mvwaddnstr (info_window, row, 1, s, 17);
+      row++;
       const VSMetadata *amd = vs_server_stat_get_metadata (stat); 
       
       const char *title = vs_metadata_get_title (amd);
       if (!title || !title[0])
         title = vs_server_stat_get_mrl (stat);
-      char *fittitle = fit_string (title, COLS - 3); 
-      mvwaddnstr (info_window, 6, 1, fittitle, COLS - 3);
+      char *fittitle = fit_string (title, COLS - 1); 
+      mvwaddnstr (info_window, row, 1, fittitle, COLS - 1);
+      row++;
       free (fittitle);
 
-      mvwaddnstr (info_window, 7, 1, "Album:", COLS - 3);
       const char *album = vs_metadata_get_album (amd);
-      if (album)
+      if (album && album[0])
         {
-        char *fitalbum = fit_string (album, COLS - 3); 
-        mvwaddnstr (info_window, 7, 8, fitalbum, COLS - 3 - 8);
+        char *fitalbum = fit_string (album, COLS - 1); 
+        mvwaddnstr (info_window, row, 1, fitalbum, COLS - 1);
         free (fitalbum);
+        row++;
         }
 
-      mvwaddnstr (info_window, 8, 1, "Artist:", COLS - 3);
       const char *artist = vs_metadata_get_artist (amd);
-      if (artist)
+      if (artist && artist[0])
         {
-        char *fitartist = fit_string (artist, COLS - 3); 
-        mvwaddnstr (info_window, 8, 9, fitartist, COLS - 3 - 9);
+        char *fitartist = fit_string (artist, COLS - 1); 
+        mvwaddnstr (info_window, row, 1, fitartist, COLS - 1);
         free (fitartist);
+        row++;
         }
 
-      mvwaddnstr (info_window, 9, 1, "Album artist:", COLS - 3);
       const char *album_artist = vs_metadata_get_album_artist (amd);
-      if (album_artist)
+      if (album_artist && album_artist[0])
         {
-        char *fitalbumartist = fit_string (album_artist, COLS - 3); 
-        mvwaddnstr (info_window, 9, 15, fitalbumartist, COLS - 3 - 15);
+        char *fitalbumartist = fit_string (album_artist, COLS - 1); 
+        mvwaddnstr (info_window, row, 1, fitalbumartist, COLS - 1);
+        row++;
         free (fitalbumartist);
         }
 
-      mvwaddnstr (info_window, 10, 1, "Genre:", COLS - 3);
       const char *genre = vs_metadata_get_genre (amd);
-      if (genre)
+      if (genre && genre[0])
         {
-        char *fitgenre = fit_string (genre, COLS - 3); 
-        mvwaddnstr (info_window, 10, 8, fitgenre, COLS - 3 - 8);
+        char *fitgenre = fit_string (genre, COLS - 1); 
+        mvwaddnstr (info_window, row, 1, fitgenre, COLS - 1);
+        row++;
         free (fitgenre);
         }
 
-      mvwaddnstr (info_window, 11, 1, "Composer:", COLS - 3);
       const char *composer = vs_metadata_get_composer (amd);
-      if (genre)
+      if (composer && composer[0])
         {
-        char *fitcomposer = fit_string (composer, COLS - 3); 
-        mvwaddnstr (info_window, 11, 11, fitcomposer, COLS - 3 - 11);
+        char *fitcomposer = fit_string (composer, COLS - 1); 
+        mvwaddnstr (info_window, row, 1, fitcomposer, COLS - 1);
+        row++;
         free (fitcomposer);
         }
       }
@@ -136,7 +151,8 @@ static void info_window_update (WINDOW *info_window,
       {
       char s[30];
       sprintf (s, "%d files scanned", scanner_progress);
-      mvwaddnstr (info_window, 12, 1, s, COLS - 2);
+      mvwaddnstr (info_window, row, 1, s, COLS - 1);
+      row++;
       }
 
     vs_server_stat_destroy (stat);
@@ -162,7 +178,7 @@ void info_window_run (WINDOW *main_window, LibVlcServerClient *lvsc,
        const AppContext *context)
   {
   WINDOW *info_window = subwin (main_window, LINES, COLS, 0, 0);
-  info_window_update (info_window, lvsc);
+  info_window_update (info_window, lvsc, context);
   BOOL info_done = FALSE;
   while (!info_done)
     {
@@ -176,7 +192,7 @@ void info_window_run (WINDOW *main_window, LibVlcServerClient *lvsc,
         } 
       else if (ch == ERR)
         {
-        info_window_update (info_window, lvsc);
+        info_window_update (info_window, lvsc, context);
         }
       else
         info_done = TRUE;
