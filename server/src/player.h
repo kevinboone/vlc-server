@@ -15,6 +15,7 @@
 #pragma once
 
 #include "api.h"
+#include "media_database.h"
 
 struct _Player;
 typedef struct _Player Player;
@@ -26,6 +27,7 @@ typedef struct _Player Player;
     be able to play them. The media_root is the top of the directory
     hierarchy that contains media files.  */
 extern Player   *player_new (const char *patterns, const char *media_root, 
+                   MediaDatabase *mdb,
                    int argc, const char * const *argv, VSApiError *e);
 
 /** Clean up, release VLC resources */

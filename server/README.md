@@ -313,6 +313,8 @@ the server to the browser takes longer.
 0.1j December 2023
 - Fixed bug in handling null database columns that could cause server
   to crash
+- Updated media status API so that metadata is retrieved from the media
+  database, if present, rather than relying on VLC to extract metadata.
 
 0.1i December 2023
 - Added 'fullscan' API 

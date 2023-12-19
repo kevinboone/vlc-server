@@ -132,6 +132,25 @@ uninteresting or dysfunctional, or carefully selecting a few stations.
 Any manual station selection will require regular maintenance but, if the
 number of stations is small, that's usually not too difficult.
 
+## Gotchas
+
+Some of the radio station URLs given by radio-browser.info are actually
+playlists, containing multiple streams. VLC will usually handle
+these fine, and play the first working stream in the playlist. These
+streams typically have URLs that end in `.pls`, but not always.
+The problem with these streams is in the extraction of metadata. 
+If the radio URL is in the media database, then the web interface and
+console interface will display the metadata (genre, title) that goes
+with the URL. Unfortunately, this fails if the stream is a playlist.
+This is because VLC will already have parsed the playlist into the
+stream it is playing by the time it notifies `vlc-server` that it has
+started playing new media. This doesn't stop anythng working but,
+if VLC itself can't provide any metaata, the display will look odd.
+
+On a related note, I've found that VLC can usually not obtain metadata
+from a radio stream, even if it can play it. I don't know why.
+
+
 ## Revision history
 
 December 2023

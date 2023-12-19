@@ -38,6 +38,7 @@ struct _Player
   char *patterns; // Comma-separated list of allowed file patterns
   char *media_root;
   VSMetadata *amd;
+  MediaDatabase *mdb; // Caution: could be NULL
   };
 
 /*======================================================================
@@ -106,6 +107,30 @@ static void player_vlc_cleanup (Player *self)
 
 /*======================================================================
 
+ player_get_search_path
+
+======================================================================*/
+char *player_get_search_path (const char *media_root, const char *url)
+  {
+  char *search_path = NULL;
+
+  if (strstr (url, "file://") == url)
+    {
+    url += 7;
+    if (strstr (url, media_root) == url)
+      // +1 because we need to skip the initial /, which is not stored
+      //   in the database
+      search_path = strdup (url + strlen (media_root) + 1);
+    }
+  else if (strstr (url, "http:") == url)
+    {
+    asprintf (&search_path, "=%s", url);
+    }
+  return search_path;
+  }
+
+/*======================================================================
+
  player_vlc_media_change_handler  
 
 ======================================================================*/
@@ -120,47 +145,60 @@ static void player_update_metadata (Player *self)
      = libvlc_media_list_player_get_media_player (self->mlp);
   libvlc_media_t *m = libvlc_media_player_get_media (p);
 
-//const char *mrl = libvlc_media_get_mrl (m);
-//char *decoded_mrl = player_url_decode (mrl);
-//printf ("mrl=%s\n", decoded_mrl);
-//free (decoded_mrl);
-//xxx
+  const char *mrl = libvlc_media_get_mrl (m);
+  char *decoded_mrl = player_url_decode (mrl);
+  char *search_path = player_get_search_path (self->media_root, decoded_mrl);
+  free (decoded_mrl);
 
-  // Ugly, ugly, ugly. Repeat parse_with_options until there is some kind
-  //   of response, with 200 msec between attempts. Aysnchronous notification
-  //   of completed parse doesn't seem to work at all.
-  int status, i = 3;
-  do
+  if (search_path)
     {
-    libvlc_media_parse_with_options (m, libvlc_media_parse_network, 1000);
-    status = libvlc_media_get_parsed_status(m);
-    usleep (200000);
-    i++;
-    } while (status != libvlc_media_parsed_status_done && i < 4); 
+    self->amd = media_database_get_amd (self->mdb, search_path);
+    free (search_path);
+    if (self->amd)
+      vs_metadata_dump (self->amd);
+    }
 
-  self->amd = vs_metadata_create();
-  const char *path = libvlc_media_get_meta (m, libvlc_meta_URL); 
-  const char *title = libvlc_media_get_meta (m, libvlc_meta_Title); 
-  const char *artist = libvlc_media_get_meta(m, libvlc_meta_Artist);
-  const char *album_artist = libvlc_media_get_meta(m, libvlc_meta_AlbumArtist);
-  const char *album = libvlc_media_get_meta(m, libvlc_meta_Album);
-  const char *track = libvlc_media_get_meta(m, libvlc_meta_TrackID);
-  const char *genre = libvlc_media_get_meta(m, libvlc_meta_Genre);
-  const char *comment = libvlc_media_get_meta(m, libvlc_meta_Description);
-  const char *year = libvlc_media_get_meta(m, libvlc_meta_Date);
+  if (self->amd == NULL)
+    {
+    // We didn't get anything from the database. Let's see if VLC can
+    //   extract any metadata. 
 
-  vs_metadata_set_path (self->amd, SAFE (path));
-  vs_metadata_set_title (self->amd, SAFE (title));
-  vs_metadata_set_album (self->amd, SAFE (album));
-  vs_metadata_set_artist (self->amd, SAFE (artist));
-  // VLC does not have a specific 'composer' meta item :/
-  vs_metadata_set_composer (self->amd, SAFE (artist));
-  vs_metadata_set_album_artist (self->amd, SAFE (album_artist));
-  vs_metadata_set_genre (self->amd, SAFE (genre));
-  vs_metadata_set_track (self->amd, SAFE (track));
-  vs_metadata_set_comment (self->amd, SAFE (comment));
-  vs_metadata_set_comment (self->amd, SAFE (year));
-  //vs_metadata_dump (self->amd);
+    // Ugly, ugly, ugly. Repeat parse_with_options until there is some kind
+    //   of response, with 200 msec between attempts. Aysnchronous notification
+    //   of completed parse doesn't seem to work at all.
+    int status, i = 3;
+    do
+      {
+      libvlc_media_parse_with_options (m, libvlc_media_parse_network, 1000);
+      status = libvlc_media_get_parsed_status(m);
+      usleep (200000);
+      i++;
+      } while (status != libvlc_media_parsed_status_done && i < 4); 
+
+    self->amd = vs_metadata_create();
+    const char *path = libvlc_media_get_meta (m, libvlc_meta_URL); 
+    const char *title = libvlc_media_get_meta (m, libvlc_meta_Title); 
+    const char *artist = libvlc_media_get_meta(m, libvlc_meta_Artist);
+    const char *album_artist = libvlc_media_get_meta(m, libvlc_meta_AlbumArtist);
+    const char *album = libvlc_media_get_meta(m, libvlc_meta_Album);
+    const char *track = libvlc_media_get_meta(m, libvlc_meta_TrackID);
+    const char *genre = libvlc_media_get_meta(m, libvlc_meta_Genre);
+    const char *comment = libvlc_media_get_meta(m, libvlc_meta_Description);
+    const char *year = libvlc_media_get_meta(m, libvlc_meta_Date);
+
+    vs_metadata_set_path (self->amd, SAFE (path));
+    vs_metadata_set_title (self->amd, SAFE (title));
+    vs_metadata_set_album (self->amd, SAFE (album));
+    vs_metadata_set_artist (self->amd, SAFE (artist));
+    // VLC does not have a specific 'composer' meta item :/
+    vs_metadata_set_composer (self->amd, SAFE (artist));
+    vs_metadata_set_album_artist (self->amd, SAFE (album_artist));
+    vs_metadata_set_genre (self->amd, SAFE (genre));
+    vs_metadata_set_track (self->amd, SAFE (track));
+    vs_metadata_set_comment (self->amd, SAFE (comment));
+    vs_metadata_set_comment (self->amd, SAFE (year));
+    //vs_metadata_dump (self->amd);
+    }
   }
 
 /*======================================================================
@@ -256,6 +294,7 @@ static VSApiError player_vlc_init (Player *self,
 
 ======================================================================*/
 Player *player_new (const char *patterns, const char *media_root, 
+    MediaDatabase *mdb,
     int argc, const char * const *argv,
     VSApiError *e)
   {
@@ -270,6 +309,7 @@ Player *player_new (const char *patterns, const char *media_root,
   self->patterns = NULL;
   if (patterns)
     self->patterns = strdup (patterns);
+  self->mdb = mdb;
   *e = player_vlc_init (self, argc, argv);
   OUT
   return self;

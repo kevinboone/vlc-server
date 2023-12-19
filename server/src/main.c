@@ -65,7 +65,7 @@ void show_version (void)
 void show_devices (void)
   {
   VSApiError e;
-  Player *player = player_new (NULL, "", 0, NULL, &e);
+  Player *player = player_new (NULL, "", NULL, 0, NULL, &e);
   player_list_devices (player);
   player_destroy (player);
   }
@@ -257,7 +257,7 @@ int main (int argc, char* argv[])
           char **new_argv = argv + optind;
           int new_argc = argc - optind;
           VSApiError e = 0;
-          Player *player = player_new (patterns, canon_media_root,  
+          Player *player = player_new (patterns, canon_media_root, mdb, 
              new_argc, (const char *const *)new_argv, &e);
           if (e == 0)
             {

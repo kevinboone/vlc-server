@@ -4,7 +4,7 @@ BBC Radio 3	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_three
 BBC Radio 4 extra	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_four_extra/bbc_radio_four_extra.isml/bbc_radio_four_extra-audio=320000.m3u8	radio - news and drama
 Capital FM	http://media-ice.musicradio.com/CapitalMP3	radio - pop
 Classic FM	http://ice-the.musicradio.com/ClassicFMMP3	radio - classical
-LBC	http://media-ice.musicradio.com/LBCUK	radio - news
+LBC UK	http://media-ice.musicradio.com/LBCUK	radio - news
 NPR	http://npr-ice.streamguys1.com/live.mp3	radio - news
 NTS Expansions	https://stream-mixtape-geo.ntslive.net/mixtape3	radio - pop
 NTS Feelings	https://stream-mixtape-geo.ntslive.net/mixtape27	radio - pop 
@@ -13,7 +13,7 @@ BBC World service	http://stream.live.vc.bbcmedia.co.uk/bbc_world_service	radio -
 Irish Pub Radio	http://solid24.streamupsolutions.com:8026/stream	radio - celtic
 Celtic Music Radio	http://stream.celticmusicradio.net:8000/celticmusic.mp3	radio - celtic
 NBC News	http://stream.revma.ihrhls.com/zc6043	radio - news
-ABC News	http://www.abc.net.au/res/streaming/audio/mp3/news_radio.pls	radio - news
+ABC News	http://live-radio01.mediahubaustralia.com/PBW/mp3/	radio - news
 LBC London	http://media-ice.musicradio.com/LBC1152.m3u	radio - news
 Otto's Baroque	http://strm112.1.fm/baroque_mobile_mp3	radio - classical
 Otto's Classical	https://strm112.1.fm/classical_mobile_aac	radio - classical
