@@ -491,7 +491,15 @@ void media_database_search (MediaDatabase *self,
                  (constraints->count < 0)))
         {
         char *res = result [i + 1];
-        vs_list_append (results, strdup (res));
+        // I'm really not sure what we should do if a column is NULL.
+        // Perhaps it would be better to convert it into an empty 
+        //   string? Or some representative token? Problem is, if we
+        //   don't add anything to the output list, the number of results
+        //   won't match constraints->count 
+        if (res)
+          vs_list_append (results, strdup (res));
+        //else
+        //  vs_list_append (results, strdup (""));
         }
       }
 

@@ -120,6 +120,12 @@ static void player_update_metadata (Player *self)
      = libvlc_media_list_player_get_media_player (self->mlp);
   libvlc_media_t *m = libvlc_media_player_get_media (p);
 
+//const char *mrl = libvlc_media_get_mrl (m);
+//char *decoded_mrl = player_url_decode (mrl);
+//printf ("mrl=%s\n", decoded_mrl);
+//free (decoded_mrl);
+//xxx
+
   // Ugly, ugly, ugly. Repeat parse_with_options until there is some kind
   //   of response, with 200 msec between attempts. Aysnchronous notification
   //   of completed parse doesn't seem to work at all.

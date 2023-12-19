@@ -218,7 +218,6 @@ int main (int argc, char* argv[])
       MediaDatabase *mdb = media_database_create (mdb_file);
       char *error = NULL;
       media_database_init (mdb, TRUE, &error);
-      //media_database_init (mdb, scan | quickscan, &error);
       if (error)
         {
         fprintf (stderr, "Can't initialize media database: %s\n", error);
@@ -258,7 +257,7 @@ int main (int argc, char* argv[])
           char **new_argv = argv + optind;
           int new_argc = argc - optind;
           VSApiError e = 0;
-          Player *player = player_new (patterns, canon_media_root, 
+          Player *player = player_new (patterns, canon_media_root,  
              new_argc, (const char *const *)new_argv, &e);
           if (e == 0)
             {

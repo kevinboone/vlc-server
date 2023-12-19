@@ -310,6 +310,10 @@ the server to the browser takes longer.
 
 ## Revision history
 
+0.1j December 2023
+- Fixed bug in handling null database columns that could cause server
+  to crash
+
 0.1i December 2023
 - Added 'fullscan' API 
 - Make quick scan sensitive to file mtime
