@@ -1,15 +1,23 @@
-BBC Radio 4	http://stream.live.vc.bbcmedia.co.uk/bbc_radio_fourfm	radio - news and drama
-BBC Radio 3	http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/uk/sbr_high/ak/bbc_radio_three.m3u8	radio - classical
-BBC Radio 4 extra	http://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/uk/sbr_high/ak/bbc_radio_four_extra.m3u8	radio - news and drama
+Ancient FM	https://mediaserv73.live-streams.nl:18058/stream	radio - traditional
+BBC Radio 4	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_fourfm/bbc_radio_fourfm.isml/bbc_radio_fourfm-audio=320000.m3u8	radio - news and drama
+BBC Radio 3	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_three/bbc_radio_three.isml/bbc_radio_three-audio=320000.m3u8	radio - classical
+BBC Radio 4 extra	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_four_extra/bbc_radio_four_extra.isml/bbc_radio_four_extra-audio=320000.m3u8	radio - news and drama
+Capital FM	http://media-ice.musicradio.com/CapitalMP3	radio - pop
 Classic FM	http://ice-the.musicradio.com/ClassicFMMP3	radio - classical
 LBC	http://media-ice.musicradio.com/LBCUK	radio - news
 NPR	http://npr-ice.streamguys1.com/live.mp3	radio - news
+NTS Expansions	https://stream-mixtape-geo.ntslive.net/mixtape3	radio - pop
+NTS Feelings	https://stream-mixtape-geo.ntslive.net/mixtape27	radio - pop 
+NTS Heartlands	https://stream-mixtape-geo.ntslive.net/mixtape32	radio - pop
 BBC World service	http://stream.live.vc.bbcmedia.co.uk/bbc_world_service	radio - news and drama
-BBC Three Counties	http://stream.live.vc.bbcmedia.co.uk/bbc_three_counties_radio	radio - mixed
 Irish Pub Radio	http://solid24.streamupsolutions.com:8026/stream	radio - celtic
 Celtic Music Radio	http://stream.celticmusicradio.net:8000/celticmusic.mp3	radio - celtic
 NBC News	http://stream.revma.ihrhls.com/zc6043	radio - news
 ABC News	http://www.abc.net.au/res/streaming/audio/mp3/news_radio.pls	radio - news
 LBC London	http://media-ice.musicradio.com/LBC1152.m3u	radio - news
 Otto's Baroque	http://strm112.1.fm/baroque_mobile_mp3	radio - classical
+Otto's Classical	https://strm112.1.fm/classical_mobile_aac	radio - classical
+Gold Radio	http://193.92.78.248:8000/	radio - oldies 
 talkRadio	http://radio.talkradio.co.uk/stream	radio - news
+Worldwide FM	http://worldwidefm.out.airtime.pro:8000/worldwidefm_a	radio - pop
+

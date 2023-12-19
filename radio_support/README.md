@@ -53,6 +53,11 @@ entirely possible, however that the stations in `stations.tsv` are no longer
 broadcasting, or have changed their URLs -- that's the general problem with
 Internet radio.
 
+It's possible to use large albums of stations with `nc-vlc-client`, but
+it's ugly -- select the album from the console interface, which will
+start playing the first station URL in the album. Then change to the
+Playlist tab, and select the specific station required.
+
 ### Automatically adding large numbers of stations
 
 Here each 'album' might consist of 100-200 stations, so it wouldn't be played
@@ -127,4 +132,9 @@ uninteresting or dysfunctional, or carefully selecting a few stations.
 Any manual station selection will require regular maintenance but, if the
 number of stations is small, that's usually not too difficult.
 
+## Revision history
+
+December 2023
+- Updated sample station list
+- Corrected BBC station URLs (again)
 

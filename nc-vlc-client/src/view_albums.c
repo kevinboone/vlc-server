@@ -25,6 +25,8 @@
 #include "view_misc.h" 
 #include "view_albums.h" 
 
+extern WINDOW *main_window; 
+
 /*======================================================================
   
   populate_album_list
@@ -42,6 +44,25 @@ static VSList *populate_album_list (LibVlcServerClient *lvsc,
     return NULL;
   }
 
+/*======================================================================
+  
+  show_album
+
+======================================================================*/
+/*
+static void show_album (LibVlcServerClient *lvsc, const char *album,
+     const AppContext *context)
+  {
+  (void)context;
+  char *where;
+  char *escaped_album = libvlc_escape_sql (album);
+  asprintf (&where, "album='%s'", escaped_album);
+  view_tracks (main_window, lvsc, LINES - 3 - 5, COLS, 5, 0, 
+     "Tracks in album", where, context);
+  free (escaped_album);
+  free (where);
+  }
+*/
 
 /*======================================================================
   
