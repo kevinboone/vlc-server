@@ -11,7 +11,7 @@ entries in the database that have no corresponding local files, assuming that
 the files have been deleted. However, entries whose paths begin '=' are not
 automatically deleted. 
 
-Path the begin with '=' have a specific meaning to the web UI as well: these
+Paths that begin with '=' have a specific meaning to the web UI as well: these
 streams have an specific, 'radio tower' icon in the album list.  Normally the
 album list will show cover art from the local folder, when playing local files.
 However, streams do not have a local folder, hence the specific icon. 
@@ -27,17 +27,20 @@ allow it to be grouped.
 
 I can think of two basic ways to structure streams in the database, depending
 on the level of automation required, and the number of streams to be added.
-Either you could group a lot of 'similar' stations into a specific 'album', or
-you could create an 'album' for each stream. Of course, these aren't real album
--- just a way to group similar content. 'Similar' in this context is not
-well-defined -- radio stations might be 'similar' if they based in the same
-location, or broadcast the same genre of music or speech, or something else.
+
+1. Group a lot of 'similar' stations into a specific 'album', or
+2. create an 'album' for each stream. 
+
+Of course, these aren't real albums -- just a way to group similar content.
+'Similar' in this context is not well-defined -- radio stations might be
+'similar' if they based in the same location, or broadcast the same genre of
+music or speech, or something else.
 
 ### Manually adding stations from a list 
 
 For a small number of stations, I find it easiest just to maintain a list in a
 text file, and use a script to add them to the database. Of course, this
-approach only works if the stations have relatively stable URLs -- and most do
+approach only works if the stations have relatively stable URLs -- and many do
 not. It's also only practical for a relatively small number of streams.
 
 With this approach, I create each stream as its own 'album'. So, in the
@@ -48,15 +51,22 @@ Using a prefix like this makes it easy to find stations in the album list.
 Making each station its own album is particularly useful for players like
 `nc-vlc-client`, which can only play content by album. In the source bundle
 there is a sample station list `stations.tsv`, and a Perl script
-`vlc-server-add-station-list.pl` that reads that list into the database. It's
-entirely possible, however that the stations in `stations.tsv` are no longer
-broadcasting, or have changed their URLs -- that's the general problem with
-Internet radio.
+`vlc-server-add-station-list.pl` that reads that list into the database. There's
+also a shell scrip `vlc-server-add-station-list.sh` that reads a station
+list file and outputs an SQL file that can be fed into, for example,
+`sqlite3`. This script is included for emedded systems that don't have
+Perl. 
 
-It's possible to use large albums of stations with `nc-vlc-client`, but
-it's ugly -- select the album from the console interface, which will
-start playing the first station URL in the album. Then change to the
-Playlist tab, and select the specific station required.
+However the stations are added, it's entirely possible, however that the
+stations in `stations.tsv` are no longer broadcasting, or have changed their
+URLs -- that's the general problem with Internet radio. `stations.tsv` is
+included as an example of how to structure a station list -- there's no
+guarantee that any of the stations are actually working.
+
+It's possible to use large albums of stations with `nc-vlc-client`, but it's
+ugly -- select the album from the console interface, which will start playing
+the first station URL in the album. Then change to the Playlist tab, and select
+the specific station required.
 
 ### Automatically adding large numbers of stations
 
