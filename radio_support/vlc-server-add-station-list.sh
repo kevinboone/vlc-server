@@ -44,6 +44,7 @@ then
   usage_and_exit
 fi
 
+echo "delete from files where path like '=%';" > $SQL_FILENAME
 
 while IFS= read -r line
 do
