@@ -155,6 +155,12 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }
+  else if (strncmp (url, "play_stream/", 11) == 0)
+    {
+    char *aret = api_play_stream_js (self->player, self->mdb, url + 12);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
   else if (strncmp (url, "play/", 5) == 0)
     {
     char *aret = api_play_js (self->player, url + 5);
@@ -209,6 +215,12 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
   else if (strncmp (url, "list-albums", 11) == 0)
     {
     char *aret = api_list_albums_js (self->mdb, arguments);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strncmp (url, "list-streams", 12) == 0)
+    {
+    char *aret = api_list_streams_js (self->mdb, arguments);
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }

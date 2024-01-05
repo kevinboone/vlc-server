@@ -145,6 +145,12 @@ VSList *libvlc_server_client_list_albums
         (const LibVlcServerClient *selfclient, const char *where, VSApiError 
            *err_code, char **msg);
 
+/** List streams that match the specified SQL 'where' expression. If
+    'where' is NULL, returns all streams. */
+VSList *libvlc_server_client_list_streams
+        (const LibVlcServerClient *selfclient, const char *where, VSApiError 
+           *err_code, char **msg);
+
 /** List artists that match the specified SQL 'where' expression. If
     'where' is NULL, returns all artists. */
 VSList *libvlc_server_client_list_artists
@@ -176,6 +182,11 @@ VSList *libvlc_server_client_list_tracks
 void libvlc_server_client_play_album
         (const LibVlcServerClient *self, VSApiError *err_code,
            char **msg, const char *album);
+
+/** Convenience function to play a stream, given its name. */
+void libvlc_server_client_play_stream
+        (const LibVlcServerClient *self, VSApiError *err_code,
+           char **msg, const char *stream_name);
 
 /** Play a random album. The randomization is done
       in the database, so this functionality can't efficiently be implemented

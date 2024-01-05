@@ -16,6 +16,10 @@ typedef enum _MediaDatabaseColumn
   MDB_COL_COMPOSER = 3,
   MDB_COL_GENRE = 4,
   MDB_COL_ALBUM_ARTIST = 5,
-  MDB_COL_TITLE = 6
+  MDB_COL_TITLE = 6,
+  MDB_COL_STRMNAME = 7,
+  MDB_COL_STRMLOCATION = 8,
+  MDB_COL_STRMTAGS = 9,
+  MDB_COL_STRMURI = 10 
   } MediaDatabaseColumn;
 

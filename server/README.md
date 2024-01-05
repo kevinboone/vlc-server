@@ -1,6 +1,6 @@
 # vlc-server
 
-Version 0.1h, December 2023
+Version 0.2a, January 2024
 
 ## What is this?
 
@@ -309,6 +309,9 @@ to scale them down. And, of course, transferring a larger image from
 the server to the browser takes longer. 
 
 ## Revision history
+
+0.2a January 2024
+- Preliminary Internet radio stream support
 
 0.1j December 2023
 - Fixed bug in handling null database columns that could cause server

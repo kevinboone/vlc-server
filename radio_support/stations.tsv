@@ -1,82 +1,80 @@
-1.FM Country (CH)	http://strm112.1.fm/acountry_mobile_mp3	radio - country
-1.FM Smooth Jazz (CH)	http://strm112.1.fm/smoothjazz_mobile_mp3	radio - jazz
-Ancient FM (NL)	https://mediaserv73.live-streams.nl:18058/stream	radio - folk
-BBC Radio 4	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_fourfm/bbc_radio_fourfm.isml/bbc_radio_fourfm-audio=320000.m3u8	radio - news and drama
-BBC Radio 3	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_three/bbc_radio_three.isml/bbc_radio_three-audio=320000.m3u8	radio - classical
-BBC Radio 4 extra	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_four_extra/bbc_radio_four_extra.isml/bbc_radio_four_extra-audio=320000.m3u8	radio - news and drama
-Capital FM	http://media-ice.musicradio.com/CapitalMP3	radio - pop
-Classic FM	http://ice-the.musicradio.com/ClassicFMMP3	radio - classical
-LBC UK	http://media-ice.musicradio.com/LBCUK	radio - news
-NPR	http://npr-ice.streamguys1.com/live.mp3	radio - news
-NTS Expansions	https://stream-mixtape-geo.ntslive.net/mixtape3	radio - pop
-NTS Feelings	https://stream-mixtape-geo.ntslive.net/mixtape27	radio - pop
-NTS Heartlands	https://stream-mixtape-geo.ntslive.net/mixtape32	radio - pop
-BBC World Service	http://stream.live.vc.bbcmedia.co.uk/bbc_world_service	radio - news and drama
-Irish Pub Radio	http://solid24.streamupsolutions.com:8026/stream	radio - folk
-Celtic Music Radio	http://stream.celticmusicradio.net:8000/celticmusic.mp3	radio - folk
-NBC News (US)	http://stream.revma.ihrhls.com/zc6043	radio - news
-ABC News (AS)	http://live-radio01.mediahubaustralia.com/PBW/mp3/	radio - news
-LBC London	http://media-ice.musicradio.com/LBC1152.m3u	radio - news
-Otto's Baroque (CH)	http://strm112.1.fm/baroque_mobile_mp3	radio - classical
-Otto's Classical (CH)	https://strm112.1.fm/classical_mobile_aac	radio - classical
-Gold Radio	http://193.92.78.248:8000/	radio - pop
-talkRadio	http://radio.talkradio.co.uk/stream	radio - news
-Worldwide FM	http://worldwidefm.out.airtime.pro:8000/worldwidefm_a	radio - pop
-SomaFM Folk Forward (US)	http://ice1.somafm.com/folkfwd-128-aac	radio - folk
-Zoom 1980s	http://14223.live.streamtheworld.com/SAM03AAC226_SC	radio - pop
-Times Radio UK	http://timesradio.wireless.radio/stream	radio - news
-Jazz Radio London	http://radio.canstream.co.uk:8075/live.mp3	radio - jazz
-Absolute 80s	https://edge-bauerall-01-gos2.sharp-stream.com/absolute80shigh.aac	radio - pop
-Absolute 90s	https://edge-bauerall-01-gos2.sharp-stream.com/absolute90shigh.aac	radio - pop
-NAIM FLAC (NL)	http://mscp3.live-streams.nl:8360/flac.flac	radio - mixed music
-NAIM Jazz FLAC (NL)	http://mscp3.live-streams.nl:8340/jazz-flac.flac	radio - jazz
-NAIM Classical FLAC (NL)	http://mscp3.live-streams.nl:8250/class-flac.flac	radio - classical
-Giants of Jazz	http://streaming.radio.co/s297e618a7/listen	radio - jazz
-Greats Hits York	https://edge-bauerall-01-gos2.sharp-stream.com/net2york.mp3	radio - pop
-Jazz FM	https://edge-bauerall-01-gos2.sharp-stream.com/jazzhigh.aac	radio - jazz
-95b FM FLAC (NZ)	https://streams.95bfm.com/stream112	radio - pop
-Bailrigg Lancaster FLAC	https://bfm-stream.lancs.ac.uk/flac	radio - mixed
-Beside FM FLAC	http://5.128.138.8:8000/stream	radio - pop
-Calon Wrexham FLAC	https://stream.calon.fm:8000/flac	radio - pop
-Free Music Radio (NL) FLAC	http://stream.freemusicradio.nl:8100/stream.oga	radio - pop
-JB Radio-2 FLAC (CA)	https://maggie.torontocast.com:8076/flac	radio - pop
-PureClassix FLAC (NL)	http://mscp4.live-streams.nl:8140/flac.ogg	radio - pop
-Radio Paradise Main Mix FLAC (US)	http://stream.radioparadise.com/flacm	radio - pop
-Radio Paradise Mellow Mix FLAC (US)	http://stream.radioparadise.com/mellow-flacm	radio - pop
-Radio Paradise Rock Mix FLAC (US)	http://stream.radioparadise.com/rock-flacm	radio - pop
-Mother Earth Radio FLAC (DE)	http://server9.streamserver24.com:18900/motherearth	radio - pop
-Mother Earth Klassik FLAC (DE)	http://motherearth.streamserver24.com:18910/motherearth.klassik	radio - classical
-Mother Earth Instrumental FLAC (DE)	http://motherearth.streamserver24.com:18920/motherearth.instrumental	radio - mixed music
-The Cheese FLAC (NZ)	http://thecheese.ddns.net:8004/stream.m3u	radio - pop
-Magic Radio Oldies (FR) FLAC	http://mp3.magic-radio.net/flac	radio - pop
-Chill In Zone FLAC (NL)	http://mscp2.live-streams.nl:8100/flac.flac	radio - pop
-Klasu Pro FLAC (FI)	http://rondo.iradio.fi:8000/klasupro.flac	radio - classical
-Sing Sing Eclectic FLAC (FR)	http://stream.sing-sing-bis.org:8000/singsingFlac	radio - pop
-Radio Sputnik FLAC (NL)	http://radiosputnik.nl:8002/flac	radio - pop
-Sector Radio Progressive FLAC (RU)	http://89.223.45.5:8000/progressive-flac	radio - pop
-Sector Radio Space FLAC (RU)	http://89.223.45.5:8000/space-flac	radio - pop
-Sector Radio Classical FLAC (RU)	http://89.223.45.5:8000/nota-flac	radio - classical
-Sector Radio 80s FLAC (RU)	http://89.223.45.5:8000/geny-flac	radio - pop
-Sector Radio 90s FLAC (RU)	http://89.223.45.5:8000/next-flac	radio - pop
-Sector Radio 10s FLAC (RU)	http://stream.sectorradio.ru:8000/zed-flac	radio - pop
-Fréquence 3 Rock/Dance FLAC (FR) 	http://master.net-radio.fr/frequence3.flac	radio - pop
-Fréquence 3 Urban FLAC (FR)	http://ice1.ikoula.net-radio.fr/frequence3urban.flac	radio - pop
-SuperStereo 1 Yacht Rock FLAC (CL)	http://icecast.centaury.cl:7560/SuperStereoNoData1	music - pop
-SuperStereo 2 Retro FLAC (CL)	http://icecast.centaury.cl:7560/SuperStereoNoData2	music - pop
-SuperStereo 3 80s FLAC (CL)	http://icecast.centaury.cl:7560/SuperStereoNoData3	music - pop
-SuperStereo 4 Oldies FLAC (CL)	http://icecast.centaury.cl:7560/SuperStereoNoData4	music - pop
-SuperStereo 5 Rock FLAC (CL)	http://icecast.centaury.cl:7560/SuperStereoNoData5	music - pop
-SuperStereo 6 FLAC (CL)	http://icecast.centaury.cl:7560/SuperStereoNoData6	radio - mixed music
-SuperStereo 7 Jazz FLAC (CL)	http://icecast.centaury.cl:7560/SuperStereoNoData7	radio - jazz
-Sanctuary Dark Electro FLAC (CA)	http://66.94.113.88:8000/ultra_hq	radio - pop
-Sanctuary 80s FLAC (CA)	http://66.94.113.88:8000/retro_ultra_hq	radio - pop
-Sanctuary Club Mix FLAC (CA)	http://66.94.113.88:8000/clubmix_ultra_hq	music - pop
-Audiomastering Dance (LU)	http://radio.audiomastering.lt:8000/pure	music - pop
-Periscope FLAC (HU)	http://mumia.periszkopradio.hu:8050/periszkop.ogg	music - mixed music
-60North FLAC	http://r5.zetcast.net/flac	music - pop
-Linn Radio	http://radio.linn.co.uk:8003/autodj.m3u	music - pop
-Linn Jazz	http://radio.linn.co.uk:8000/autodj.m3u	music - jazz 
-Linn Classical	http://radio.linn.co.uk:8004/autodj.m3u	music - classical
-
-
+1.FM Country 	CH	http://strm112.1.fm/acountry_mobile_mp3	 country
+1.FM Smooth Jazz	CH	http://strm112.1.fm/smoothjazz_mobile_mp3	 jazz
+Ancient FM	NL	https://mediaserv73.live-streams.nl:18058/stream	 folk
+BBC Radio 4	GB	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_fourfm/bbc_radio_fourfm.isml/bbc_radio_fourfm-audio=320000.m3u8	 news and drama
+BBC Radio 3	GB	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_three/bbc_radio_three.isml/bbc_radio_three-audio=320000.m3u8	 classical
+BBC Radio 4 extra	GB	http://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_four_extra/bbc_radio_four_extra.isml/bbc_radio_four_extra-audio=320000.m3u8	 news and drama
+Capital FM	GB	http://media-ice.musicradio.com/CapitalMP3	 pop
+Classic FM	GB	http://ice-the.musicradio.com/ClassicFMMP3	 classical
+LBC UK	GB	http://media-ice.musicradio.com/LBCUK	 news
+NPR	GB	http://npr-ice.streamguys1.com/live.mp3	 news
+NTS Expansions	GB	https://stream-mixtape-geo.ntslive.net/mixtape3	 pop
+NTS Feelings	GB	https://stream-mixtape-geo.ntslive.net/mixtape27	 pop
+NTS Heartlands	GB	https://stream-mixtape-geo.ntslive.net/mixtape32	 pop
+BBC World Service	GB	http://stream.live.vc.bbcmedia.co.uk/bbc_world_service	 news and drama
+Irish Pub Radio	GB	http://solid24.streamupsolutions.com:8026/stream	 folk
+Celtic Music Radio	GB	http://stream.celticmusicradio.net:8000/celticmusic.mp3	 folk
+NBC News	US	http://stream.revma.ihrhls.com/zc6043	 news
+ABC News	AS	http://live-radio01.mediahubaustralia.com/PBW/mp3/	 news
+LBC London	GB	http://media-ice.musicradio.com/LBC1152.m3u	 news
+Otto's Baroque	CH	http://strm112.1.fm/baroque_mobile_mp3	 classical
+Otto's Classical	CH	https://strm112.1.fm/classical_mobile_aac	 classical
+Gold Radio	GB	http://193.92.78.248:8000/	 pop
+talkRadio	GB	http://radio.talkradio.co.uk/stream	 news
+Worldwide FM	GB	http://worldwidefm.out.airtime.pro:8000/worldwidefm_a	 pop
+SomaFM Folk Forward	US	http://ice1.somafm.com/folkfwd-128-aac	 folk
+Zoom 1980s	GB	http://14223.live.streamtheworld.com/SAM03AAC226_SC	 pop
+Times Radio UK	GB	http://timesradio.wireless.radio/stream	 news
+Jazz Radio London	GB	http://radio.canstream.co.uk:8075/live.mp3	 jazz
+Absolute 80s	GB	https://edge-bauerall-01-gos2.sharp-stream.com/absolute80shigh.aac	 pop
+Absolute 90s	GB	https://edge-bauerall-01-gos2.sharp-stream.com/absolute90shigh.aac	 pop
+NAIM FLAC	NL	http://mscp3.live-streams.nl:8360/flac.flac	 mixed music
+NAIM Jazz FLAC	NL	http://mscp3.live-streams.nl:8340/jazz-flac.flac	 jazz
+NAIM Classical FLAC	NL	http://mscp3.live-streams.nl:8250/class-flac.flac	 classical
+Giants of Jazz	GB	http://streaming.radio.co/s297e618a7/listen	 jazz
+Greats Hits York	GB	https://edge-bauerall-01-gos2.sharp-stream.com/net2york.mp3	 pop
+Jazz FM	GB	https://edge-bauerall-01-gos2.sharp-stream.com/jazzhigh.aac	 jazz
+95b FM FLAC	NZ	https://streams.95bfm.com/stream112	 pop
+Bailrigg Lancaster FLAC	GB	https://bfm-stream.lancs.ac.uk/flac	 mixed
+Beside FM FLAC	GB	http://5.128.138.8:8000/stream	 pop
+Calon Wrexham FLAC	GB	https://stream.calon.fm:8000/flac	 pop
+Free Music Radio FLAC	NL	http://stream.freemusicradio.nl:8100/stream.oga	 pop
+JB Radio-2 FLAC	CA	https://maggie.torontocast.com:8076/flac	 pop
+PureClassix FLAC	NL	http://mscp4.live-streams.nl:8140/flac.ogg	 pop
+Radio Paradise Main Mix FLAC	US	http://stream.radioparadise.com/flacm	 pop
+Radio Paradise Mellow Mix FLAC	US	http://stream.radioparadise.com/mellow-flacm	 pop
+Radio Paradise Rock Mix FLAC	US	http://stream.radioparadise.com/rock-flacm	 pop
+Mother Earth Radio FLAC	DE	http://server9.streamserver24.com:18900/motherearth	 pop
+Mother Earth Klassik FLAC	DE	http://motherearth.streamserver24.com:18910/motherearth.klassik	 classical
+Mother Earth Instrumental FLAC	DE	http://motherearth.streamserver24.com:18920/motherearth.instrumental	 mixed music
+The Cheese FLAC	NZ	http://thecheese.ddns.net:8004/stream.m3u	 pop
+Magic Radio Oldies FLAC	FR	http://mp3.magic-radio.net/flac	 pop
+Chill In Zone FLAC	NL	http://mscp2.live-streams.nl:8100/flac.flac	 pop
+Klasu Pro FLAC	FI	http://rondo.iradio.fi:8000/klasupro.flac	 classical
+Sing Sing Eclectic FLAC	FR	http://stream.sing-sing-bis.org:8000/singsingFlac	 pop
+Radio Sputnik FLAC	NL	http://radiosputnik.nl:8002/flac	 pop
+Sector Radio Progressive FLAC	RU	http://89.223.45.5:8000/progressive-flac	 pop
+Sector Radio Space FLAC	RU	http://89.223.45.5:8000/space-flac	 pop
+Sector Radio Classical FLAC	RU	http://89.223.45.5:8000/nota-flac	 classical
+Sector Radio 80s FLAC	RU	http://89.223.45.5:8000/geny-flac	 pop
+Sector Radio 90s FLAC	RU	http://89.223.45.5:8000/next-flac	 pop
+Sector Radio 10s FLAC	RU	http://stream.sectorradio.ru:8000/zed-flac	 pop
+Fréquence 3 Rock/Dance FLAC	FR 	http://master.net-radio.fr/frequence3.flac	 pop
+Fréquence 3 Urban FLAC	FR	http://ice1.ikoula.net-radio.fr/frequence3urban.flac	 pop
+SuperStereo 1 Yacht Rock FLAC	CL	http://icecast.centaury.cl:7560/SuperStereoNoData1	 pop
+SuperStereo 2 Retro FLAC	CL	http://icecast.centaury.cl:7560/SuperStereoNoData2	 pop
+SuperStereo 3 80s FLAC	CL	http://icecast.centaury.cl:7560/SuperStereoNoData3	 pop
+SuperStereo 4 Oldies FLAC	CL	http://icecast.centaury.cl:7560/SuperStereoNoData4	 pop
+SuperStereo 5 Rock FLAC	CL	http://icecast.centaury.cl:7560/SuperStereoNoData5	 pop
+SuperStereo 6 FLAC	CL	http://icecast.centaury.cl:7560/SuperStereoNoData6	 mixed music
+SuperStereo 7 Jazz FLAC	CL	http://icecast.centaury.cl:7560/SuperStereoNoData7	 jazz
+Sanctuary Dark Electro FLAC	CA	http://66.94.113.88:8000/ultra_hq	 pop
+Sanctuary 80s FLAC	CA	http://66.94.113.88:8000/retro_ultra_hq	 pop
+Sanctuary Club Mix FLAC	CA	http://66.94.113.88:8000/clubmix_ultra_hq	 pop
+Audiomastering Dance	LU	http://radio.audiomastering.lt:8000/pure	 pop
+Periscope FLAC	HU	http://mumia.periszkopradio.hu:8050/periszkop.ogg	 mixed music
+60North FLAC	GB	http://r5.zetcast.net/flac	 pop
+Linn Radio	GB	http://radio.linn.co.uk:8003/autodj.m3u	 pop
+Linn Jazz	GB	http://radio.linn.co.uk:8000/autodj.m3u	 jazz 
+Linn Classical	GB	http://radio.linn.co.uk:8004/autodj.m3u	 classical
 

@@ -266,6 +266,16 @@ playlist.  Note that, by doing the randomization in the media database, this
 API call is much faster then getting a complete list of tracks and selecting
 some of them. 
 
+### play\_stream
+
+    /api/play_stream/{stream-name}
+
+Plays the specified radio stream immediately. That is, clear the playlist,
+add the URI of the stream, and start playback. The argument is the name
+of the stream, as stored in the `streams` table in the media database.
+To play an arbitrary stream (not known to the media database) 
+just add its URI to the playlist using the `add` API function. 
+
 ### playlist
 
 Returns the current playlist as a JSON array.

@@ -47,9 +47,16 @@ extern VSApiError api_add_album (struct _Player *player, MediaDatabase *mdb,
 extern char *api_add_album_js (struct _Player *player, MediaDatabase *mdb, 
             const char *album);
 
+extern VSApiError api_add_stream (struct _Player *player, MediaDatabase *mdb, 
+            const char *stream_name);
+
 /** Like add_album(), but clear the playlist first, then start playing. */
 extern char *api_play_album_js (struct _Player *player, MediaDatabase *mdb, 
             const char *album);
+
+/** Clear the playlist, then add the stream by name, then play. */
+extern char *api_play_stream_js (struct _Player *player, MediaDatabase *mdb, 
+            const char *stream_name);
 
 extern VSApiError api_play_random_tracks (struct _Player *player, MediaDatabase *mdb);
 extern char *api_play_random_tracks_js (struct _Player *player, MediaDatabase *mdb);
@@ -123,6 +130,11 @@ extern char *api_list_composers_js (MediaDatabase *mdb,
 extern VSList *api_list_tracks (MediaDatabase *mdb,
          const VSSearchConstraints *mdc, VSApiError *e);
 extern char *api_list_tracks_js (MediaDatabase *mdb, 
+         const VSProps *arguments);
+
+extern VSList *api_list_streams (MediaDatabase *mdb,
+         const VSSearchConstraints *mdc, VSApiError *e);
+extern char *api_list_streams_js (MediaDatabase *mdb, 
          const VSProps *arguments);
 
 /* Return the player status, including what is playing and the position. */

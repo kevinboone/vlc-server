@@ -33,6 +33,7 @@ ensuring that the latest 3.x version of VLC is installed.  The 3.0.18 version
 of VLC has a bug in FLAC playback that cannot be worked around in configuration
 -- do not use this version if you mostly play FLAC.
 
+
 _Does `vlc-server` support 'bit-perfect' audio playback?_
 
 See above -- `vlc-server` supports whatever VLC supports, on a particular
@@ -90,7 +91,8 @@ _Does `vlc-server` support "baked-in" cover art images?_
 To some extent: the media scanner will extract these images if it finds any,
 and write them to disk in the same directory as the audio files. The filename
 will depend on the image format baked into the file. Again, this only works if
-files are organized on an album-per-directory basis.
+files are organized on an album-per-directory basis, and if the
+vlc-server process has write access to the directories containing media.
 
 
 _What filenames does `vlc-server` use for cover art images?_
@@ -109,8 +111,8 @@ _Does vlc-server support Internet radio?_
 
 VLC server will play any stream that VLC can play. Internet radio stations that
 stream using HTTP, IceCast, etc., will usually play. However, `vlc-server` has
-no built-in support for Internet radio. Streams can be added to the media
-database along with local media, but `vlc-server` provides no way to put them
+only minimal support for Internet radio. Streams can be added to the media
+database, but `vlc-server` provides no way to put them
 there. See the `radio-support/` directory for ideas on how to populate the
 media database with radio streams.
 
@@ -128,10 +130,18 @@ be made using Pulse controls. See `docs/ALSA.md` for more information.
 
 _How do I do a full scan of the media directory?_
 
-Shut down the server, delete the media database (`vlc-server.sqlite`) and start
-a new scan. You can also run `vlc-server-client fullscan`, but it's very slow.
-There's really no reason to run a full scan, unless you really, really can't
-shut the server down, even for a few minutes. 
+If practicable, shut down the server, delete the media database
+(`vlc-server.sqlite`) and start a new (quick) scan. You can also run
+`vlc-server-client fullscan`, or select 'Full scan' from the 'Control' menu in
+the console client, but it's very, very slow.
+
+It won't be practicable to shut down the server and delete the media database
+if you have a bunch of Internet radio streams defined, and you have no other
+way to delete them. In this case, you'll need to run a full scan, or delete the
+`files` table from the media database using a sqlite3 client. Deleting
+the `files` table has the same effect as deleting the whole database, so far
+as the media scanner is concerned.
+
 
 _Why is a 'quick' scan so slow?_ 
 
@@ -143,6 +153,23 @@ know whether a file has been updated (e.g., new metadata) since the last scan.
 _Does the quick scan detect changed tags?_
 
 Only if the timestamp of the file has been updated.
+
+
+_How can I see the progress of the media scanner?_
+
+The web interface and the console interface both display the number of 
+files scanned. When neither is saying 'NNN files scanned', the scanner
+has finished. For more information you can log into the vlc-server host
+and watch the scanner's output in the system log.
+
+
+_Can I use vlc-server to play audio whilst it is scanning media?_
+
+To some extent, yes. However, I haven't gone to any great lengths to
+make this work. If any operation in the server requires the media database,
+and it's locked by the media scanner, you'll get an error message --
+the operation won't retry. Of course, you can try it again manually, and
+it might work next time.
 
 
 _Does `vlc-server` support gapless playback?_

@@ -153,6 +153,10 @@ do to correct deficiencies in the console.
 
 ## Revision history
 
+0.2a January 2024
+- Added 'streams' view, with capability to play an Internet radio stream
+  from the media database.
+
 0.1k December 2023
 - Made title configurable on command line 
 

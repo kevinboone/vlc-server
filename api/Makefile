@@ -1,4 +1,4 @@
-VERSION := 0.1d
+VERSION := 0.2a
 CC	:= gcc
 PREFIX  := /usr
 SOURCES := $(shell find src/ -type f -name *.c)

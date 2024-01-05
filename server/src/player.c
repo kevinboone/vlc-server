@@ -122,10 +122,12 @@ char *player_get_search_path (const char *media_root, const char *url)
       //   in the database
       search_path = strdup (url + strlen (media_root) + 1);
     }
-  else if (strstr (url, "http:") == url)
-    {
-    asprintf (&search_path, "=%s", url);
-    }
+  //else if (strstr (url, "http:") == url)
+  //  {
+  //  asprintf (&search_path, "=%s", url);
+  //  }
+  else
+    search_path = strdup (url);
   return search_path;
   }
 
@@ -153,9 +155,12 @@ static void player_update_metadata (Player *self)
   if (search_path)
     {
     self->amd = media_database_get_amd (self->mdb, search_path);
+    if (self->amd == NULL)
+      self->amd = media_database_get_stream_amd_by_uri (self->mdb, search_path);
+
     free (search_path);
-    if (self->amd)
-      vs_metadata_dump (self->amd);
+    //if (self->amd)
+    //  vs_metadata_dump (self->amd);
     }
 
   if (self->amd == NULL)

@@ -260,6 +260,92 @@ char *api_add_js (Player *player, const char *path)
 
 /*======================================================================
 
+ api_add_stream
+
+======================================================================*/
+VSApiError api_add_stream (Player *player, MediaDatabase *mdb, 
+     const char *stream_name)
+  {
+  VSApiError ret = 0;
+
+  char *escaped_stream = media_database_escape_sql (stream_name);
+  char *sql;
+  asprintf (&sql, "select uri from streams where name='%s'",
+    escaped_stream);
+
+  free (escaped_stream);
+
+  char *error;
+  VSList *results = media_database_sql_query (mdb, sql, FALSE, 
+     1, &error);
+  if (results)
+    {
+    if (vs_list_length (results) > 0)
+      {
+      const char *uri = vs_list_get (results, 0);
+      int added = 0;
+      player_add (player, uri, &added);
+      }
+    else
+      {
+      ret = VSAPI_ERR_STREAM_NAME; 
+      }
+    vs_list_destroy (results);
+    }
+  else
+    {
+    // Should never happen, because the value of results will be non-null
+    //   even in a catastrophic failure
+    vs_log_error (error);
+    free (error);
+    }
+
+  free (sql);
+
+/*
+  VSSearchConstraints *mdc = vs_search_constraints_new ();
+  mdc->start = 0;
+  mdc->count = -1;
+  char *where;
+
+
+  //asprintf (&where, "stream='%s'", stream);
+
+  asprintf (&where, "name='%s'", escaped_stream);
+  free (escaped_stream);
+
+  vs_search_constraints_set_where (mdc, where); 
+  free (where);
+  VSList *list = api_list_tracks (mdb, 
+     mdc, &ret);
+  vs_search_constraints_destroy (mdc);
+
+  if (list)
+    {
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      const char *path = vs_list_get (list, i);
+      char *rel_path;
+      if (path[0] == '=')
+        asprintf (&rel_path, "%s", path + 1);
+      else
+        asprintf (&rel_path, "@/%s", path);
+      int this_added = 0;
+      if (player_add (player, rel_path, &this_added) == 0)
+        (*added) += this_added;
+      free (rel_path);
+      } 
+    vs_list_destroy (list);
+    }
+
+*/
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
  api_add_album
 
 ======================================================================*/
@@ -362,6 +448,36 @@ char *api_play_album_js (Player *player, MediaDatabase *mdb,
     player_start (player);
     asprintf (&ret, "{\"status\": %d, \"message\": \"Added %d items\"}\r\n", 
       0, added);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+ api_play_stream_js
+
+======================================================================*/
+char *api_play_stream_js (Player *player, MediaDatabase *mdb, 
+        const char *stream_name)
+  {
+  IN
+  char *ret;
+  player_clear (player);
+  player_stop (player);
+  VSApiError e = api_add_stream (player, mdb, stream_name);
+  if (e)
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  else
+    {
+    player_start (player);
+    asprintf (&ret, 
+      "{\"status\": %d, \"message\": \"Added stream to playlist\"}\r\n", 0);
     }
   OUT
   return ret;
@@ -1088,6 +1204,78 @@ char *api_list_albums_js (MediaDatabase *mdb,
   if (where)
     vs_search_constraints_set_where (mdc, where);
   VSList *list = api_list_albums (mdb, mdc, &e);
+  vs_search_constraints_destroy (mdc);
+  if (list)
+    {
+    VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      char *j_file = api_escape_json (vs_list_get (list, i));
+      vs_string_append (s, "\"");
+      vs_string_append (s, j_file);
+      vs_string_append (s, "\"");
+      free (j_file);
+      if (i != l - 1) 
+        vs_string_append (s, ",");
+      }
+
+    vs_list_destroy (list);
+    vs_string_append (s, "]}\r\n");
+    ret = strdup (vs_string_cstr (s));
+    vs_string_destroy (s);
+    }
+  else
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+  api_list_streams
+
+======================================================================*/
+VSList *api_list_streams (MediaDatabase *mdb, 
+     const VSSearchConstraints *mdc, VSApiError *e)
+  {
+  VSList *ret = NULL;
+  if (media_database_is_init (mdb))
+    {
+    VSList *streams = vs_list_create (free);
+    char *error = NULL;
+    media_database_search_streams (mdb, MDB_COL_STRMNAME, streams, mdc, &error);
+    ret = streams;
+    }
+  else
+   *e = VSAPI_ERR_INIT_DB;
+  return ret;
+  }
+
+
+/*======================================================================
+
+  api_list_streams_js
+
+======================================================================*/
+char *api_list_streams_js (MediaDatabase *mdb, 
+        const VSProps *arguments)
+  {
+  IN
+  char *ret; 
+  VSApiError e;
+  VSSearchConstraints *mdc = vs_search_constraints_new();
+  mdc->start = 0;
+  mdc->count = -1;
+  const char *where = vs_props_get (arguments, "where");
+  if (where)
+    vs_search_constraints_set_where (mdc, where);
+  VSList *list = api_list_streams (mdb, mdc, &e);
   vs_search_constraints_destroy (mdc);
   if (list)
     {

@@ -75,7 +75,9 @@ typedef enum _VSApiError
   // The media database exists, but has no albums
   VSAPI_ERR_NO_ALBUMS = 13,
   // Some other database-related error (look in log!) 
-  VSAPI_ERR_GEN_DB = 14
+  VSAPI_ERR_GEN_DB = 14,
+  // A stream name could not be found in the DB 
+  VSAPI_ERR_STREAM_NAME = 15
   } VSApiError;
 
 typedef enum _VSApiTransportStatus

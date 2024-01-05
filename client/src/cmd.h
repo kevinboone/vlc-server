@@ -58,6 +58,9 @@ extern int cmd_play_random_album (const char *argv0, int argc, char **new_argv,
 extern int cmd_play_random_tracks (const char *argv0, int argc, char **new_argv, 
   const CmdContext *context);
 
+extern int cmd_play_stream (const char *argv0, int argc, char **new_argv, 
+  const CmdContext *context);
+
 extern int cmd_start (const char *argv0, int argc, char **new_argv, 
   const CmdContext *context);
 
@@ -83,6 +86,9 @@ extern int cmd_list_dirs (const char *argv0, int argc, char **new_argv,
   const CmdContext *context);
 
 extern int cmd_list_albums (const char *argv0, int argc, char **new_argv, 
+  const CmdContext *context);
+
+extern int cmd_list_streams (const char *argv0, int argc, char **new_argv, 
   const CmdContext *context);
 
 extern int cmd_list_artists (const char *argv0, int argc, char **new_argv, 

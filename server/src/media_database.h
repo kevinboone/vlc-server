@@ -54,6 +54,14 @@ extern void media_database_search (MediaDatabase *self,
         MediaDatabaseColumn column, VSList *results, 
        const VSSearchConstraints *constraints,  char **error);
 
+/** Performs a search of the stream list according to the constraints in 
+      'constraints'. The results are added to the 'results' list. 
+    Each result added to the list will be an entry from the database column
+       specified by the 'column' argument. */
+extern void media_database_search_streams (MediaDatabase *self,
+        MediaDatabaseColumn column, VSList *results, 
+       const VSSearchConstraints *constraints,  char **error);
+
 /** As media_database_search(), except that this method only returns the
        number of hits. */
 extern int media_database_search_count (const MediaDatabase *self, 
@@ -68,10 +76,22 @@ extern void media_database_select_random (MediaDatabase *self,
 extern BOOL media_database_is_init (const MediaDatabase *self);
 
 /** Get an VSMetadata object for a specific path. If there is
-      not such path, or there was an error, return NULL. The caller
+      no such path, or there was an error, return NULL. The caller
       must from the metadata object if it is not NULL. */
 extern VSMetadata *media_database_get_amd (MediaDatabase *self, 
           const char *path);
+
+/** Get an VSMetadata object for a specific stream URI. If there is
+      no such URI, or there was an error, return NULL. The caller
+      must from the metadata object if it is not NULL. */
+extern VSMetadata *media_database_get_stream_amd_by_uri 
+         (MediaDatabase *self, const char *uri);
+
+/** Get an VSMetadata object for a specific stream name. If there is
+      not such name, or there was an error, return NULL. The caller
+      must from the metadata object if it is not NULL. */
+extern VSMetadata *media_database_get_stream_amd_by_name
+         (MediaDatabase *self, const char *uri);
 
 /** Set all the fields of an VSMetadata object that have columns in the
       database, given a specific path. */
@@ -104,6 +124,9 @@ extern void media_database_remove_nonexistent (MediaDatabase *self);
 /** Escape characters like the single-quote, that need a particular
       representation in SQL. */
 extern char *media_database_escape_sql (const char *sql);
+
+extern VSList *media_database_sql_query (MediaDatabase *self, const char *sql,
+            BOOL include_empty, int limit, char **error);
 
 /**** VSSearchConstraints methods *****/
 

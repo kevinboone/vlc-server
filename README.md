@@ -55,8 +55,10 @@ Done:
 - There is a basic command-line client
 - There is a basic ncurses-based console client. It is limited to 
   selecting music by album
-- Although there is no specific support for Internet radio streams, such
-  streams can be integrated into the media database and played (see the
+- The is only very early support for Internet radio streams. There is
+  provision in the database for them, and they can be listed in the
+  various clients. However, there is at present no way to add new
+  streams, except to add them administratively to the database.  (see the
   scripts and documentation in the `radio_support/` directory)
 
 Still to do:

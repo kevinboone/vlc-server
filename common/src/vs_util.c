@@ -46,6 +46,8 @@ const char *vs_util_strerror (VSApiError e)
       return "media database is empty";
     case VSAPI_ERR_GEN_DB:
       return "general media database problem";
+    case VSAPI_ERR_STREAM_NAME:
+      return "stream name not found";
     default:
       return "unknown error";
     }

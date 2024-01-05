@@ -30,6 +30,12 @@ function cmd_play_album (album)
   make_fn_request (apiFn, response_callback_gen_status);
   }
 
+function cmd_play_stream (name)
+  {
+  var apiFn = API_BASE + "play_stream/" + encodeURIComponent (name); 
+  make_fn_request (apiFn, response_callback_gen_status);
+  }
+
 function cmd_index (number)
   {
   var apiFn = API_BASE + "index/" + encodeURIComponent (number); 

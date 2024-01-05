@@ -195,6 +195,10 @@ static void media_database_create_tables (MediaDatabase *self)
        "composer varchar, artist varchar, album_artist varchar, " 
        "track varchar, comment varchar, year varchar, exist integer)");
 
+  media_database_exec_log_error (self, "create table streams "
+       "(name varchar not null primary key, "
+       "location varchar, tags varchar, uri varchar not null)");
+
   media_database_exec_log_error (self, 
        "create index albumindex on files (album)");
   media_database_exec_log_error (self, 
@@ -207,6 +211,8 @@ static void media_database_create_tables (MediaDatabase *self)
        "create index pathindex on files (path)");
   media_database_exec_log_error (self, 
        "create index genreindex on files (genre)");
+  media_database_exec_log_error (self, 
+       "create index nameindex on streams (name)");
   OUT
   }
 
@@ -295,6 +301,10 @@ static const char *media_database_col_name (MediaDatabaseColumn col)
     case MDB_COL_GENRE: return "genre";
     case MDB_COL_ALBUM_ARTIST: return "album_artist";
     case MDB_COL_TITLE: return "title";
+    case MDB_COL_STRMNAME: return "name";
+    case MDB_COL_STRMURI: return "uri";
+    case MDB_COL_STRMLOCATION: return "location";
+    case MDB_COL_STRMTAGS: return "tags";
     }
   return NULL; // Can not happen
   OUT
@@ -569,6 +579,76 @@ int media_database_search_count (const MediaDatabase *self,
   }
 
 /*======================================================================
+  media_database_search_streams
+======================================================================*/
+void media_database_search_streams (MediaDatabase *self, 
+       MediaDatabaseColumn column,  VSList *results, 
+       const VSSearchConstraints *constraints, char **error)
+  {
+  VSString *sql = vs_string_create ("select distinct ");
+
+  vs_string_append (sql, media_database_col_name (column));
+
+  vs_string_append (sql, " from streams ");
+
+  if (constraints->where)
+    {
+    vs_string_append (sql, " where ");
+    //char *escaped_where = media_database_escape_sql (constraints->where);
+    //vs_string_append (sql, escaped_where);
+    //printf ("constaints_where=%s\n", constraints->where);
+    vs_string_append (sql, constraints->where);
+    //free (escaped_where);
+    }
+
+  vs_string_append (sql, " order by ");
+  vs_string_append (sql, media_database_col_name (column)); 
+  vs_string_append (sql, " collate nocase");
+
+  //printf ("Executing sql %s\n", vs_string_cstr (sql));
+  vs_log_debug ("Executing sql %s\n", vs_string_cstr (sql));
+
+  int hits = 0;
+  int cols = 0;
+  char **result = NULL;
+  char *e = NULL;
+  sqlite3_get_table (self->sqlite, vs_string_cstr (sql), &result, 
+     &hits, &cols, &e);
+  if (e == NULL)
+    {
+    vs_log_debug ("Query returned %d hits", hits);
+
+    for (int i = 0; i < hits; i++)
+      {
+      if ((i >= constraints->start) && 
+                 ((i < constraints->start + constraints->count) || 
+                 (constraints->count < 0)))
+        {
+        char *res = result [i + 1];
+        // I'm really not sure what we should do if a column is NULL.
+        // Perhaps it would be better to convert it into an empty 
+        //   string? Or some representative token? Problem is, if we
+        //   don't add anything to the output list, the number of results
+        //   won't match constraints->count 
+        if (res)
+          vs_list_append (results, strdup (res));
+        //else
+        //  vs_list_append (results, strdup (""));
+        }
+      }
+
+    sqlite3_free_table (result);
+    }
+  else
+    {
+    *error = strdup (e);
+    sqlite3_free (e);
+    }
+
+  vs_string_destroy (sql);
+  }
+
+/*======================================================================
   media_database_is_init
 ======================================================================*/
 BOOL media_database_is_init (const MediaDatabase *self)
@@ -644,6 +724,122 @@ BOOL media_database_set_amd (MediaDatabase *self,
   }
 
 /*======================================================================
+  media_database_get_stream_amd_by_uri
+======================================================================*/
+VSMetadata *media_database_get_stream_amd_by_uri (MediaDatabase *self, 
+      const char *uri)
+  {
+  IN
+  VSMetadata *ret = NULL;
+  char *esc_uri = media_database_escape_sql (uri);
+
+  char *sql;
+  asprintf (&sql, "select name,location,tags,uri "
+       "from streams where uri='%s'", esc_uri);
+
+  char *error = NULL;
+
+  VSList *list = media_database_sql_query (self, sql, TRUE, 0, &error);
+  if (list)
+    {
+    int l = vs_list_length (list);
+    if (l == 4)
+      {
+      ret = vs_metadata_create();
+      vs_metadata_set_path (ret, uri);
+      vs_metadata_set_size (ret, 0);
+      vs_metadata_set_mtime (ret, 0); 
+      vs_metadata_set_title (ret, vs_list_get (list, 0));
+      vs_metadata_set_album (ret, "[streams]");
+      vs_metadata_set_genre (ret, vs_list_get (list, 2));
+      vs_metadata_set_composer (ret, ""); 
+      vs_metadata_set_artist (ret, ""); 
+      vs_metadata_set_album_artist (ret, "");
+      vs_metadata_set_track (ret, "1"); 
+      vs_metadata_set_comment (ret, vs_list_get (list, 1)); 
+      vs_metadata_set_year (ret, "");
+      }
+    else
+      {
+      vs_log_debug ("Database query for '%s' "
+        "returned wrong number of columns: got %d, expected 4", uri, l);
+      } 
+    vs_list_destroy (list);
+    }
+  else
+    {
+    if (error)
+      {
+      vs_log_warning ("Database query for '%s' failed: %s", uri, error);
+      free (error);
+      }
+    }
+
+  free (sql);
+  free (esc_uri);
+  OUT
+  return ret;
+  }
+ 
+/*======================================================================
+  media_database_get_stream_amd_by_name
+======================================================================*/
+VSMetadata *media_database_get_stream_amd_by_name (MediaDatabase *self, 
+      const char *name)
+  {
+  IN
+  VSMetadata *ret = NULL;
+  char *esc_name = media_database_escape_sql (name);
+
+  char *sql;
+  asprintf (&sql, "select name,location,tags,uri "
+       "from streams where name='%s'", esc_name);
+
+  char *error = NULL;
+
+  VSList *list = media_database_sql_query (self, sql, TRUE, 0, &error);
+  if (list)
+    {
+    int l = vs_list_length (list);
+    if (l == 4)
+      {
+      ret = vs_metadata_create();
+      vs_metadata_set_path (ret, vs_list_get (list, 3));
+      vs_metadata_set_size (ret, 0);
+      vs_metadata_set_mtime (ret, 0); 
+      vs_metadata_set_title (ret, name);
+      vs_metadata_set_album (ret, "[streams]");
+      vs_metadata_set_genre (ret, vs_list_get (list, 2));
+      vs_metadata_set_composer (ret, ""); 
+      vs_metadata_set_artist (ret, ""); 
+      vs_metadata_set_album_artist (ret, "");
+      vs_metadata_set_track (ret, "1"); 
+      vs_metadata_set_comment (ret, vs_list_get (list, 1)); 
+      vs_metadata_set_year (ret, "");
+      }
+    else
+      {
+      vs_log_debug ("Database query for '%s' "
+        "returned wrong number of columns: got %d, expected 4", name, l);
+      } 
+    vs_list_destroy (list);
+    }
+  else
+    {
+    if (error)
+      {
+      vs_log_warning ("Database query for '%s' failed: %s", name, error);
+      free (error);
+      }
+    }
+
+  free (sql);
+  free (esc_name);
+  OUT
+  return ret;
+  }
+ 
+/*======================================================================
   media_database_get_amd
 ======================================================================*/
 VSMetadata *media_database_get_amd (MediaDatabase *self, 
@@ -682,7 +878,7 @@ VSMetadata *media_database_get_amd (MediaDatabase *self,
       }
     else
       {
-      vs_log_warning ("Database query for '%s' returned wrong number of columns: got %d, expected 11", path, l);
+      vs_log_debug ("Database query for '%s' returned wrong number of columns: got %d, expected 11", path, l);
       } 
     vs_list_destroy (list);
     }

@@ -25,6 +25,7 @@
 #include "gui_album_artists.h"
 #include "gui_composers.h"
 #include "gui_genres.h"
+#include "gui_streams.h"
 #include "gui_home.h"
 #include "gui_help.h"
 #include "gui_strictsearch.h"
@@ -123,7 +124,7 @@ BOOL gui_process_request (Player *player, const char *media_root,
       }
     else if (strncmp (url, "artists", 7) == 0)
       {
-      VSString *body = gui_artists_get_body (url + 6,
+      VSString *body = gui_artists_get_body (url + 7,
         arguments, matches_per_page, mdb);
       template_manager_substitute_placeholder 
           (s, "BODY", vs_string_cstr (body));
@@ -143,12 +144,22 @@ BOOL gui_process_request (Player *player, const char *media_root,
       }
     else if (strncmp (url, "composers", 9) == 0)
       {
-      VSString *body = gui_composers_get_body (url + 6,
+      VSString *body = gui_composers_get_body (url + 9,
         arguments, matches_per_page, mdb);
       template_manager_substitute_placeholder 
           (s, "BODY", vs_string_cstr (body));
       template_manager_substitute_placeholder 
           (s, "TITLE", NAME " - Composers"); 
+      vs_string_destroy (body);
+      }
+    else if (strncmp (url, "streams", 7) == 0)
+      {
+      VSString *body = gui_streams_get_body (url + 7,
+        arguments, matches_per_page, mdb);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Streams"); 
       vs_string_destroy (body);
       }
     else if (strncmp (url, "strictsearch", 12) == 0)

@@ -37,6 +37,9 @@ the playlist -- but this is not under the control of the client.
 
 ## Revision history
 
+0.2a January 2024
+- Added 'list-streams' and 'play-stream' commands
+
 0.1g December 2023
 - added 'fullscan' command
 
