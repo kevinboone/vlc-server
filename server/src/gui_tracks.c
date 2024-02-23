@@ -64,7 +64,8 @@ void gui_tracks_track_cell (VSString *body, const char *path,
     vs_string_append (body, "<td>");
 
     const char *album = SAFE (vs_metadata_get_album (amd));
-    char *enc2 = media_database_escape_sql (album);
+    //char *enc2 = media_database_escape_sql (album);
+    char *enc2 = strdup (album);
     VSString *enc_album = http_util_encode_for_js (enc2); 
     char *where;
     asprintf (&where, "album='%s'", vs_string_cstr(enc_album));
@@ -89,7 +90,8 @@ void gui_tracks_track_cell (VSString *body, const char *path,
 
     const char *artist = SAFE (vs_metadata_get_artist (amd));
 
-    enc2 = media_database_escape_sql (artist);
+    //enc2 = media_database_escape_sql (artist);
+    enc2 = strdup (artist);
     VSString *enc_artist = http_util_encode_for_js (enc2); 
     asprintf (&where, "artist='%s'", vs_string_cstr(enc_artist));
     vs_string_destroy (enc_artist);

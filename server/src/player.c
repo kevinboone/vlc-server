@@ -554,7 +554,7 @@ VSApiError player_add (Player *self, const char *path, int *added)
     {
     is_url = FALSE;
     // Treat the path as a local file. Check that it exists
-    if (path[0] == '@' && strstr (path, "..") == NULL)
+    if (path[0] == '@' && strstr (path, "..") != path)
       {
       // This is a path relative to the media root
       free (fullpath);

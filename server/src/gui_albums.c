@@ -63,7 +63,7 @@ void gui_albums_album_cell (VSString *body, const char *album,
   vs_string_append (body, "\')\">[play]</a>\n");
 
   vs_string_append (body, "<a href=\"/gui/tracks?where=album='");
-  vs_string_append (body, enc2);
+  vs_string_append (body, vs_string_cstr(enc_album));
   vs_string_append (body, "\'");
   if (covers)
     vs_string_append (body, "&covers=1");

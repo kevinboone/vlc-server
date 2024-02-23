@@ -1,5 +1,5 @@
 NAME    := vlc-server
-VERSION := 0.2a
+VERSION := 0.2b
 CC      := gcc
 LIBS    := ${EXTRA_LIBS} -ldl -lvlc -lmicrohttpd -lvlc-server-client -lvlc-server-common -lpthread
 LIBPATH1 := ../api

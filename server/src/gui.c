@@ -207,10 +207,22 @@ void gui_set_constraints_from_arguments
   const char *s_start = vs_props_get (arguments, "start");
   const char *s_count = vs_props_get (arguments, "count");
   const char *s_where = vs_props_get (arguments, "where");
+  char *sql_where = NULL;
+  // Convert JS \' to SQL ''
+  if (s_where)
+    {
+    sql_where = strdup (s_where);
+    char *p = strstr (sql_where, "\\'");
+    if (p)
+      {
+      *p = '\'';
+      } 
+    } 
   if (s_count) constraints->count = atoi (s_count);
   if (constraints->count == 0) constraints->count = 30; // TODO
   if (s_start) constraints->start = atoi (s_start);
-  if (s_where) vs_search_constraints_set_where (constraints, s_where);
+  if (sql_where) vs_search_constraints_set_where (constraints, sql_where);
+  if (sql_where) free (sql_where);
   //if (s_where) printf ("where=%s\n", s_where);
   }
 
