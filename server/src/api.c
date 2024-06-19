@@ -785,7 +785,7 @@ VSStorage *api_storage (const MediaDatabase *mdb,
 char *api_storage_js (const MediaDatabase *mdb, const struct _Player *player)
   {
   char *ret;
-  VSApiError e;
+  VSApiError e = 0;
   VSStorage *storage = api_storage (mdb, player, &e);
   if (storage)
     {

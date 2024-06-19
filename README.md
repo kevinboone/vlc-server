@@ -1,5 +1,7 @@
 # vlc-server
 
+0.2c
+
 *This is a work in progress!*
 *(And it's likely to remain that way for some time)*
 
@@ -54,7 +56,7 @@ Done:
   the server's REST API
 - There is a basic command-line client
 - There is a basic ncurses-based console client. It is limited to 
-  selecting music by album
+  selecting music by album, but albums can be listed based on genre, etc
 - The is only very early support for Internet radio streams. There is
   provision in the database for them, and they can be listed in the
   various clients. However, there is at present no way to add new
@@ -108,6 +110,36 @@ running:
 
     $ make 
     $ sudo make install
+
+## Getting started
+
+You'll need some audio files. `vlc-server` works best if they are organized
+into folders, one per album. This is particularly true if you want to use
+cover art, as only one cover art image can be stored in each folder. I'll
+assume that the audio is in `$HOME/Music`.
+
+Run the server. The basic command line will be something like this:
+
+    $ vlc-server -r $HOME/Music -p 30000 -- --no-video -A alsa --alsa-audio-device default
+
+You can use the `-f` switch to keep the program in the foreground, which is
+helpful when setting up.
+
+`vlc-server` supports the same audio drivers and ports as VLC does. You
+might prefer to determine suitable settings for these things using the main
+VLC program.
+
+It's probably best to put the server start-up command into a script once
+it's working.
+
+With the server running, you should be able to attach a web browser to
+the port (30000, in this case). From the home page, click "Rescan and
+update library" to start indexing the audio files. This could take a long
+time, the first time it's done.
+
+You should be able to browse the collection by file/folder before the 
+indexing is completed. Once it's completed, you'll be able to browse
+by album, genre, etc.
 
 ## More information
 

@@ -3,6 +3,7 @@
 This list of prerequisites is focused on the Raspberry Pi, but probably
 applies to most Linux systems. The package names are the same on Debian-based
 systems (e.g., Ubuntu), but slightly different of RHEL-like systems.
+For Gentoo systems, please see the separate GENTOO.md.
 
 To build `vlc-server` you will need at least the following
 dependencies:

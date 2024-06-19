@@ -2,7 +2,7 @@ TARGET  := $(NAME)
 PREFIX  := /usr
 BINDIR  := $(DESTDIR)/$(PREFIX)/bin
 
-VERSION := 0.2a
+VERSION := 0.2c
 
 all: $(TARGET)
 

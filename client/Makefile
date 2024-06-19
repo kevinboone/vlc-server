@@ -1,5 +1,5 @@
 NAME    := vlc-server-client
-VERSION := 0.2a
+VERSION := 0.2c
 CC      := gcc
 LIBPATH1 := ../api
 LIBPATH2 := ../common
@@ -13,8 +13,8 @@ PREFIX  := /usr
 MANDIR  := $(DESTDIR)/$(PREFIX)/share/man
 BINDIR  := $(DESTDIR)/$(PREFIX)/bin
 SHARE   := $(DESTDIR)/$(PREFIX)/share/$(TARGET)
-CFLAGS  := -g -fpie -fpic -Wall -Werror -DNAME=\"$(NAME)\" -DVERSION=\"$(VERSION)\" -DSHARE=\"$(SHARE)\" -DPREFIX=\"$(PREFIX)\" ${EXTRA_CFLAGS}
-LDFLAGS := -pie ${EXTRA_LDFLAGS}
+CFLAGS  := -g -Wall -Wno-unused-result -O3 -DNAME=\"$(NAME)\" -DVERSION=\"$(VERSION)\" -DSHARE=\"$(SHARE)\" -DPREFIX=\"$(PREFIX)\" ${EXTRA_CFLAGS}
+LDFLAGS := ${EXTRA_LDFLAGS}
 INCLUDE1 := ../api/include
 INCLUDE2 := ../common/include
 

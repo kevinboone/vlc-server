@@ -1,11 +1,12 @@
-VERSION := 0.2a
+VERSION := 0.2c
 CC	:= gcc
 PREFIX  := /usr
 SOURCES := $(shell find src/ -type f -name *.c)
 OBJECTS := $(patsubst src/%,build/%,$(SOURCES:.c=.o))
 DEPS    := $(OBJECTS:.o=.deps)
 LIB     := libvlc-server-common.a
-CFLAGS  := -g -fpie -fpic -Wall -DVERSION=\"$(VERSION)\" -DPREFIX=\"$(PREFIX)\" -I include ${EXTRA_CFLAGS}
+EXTRA_CFLAGS ?= 
+CFLAGS  := -g -Wall -Wno-unused-result -O3 -DVERSION=\"$(VERSION)\" -DPREFIX=\"$(PREFIX)\" -I include ${EXTRA_CFLAGS}
 
 all: $(LIB) 
 
