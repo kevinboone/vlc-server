@@ -35,3 +35,28 @@ clear that it will even build with 4.0. On RHEL/Fedora, `libvlc-dev` is called
 (rpmfusion.org). Note that there is a bug in VLC 3.0.18 that affects
 FLAC playback.
 
+## A note about Gentoo
+
+`vlc-server` builds and runs fine on Gentoo, with the appropriate dependencies.
+Gentoo doesn't have specific 'dev' or 'devel' dependencies -- the development
+parts are generally included in the main package. An exception is for 
+components that are _only_ used for development. So the microhttpd
+library is, for example `net-libs/libmicrohttpd`. Of course, you'll need
+VLC as well, but there is no specific 'dev' package for it.
+
+If you run an ALSA-only Gentoo system be aware that, if you configure
+`vlc-server` to use a specific ALSA hardware device (rather than
+just `default` or `plughw`), the server will lock the hardware whilst it
+is playing. This will prevent any other application using the same audio
+device.
+
+This is true for any ALSA-only Linux, of course, but I'm not aware of any
+mainstream Linux that doesn't provide Pulse Audio or Pipewire or similar.
+These frameworks create their own problems, but exclusive access to the
+audio hardware isn't one of them.
+
+
+
+
+
+

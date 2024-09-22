@@ -3,7 +3,7 @@ VERSION := 0.2c
 CC      := gcc
 LIBPATH1 := ../api
 LIBPATH2 := ../common
-LIBS    := ${EXTRA_LIBS} -lvlc -lvlc-server-client -lvlc-server-common -lcurl -lncursesw -lpthread 
+LIBS    := ${EXTRA_LIBS} -lvlc -lvlc-server-client -lvlc-server-common -lcurl -lncursesw -ltinfo -lpthread 
 TARGET	:= $(NAME)
 SOURCES := $(shell find src/ -type f -name *.c)
 OBJECTS := $(patsubst src/%,build/%,$(SOURCES:.c=.o))
