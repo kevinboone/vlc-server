@@ -1,0 +1,13 @@
+#!/sbin/openrc-run
+
+source /etc/vlc-server.rc
+pidfile="/run/${RC_SVCNAME}.pid"
+command="vlc-server"
+command_background="true"
+command_user='${USER}:${GROUP}'
+command_args='-f -r ${MEDIA_DIR} -p ${PORT} -- --no-video -A alsa --alsa-audio-device ${ALSA_DEV}'
+
+depend() {
+	need net 
+}
+

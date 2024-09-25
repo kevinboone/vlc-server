@@ -1,5 +1,21 @@
-MEDIA_DIR="/run/media/kevin/Extreme SSD/mediafiles/audio_music"
+# Root location of media files
+MEDIA_DIR="/mediafiles/audio_music"
+
+# ALSA device to use. You can use 'default' for default routing, which might
+#  be via Pulse or Pipewire. Or specific a particular hardware device. Note
+#  that using a hardware device will conflict with Pulse and (to a lesser
+#  extent) Pipewire.
 # You can get a list of ALSA devices using 'aplay -L'
-ALSA_DEV="iec958:CARD=I20,DEV=0"
+ALSA_DEV="default"
+
+# Port that the HTTP server will listen on
 PORT=30000
+
+# Server's user and group. These settings are current only used by the
+#  openrc init script. We want to avoid openrc running vlc-server as root.
+# Note: if using 'default' as the ALSA device, it is the _user_ ALSA 
+#  configuration that will be used. If the user has a .asroundrc, then
+#  this configuration might not match the rest of the system.
+USER=kevin
+GROUP=kevin
 
