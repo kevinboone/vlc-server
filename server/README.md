@@ -310,6 +310,9 @@ the server to the browser takes longer.
 
 ## Revision history
 
+0.2d January 2025
+- Fixed a bug with the live status display in the web interface
+
 0.2b February 2024
 - Fixed a number of bugs related to single-quote handling
 

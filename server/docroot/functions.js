@@ -160,6 +160,7 @@ if (!http_request)
     };
   http_request.open('GET', uri, true);
   http_request.timeout = 10000; 
+
   http_request.send (null);
   }
 
@@ -202,7 +203,7 @@ parse_uri.options = {
 
 function refresh_playback_status()
   {
-  var apiFn = API_BASE + "stat?dummy";
+  var apiFn = API_BASE + "stat";
   make_fn_request (apiFn, response_callback_refresh_playback_status);
   }
 
