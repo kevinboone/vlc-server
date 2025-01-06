@@ -13,7 +13,7 @@
 escape_sql()
   {
   S=$1
-  echo ${S/\'/\'\'} 
+  echo ${S//\'/\'\'} 
   }
 
 usage_and_exit()

@@ -1,35 +1,41 @@
 # Internet radio support in vlc-server
 
 As of 0.2a, `vlc-server` has preliminary support for Internet radio streams.
-It's preliminary because, although there is provision for streams to
-be stored in the media database, and the clients can display and select
-them, there is at present no elegant way to add new streams. The only
-way to add streams is directly to the database. There isn't even a REST
-API call to manage streams yet -- the administrator will need log-in
-access to the server host.
+It's preliminary because, although there is provision for streams to be
+stored in the media database, and clients can display and select them, there
+is at present no elegant way to add new streams, or to edit existing ones.
+The only way to add or edit streams is directly in the database. There isn't
+even a REST API call to manage streams yet -- the administrator will need
+log-in access to the server host.
 
-The structure of the relevant database table is documented in 
+The structure of the relevant database table is documented in
 `docs/MEDIA_DATABASE.md`. 
 
-My approach to managing radio streams at present is to maintain them
-in a tab-separated text file, and use a script to populate the database
-table from this file using `sqlite3`. Of course, to use this approach
-we might as well just as well have `vlc-server` just read the station
-list from a text file -- but using the media database allows for future
-development.
+Having said that, with a bit of scripting, it's possible to use vlc-server
+as a usable radio player.
+
+My approach to managing radio streams at present is to maintain them in a
+tab-separated text file, and use a script to populate the database table from
+this file using `sqlite3`. Of course, to use this approach we might as well
+just as well have `vlc-server` simply read the station list from a text file
+-- but using the media database allows for future development.
 
 The only metadata stored about radio streams, other than the name and
 URL, are a location code and list of genre tags. Neither the location
 nor the genre tags are actually used at present -- they just get displayed
 by the web interface.
 
-In this directory is a sample station list file `stations.tsv`, which
-contains four columns for the four elements we store about streams. 
-There is also a simple script `vlc-server-add-station-list.sh` which
-parses the text file, and feeds SQL commands into `sqlite3`. So populating
-the stream list amounts to
+In this `radio_support` directory is a sample station list file
+`stations.tsv`, which contains four columns for the four elements we store
+about streams.  There is also a simple script
+`vlc-server-add-station-list.sh` which parses the text file, and feeds SQL
+commands into `sqlite3`. So populating the stream list amounts to
 
     $ vlc-server-add-station-list stations.tsv /path/to/vlc-server.sqlite
+
+I must point out, however, that it's very likely that `stations.tsv` is
+terribly out of date, and you'll need some way to get an up-to-date list. For
+an automated approach to this, see below.
 
 ## What works
 
@@ -44,34 +50,35 @@ Assuming there thare are some streams in the media database...
 
 ## Limitations
 
-Apart from the obvious huge problem that there is no simple way to edit
-the stream database, there are smaller issues.
+Apart from the obvious, huge problem that there is no simple way to edit
+the streams database, there are smaller issues as well.
 
 - The web interface just dumps the entire stream list on a single page.
   There is no paging or sorting. In practice, because there are no 
   images or icons assocated with streams, this isn't a problem unless there 
-  are tens of thousands of streams in the database.
+  are thousands of streams in the database.
 - The web interface's 'search' feature does not find streams, only 
   local files. 
-- If a stream won't play -- and that's surprisingly common -- none of the
+- If a stream won't play -- and that's annoyingly common -- none of the
   clients provide much indication why. You probably won't even get an
   error message, just silence. 
 
 
 ## The general problem with Internet radio 
 
-Internet radio stations are ephemeral. They come and go, almost on a daily
+Internet radio stations are ephemeral: they come and go, almost on a daily
 basis. Even the long-lasting ones change their URLs from time to time.  So
 manual maintenance of a large list of Internet radio stations is really not
-practical. A choice has to be made between importing a large number of stations
-from a database like `radio-browser.info`, and accepting that many will be
-uninteresting or dysfunctional, or carefully selecting a few stations.
+practical. A choice has to be made between importing a large number of
+stations from a database like `radio-browser.info`, and accepting that many
+will be uninteresting or dysfunctional, or carefully selecting a few
+stations.
 
 There are commercial stream curators like TuneIn, but their services are
 not free. There's no way to integrate a TuneIn search into a free software
 application, so far as I can see. The nearest thing to a free radio
 stream database is `radio-browser.info`. This is pretty good, and I use
-it all the time, but it's a hobby effort, and its maintainers accept
+it all the time; but it's a hobby effort, and its maintainers accept
 that. It would be interesting to integrate a radio-browser search into
 the `vlc-server` web interface, and not all that difficult. But the
 long-term future of `radio-browser` cannot be assured (or so it seems to
@@ -111,9 +118,9 @@ playing.  This doesn't stop anythng playing but, if VLC itself can't provide
 any metaata, the display will look odd.
 
 On a related note, I've found that VLC can usually not obtain metadata from a
-radio stream, even if it can play it. I don't know why.  Some stations transmit
-metadata showing what is actually playing at a particular time, but none of the
-`vlc-server` clients can display it, as VLC does not provide it.
+radio stream, even if it can play it. I don't know why.  Some stations
+transmit metadata showing what is actually playing at a particular time, but
+none of the `vlc-server` clients can display it, as VLC does not provide it.
 
 If a radio station is not operating, it might simply not respond to
 requests (so `vlc-server` will fail to connect to it at all). Or it
@@ -122,7 +129,20 @@ transmit silence. There's no real way to know whether the failure is
 permanent, or the station will be online again later. That's just the
 way Internet radio is.
 
+I've increasingly found that the radio-browser database contains mutiple stations with the
+same name. That's fair enough, because the station might provide the stream
+in different qualities or formats. However, vlc-server won't allow duplicate stream
+names in its database. So if the output of vlc-server-get-stations.pl has multiple 
+streams with the same name, vlc-server-add-station-list.sh will only add the 
+first one. 
+
 ## Revision history
+
+January 2025
+- Fixed permissions on scripts
+- Modified vlc-server-add-station-list.sh to handle stream names containing multiple
+  single-quotes
+- Expanded documentation very slightly 
 
 Janary 2024
 - Complete revision, with new database table and API calls
