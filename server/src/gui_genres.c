@@ -53,7 +53,7 @@ void gui_genres_genre_cell (VSString *body, const char *genre,
   vs_string_append (body, "<td>\n");
   char *album_href;
     asprintf (&album_href, 
-      "<a href=\"/gui/albums?where=%s&covers=%d\">[albums]</a>", where, 
+      "<a href=\"/gui/albums2?where=%s&covers=%d\">[albums]</a>", where, 
         covers);
 
   vs_string_append (body, album_href);
@@ -65,7 +65,7 @@ void gui_genres_genre_cell (VSString *body, const char *genre,
   vs_string_append (body, "<td>\n");
   char *artist_href;
     asprintf (&artist_href, 
-      "<a href=\"/gui/artists?where=%s&covers=%d\">[artists]</a>", where, 
+      "<a href=\"/gui/artists2?where=%s&covers=%d\">[artists]</a>", where, 
         covers);
 
   vs_string_append (body, artist_href);
@@ -76,7 +76,7 @@ void gui_genres_genre_cell (VSString *body, const char *genre,
   vs_string_append (body, "<td>\n");
   char *album_artist_href;
     asprintf (&album_artist_href, 
-      "<a href=\"/gui/album_artists?where=%s&covers=%d\">[album artists]</a>", 
+      "<a href=\"/gui/album_artists2?where=%s&covers=%d\">[album artists]</a>", 
         where, 
         covers);
 
@@ -88,7 +88,7 @@ void gui_genres_genre_cell (VSString *body, const char *genre,
   vs_string_append (body, "<td>\n");
   char *composer_href;
     asprintf (&composer_href, 
-      "<a href=\"/gui/composers?where=%s&covers=%d\">[composers]</a>", where, 
+      "<a href=\"/gui/composers2?where=%s&covers=%d\">[composers]</a>", where, 
         covers);
 
   vs_string_append (body, composer_href);

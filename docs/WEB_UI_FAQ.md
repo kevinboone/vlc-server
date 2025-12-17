@@ -15,16 +15,10 @@ missing tags.
 
 _Can I change the number of tracks/folder/artists displayed on a page?_
 
-Not at present through the web interface. This value is set when
-starting the server. On a specific page, you can hack the URL in the browser
-manually, and add 'count=-1'. However, this won't necessarily be passed
-to new pages that are linked from the results. And it's probably not
-a good idea.
-
-This is considered a feature, not a limitation. `vlc-server` is designed
-for use in embedded Linux systems, where memory may be scarce. With a
-large collection, allowing users to display thousands of items on a page
-could break the server.
+As of version 0.2e, the web display uses and 'infinite scrolling' view,
+so search results are not divided into separate pages. The results are
+actually retrieved from the server in batches of 30 (this is hard-coded),
+but you probably won't see this.
 
 
 _What's the difference between an 'artist' and an 'album artist'?_
@@ -88,15 +82,14 @@ the Custom SQL Query feature to search on them.
 
 _Why is search so slow?_
 
-The 'strict' search tends to be slow on low-powered systems like the
-Raspberry Pi, because it can't rely on database indexing. Instead,
-every field in the database has to be examined in turn, and the
-field text compared with the sarch pattern in a specific way. 
-The tricky part is
-deciding whether the search text comprises a complete piece of text,
-rather than a substring. The server uses regular expression matching
-for this test, because it proved to be faster than hard-coded tests.
-But it's still slow, because of the huge amount of computation involved.
+The 'strict' search tends to be slow on low-powered systems like the Raspberry
+Pi, because it can't rely on database indexing. Instead, every field in the
+database has to be examined in turn, and the field text compared with the sarch
+pattern in a specific way.  The tricky part is deciding whether the search text
+comprises a complete piece of text, rather than a substring. The server uses
+regular expression matching for this test, because it proved to be faster than
+hard-coded tests.  But it's still slow, because of the huge amount of
+computation involved.
 
 The 'relaxed' search is much faster, because it a simple substring text
 in a field that is indexed in the database.

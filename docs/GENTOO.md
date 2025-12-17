@@ -25,7 +25,7 @@ This only affects the ncurses client, but it won't hurt to add it to
 the other builds (they don't use it).
 
 By default, the Gentoo build of ncurses(w) doesn't include libtinfo(w).
-You'll have to use the seperate library. Note that if you use 
+You'll have to use the separate library. Note that if you use 
 ncurses with libtinfo (not libtinfow) then ncurses will segfault at
 initialization.
 

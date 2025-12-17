@@ -1,9 +1,9 @@
 # vlc-server
 
-0.2c
+0.2e
 
-*This is a work in progress!*
-*(And it's likely to remain that way for some time)*
+*This is a work in progress, *
+*(and it's likely to remain that way for some time).*
 
 `vlc-server` is a simple HTTP server that wraps the VLC media player, and
 provides an HTTP interface for playback of audio files and URLs.  There is a
@@ -12,10 +12,10 @@ API that can be used by other kinds of client. The web interface, and the REST
 API, allow audio files to be viewed and selected using metadata (tags), or
 just filesystem layout. 
 
-The bundle includes a simple C library for controlling the the server using the
+The bundle includes a simple C library for controlling the server using the
 REST API, and command-line and ncurses utilities that uses this library.
 
-The purpose of `vlc-server` is allow media playback on one Linux computer to be
+The purpose of `vlc-server` is allow audio playback on one Linux computer to be
 controlled remotely from some other computer. The "controlling" computer can be
 anything that can issue HTTP requests.
 
@@ -29,7 +29,7 @@ To provide this support, the server scans the media directory and builds
 up an sqlite3 database.
 
 The database can also store URLs of, for example, Internet radio stations.
-See the seperate README.md in the `radio_support` directory for ideas
+See the separate README.md in the `radio_support` directory for ideas
 how this might be used.
 
 `vlc-server` notionally supports video.  However, since the purpose of the
@@ -65,7 +65,18 @@ Done:
 
 Still to do:
 
-- There are many ways in which the web user interface can be tidied up
+- There are many ways in which the web user interface can be tidied up. 
+  In particular, it still doesn't handle small (e.g., phone) displays
+  very well.
+- In version 0.2e of the server, the web interface has moved to an 
+  'infinite scrolling' view model, rather than specific pages. This is
+  easier to use, unless you actually want to the bottom of the page (because
+  there is no bottom, until all results have been enumerated). It also puts
+  a lot more load on the web browser, and makes strong JavaScript support
+  a necessity. It wouldn't be too difficult to roll back these changes, if
+  they prove problematic. At this time, not _all_ search results are
+  displayed using the 'infinite scrolling' method; in particular, files
+  and directories are still presented as discrete pages. 
 - The ncurses client is very basic. Pretty much everything remains to be done.
 - It would be nice to have a graphical client for a built-in display on
   embedded systems. A web browser is not a practical interface on such

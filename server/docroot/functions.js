@@ -209,6 +209,12 @@ function refresh_playback_status()
 
 function response_callback_gen_status (response_text)
   {
+  if ("" == response_text)
+    {
+    set_message ("No response from server");
+    return;
+    }
+
   var obj = eval ('(' + response_text + ')');
   set_message (obj.message);
   }
@@ -219,6 +225,12 @@ function response_callback_null (response_text)
 
 function response_callback_refresh_playback_status (response_text)
   {
+  if ("" == response_text)
+    {
+    set_message ("No response from server");
+    return;
+    }
+
   var obj = eval ('(' + response_text + ')'); 
 
   if (obj.status != "0")

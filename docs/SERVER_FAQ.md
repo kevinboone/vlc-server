@@ -3,8 +3,8 @@
 _What platforms does `vlc-server` run on?_
 
 `vlc-server` is designed to run on Linux systems, particular Raspberry Pi.
-However, it builds and runs fine on Ubuntu and Fedora Linux, with the
-appropriate dependencies installed.
+However, it definitely builds and runs fine on Ubuntu, Fedora, MX, and Gentoo
+Linux, with the appropriate dependencies installed.
 
 It is unlikely that this software will run on anything other than Linux, or
 that it can be compiled using anything other than GCC.
@@ -15,7 +15,8 @@ _What are the runtime dependencies of `vlc-server`?_
 VLC, `libmicrohttd`, `libcurl` (probably called `libcurl4-openssl` or
 `libcurl4-gnutls` on Ubuntu and similar). VLC is the biggest of these, by far
 -- it has many dependencies of its own. On mainstream Linux platforms, the
-package manager will take care of installing them.
+package manager will take care of installing them. See the separate
+`PREREQUISITES.md` for more information.
 
 
 _Why do I sometimes get skips or dropouts in audio output?_
@@ -43,10 +44,10 @@ audio output direct to ALSA: see `docs/ALSA.md`.
 
 _What version of VLC is `vlc-server` using?_
 
-`vlc-server` does not embed VLC -- it just uses whatever VLC is available on
-the host. So whatever version you discover from VLC itself should be the
-version that `vlc-server` uses.  On a Linux system, you should be able to get
-the VLC version from the command line:
+`vlc-server` does not (by default) embed VLC -- it just uses whatever VLC is
+available on the host. So whatever version you discover from VLC itself should
+be the version that `vlc-server` uses.  On a Linux system, you should be able
+to get the VLC version from the command line:
 
     $ vlc --version
 
@@ -60,8 +61,8 @@ When playing audio, `vlc-server` needs about 300Mb RAM. It works fine on a
 Raspberry Pi 3 with 1Gb RAM. CPU load depends on the hardware, and ranges from
 < 1% on a high-end desktop system, to about 25% on a Raspberry Pi 3.
 
-The installed size of the server on disk is about 2Mb. However, VLC will use a
-_lot_ more than that.
+The installed size of the server on disk is about 2Mb. However, VLC and its
+colossal set of dependencies will use a _lot_ more than that.
 
 
 _What HTTP port(s) does `vlc-server` use?_
@@ -83,16 +84,17 @@ care what it is, however.
 The one exception to the notion that `vlc-server` does not care about file
 organization is in the use of album cover art.  If you want to display album
 cover art, you'll need to ensure that the tracks for each album are in a single
-directory for that album. 
+directory for that album. Each directory can only have a single cover
+art image. 
 
 
 _Does `vlc-server` support "baked-in" cover art images?_
 
 To some extent: the media scanner will extract these images if it finds any,
-and write them to disk in the same directory as the audio files. The filename
+and write them to disk in the same directory as the audio files.  The filename
 will depend on the image format baked into the file. Again, this only works if
-files are organized on an album-per-directory basis, and if the
-vlc-server process has write access to the directories containing media.
+files are organized on an album-per-directory basis, and if the vlc-server
+process has write access to the directories containing media.
 
 
 _What filenames does `vlc-server` use for cover art images?_
@@ -174,7 +176,7 @@ it might work next time.
 
 _Does `vlc-server` support gapless playback?_
 
-Alas, no. Nor is it likely to. The client-server architecture of the sofware
+Alas, no. Nor is it likely to. The client-server architecture of the software
 makes this very difficult.
 
 

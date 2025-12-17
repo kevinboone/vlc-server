@@ -25,6 +25,18 @@ extern uint8_t favicon_ico_end[] asm("_binary_docroot_favicon_ico_end");
 extern uint8_t generic_html_start[] asm("_binary_docroot_generic_html_start");
 extern uint8_t generic_html_end[] asm("_binary_docroot_generic_html_end");
 extern uint8_t functions_js_start[] asm("_binary_docroot_functions_js_start");
+extern uint8_t populate_albums_js_end[] asm("_binary_docroot_populate_albums_js_end");
+extern uint8_t populate_albums_js_start[] asm("_binary_docroot_populate_albums_js_start");
+extern uint8_t populate_tracks_js_end[] asm("_binary_docroot_populate_tracks_js_end");
+extern uint8_t populate_tracks_js_start[] asm("_binary_docroot_populate_tracks_js_start");
+extern uint8_t populate_artists_js_end[] asm("_binary_docroot_populate_artists_js_end");
+extern uint8_t populate_artists_js_start[] asm("_binary_docroot_populate_artists_js_start");
+extern uint8_t populate_composers_js_end[] asm("_binary_docroot_populate_composers_js_end");
+extern uint8_t populate_composers_js_start[] asm("_binary_docroot_populate_composers_js_start");
+extern uint8_t populate_genres_js_end[] asm("_binary_docroot_populate_genres_js_end");
+extern uint8_t populate_genres_js_start[] asm("_binary_docroot_populate_genres_js_start");
+extern uint8_t populate_album_artists_js_end[] asm("_binary_docroot_populate_album_artists_js_end");
+extern uint8_t populate_album_artists_js_start[] asm("_binary_docroot_populate_album_artists_js_start");
 extern uint8_t functions_js_end[] asm("_binary_docroot_functions_js_end");
 extern uint8_t stopbutton_png_start[] asm("_binary_docroot_stopbutton_png_start");
 extern uint8_t help_html_start[] asm("_binary_docroot_help_html_start");
@@ -65,6 +77,12 @@ TemplateData templateData[] =
   { TEMPLATE_GENERIC_HTML, "generic.html", generic_html_start, generic_html_end },
   { TEMPLATE_FAVICON_ICO, "favicon.ico", favicon_ico_start, favicon_ico_end },
   { TEMPLATE_FUNCTIONS_JS, "functions.js", functions_js_start, functions_js_end },
+  { TEMPLATE_POPULATE_ALBUMS_JS, "populate_albums.js", populate_albums_js_start, populate_albums_js_end },
+  { TEMPLATE_POPULATE_TRACKS_JS, "populate_tracks.js", populate_tracks_js_start, populate_tracks_js_end },
+  { TEMPLATE_POPULATE_ARTISTS_JS, "populate_artists.js", populate_artists_js_start, populate_artists_js_end },
+  { TEMPLATE_POPULATE_COMPOSERS_JS, "populate_composers.js", populate_composers_js_start, populate_composers_js_end },
+  { TEMPLATE_POPULATE_GENRES_JS, "populate_genres.js", populate_genres_js_start, populate_genres_js_end },
+  { TEMPLATE_POPULATE_ALBUM_ARTISTS_JS, "populate_album_artists.js", populate_album_artists_js_start, populate_album_artists_js_end },
   { TEMPLATE_STOPBUTTON_PNG, "stopbutton.png", stopbutton_png_start, stopbutton_png_end },
   { TEMPLATE_PLAYBUTTON_PNG, "playbutton.png", playbutton_png_start, playbutton_png_end },
   { TEMPLATE_NEXTBUTTON_PNG, "nextbutton.png", nextbutton_png_start, nextbutton_png_end },

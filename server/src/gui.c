@@ -20,17 +20,22 @@
 #include "gui_files.h"
 #include "gui_playlist.h"
 #include "gui_albums.h"
+#include "gui_albums2.h"
 #include "gui_tracks.h"
+#include "gui_tracks2.h"
 #include "gui_artists.h"
+#include "gui_artists2.h"
 #include "gui_album_artists.h"
+#include "gui_album_artists2.h"
 #include "gui_composers.h"
+#include "gui_composers2.h"
 #include "gui_genres.h"
+#include "gui_genres2.h"
 #include "gui_streams.h"
 #include "gui_home.h"
 #include "gui_help.h"
 #include "gui_strictsearch.h"
 #include "gui_search.h"
-#include "gui_tracks.h"
 #include "media_database.h"
 
 /*======================================================================
@@ -92,6 +97,16 @@ BOOL gui_process_request (Player *player, const char *media_root,
           (s, "TITLE", NAME " - Playlist"); 
       vs_string_destroy (body);
       }
+    else if (strncmp (url, "album_artists2", 14) == 0)
+      {
+      VSString *body = gui_album_artists2_get_body (url + 14,
+        arguments, matches_per_page, mdb);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Albums");
+      vs_string_destroy (body);
+      }
     else if (strncmp (url, "album_artists", 13) == 0)
       {
       VSString *body = gui_album_artists_get_body (url + 13,
@@ -100,6 +115,18 @@ BOOL gui_process_request (Player *player, const char *media_root,
           (s, "BODY", vs_string_cstr (body));
       template_manager_substitute_placeholder 
           (s, "TITLE", NAME " - Albums");
+      vs_string_destroy (body);
+      }
+    else if (strncmp (url, "albums2", 7) == 0)
+      {
+      VSString *body = gui_albums2_get_body (url + 6,
+        arguments, matches_per_page, mdb);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Albums");
+
       vs_string_destroy (body);
       }
     else if (strncmp (url, "albums", 6) == 0)
@@ -112,6 +139,16 @@ BOOL gui_process_request (Player *player, const char *media_root,
           (s, "TITLE", NAME " - Albums");
       vs_string_destroy (body);
       }
+    else if (strncmp (url, "tracks2", 7) == 0)
+      {
+      VSString *body = gui_tracks2_get_body (url + 6,
+        arguments, matches_per_page, mdb);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Tracks"); 
+      vs_string_destroy (body);
+      }
     else if (strncmp (url, "tracks", 6) == 0)
       {
       VSString *body = gui_tracks_get_body (url + 6,
@@ -120,6 +157,16 @@ BOOL gui_process_request (Player *player, const char *media_root,
           (s, "BODY", vs_string_cstr (body));
       template_manager_substitute_placeholder 
           (s, "TITLE", NAME " - Tracks"); 
+      vs_string_destroy (body);
+      }
+    else if (strncmp (url, "artists2", 8) == 0)
+      {
+      VSString *body = gui_artists2_get_body (url + 7,
+        arguments, matches_per_page, mdb);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Artists"); 
       vs_string_destroy (body);
       }
     else if (strncmp (url, "artists", 7) == 0)
@@ -132,6 +179,16 @@ BOOL gui_process_request (Player *player, const char *media_root,
           (s, "TITLE", NAME " - Artists"); 
       vs_string_destroy (body);
       }
+    else if (strncmp (url, "genres2", 7) == 0)
+      {
+      VSString *body = gui_genres2_get_body (url + 7,
+        arguments, matches_per_page, mdb);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Genres"); 
+      vs_string_destroy (body);
+      }
     else if (strncmp (url, "genres", 6) == 0)
       {
       VSString *body = gui_genres_get_body (url + 6,
@@ -140,6 +197,16 @@ BOOL gui_process_request (Player *player, const char *media_root,
           (s, "BODY", vs_string_cstr (body));
       template_manager_substitute_placeholder 
           (s, "TITLE", NAME " - Genres"); 
+      vs_string_destroy (body);
+      }
+    else if (strncmp (url, "composers2", 10) == 0)
+      {
+      VSString *body = gui_composers2_get_body (url + 10,
+        arguments, matches_per_page, mdb);
+      template_manager_substitute_placeholder 
+          (s, "BODY", vs_string_cstr (body));
+      template_manager_substitute_placeholder 
+          (s, "TITLE", NAME " - Composers"); 
       vs_string_destroy (body);
       }
     else if (strncmp (url, "composers", 9) == 0)
@@ -481,10 +548,27 @@ VSString *gui_get_limited_results_page (
 
         if (l != total_count)
           {
+          const char *search_field_name = field_name;
+          if (strcmp (field_name, "albums") == 0)
+            search_field_name = "albums2";
+          else if (strcmp (field_name, "artists") == 0)
+            search_field_name = "artists2";
+          else if (strcmp (field_name, "album_artists") == 0)
+            search_field_name = "album_artists2";
+          else if (strcmp (field_name, "tracks") == 0)
+            search_field_name = "tracks2";
+          else if (strcmp (field_name, "composers") == 0)
+            search_field_name = "composers2";
+          else if (strcmp (field_name, "genres") == 0)
+            search_field_name = "genres2";
 	  const char *where = vs_props_get (arguments, "where");
 	  char *all_link;
+
+          VSString *enc_where = vs_string_encode_url (where);
 	  asprintf (&all_link, "/gui/%s?where=%s&covers=%d", 
-	    field_name, where, covers);
+	    search_field_name, vs_string_cstr (enc_where), covers);
+          vs_string_destroy (enc_where);
+
 	  vs_string_append (body, "<a href=\"");
 	  vs_string_append (body, all_link);
 	  vs_string_append (body, "\">[show all]</a><br/>\n");

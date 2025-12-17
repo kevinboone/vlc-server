@@ -2,22 +2,22 @@
 
 ## Basics
 
-`vlc-server` should work without any specific audio configuration, if the
-host system as a whole is set up properly. VLC will output to its default
-audio driver, which is probably Pulse on mainstream Linux installations.
-With Pulse, if you want to change how the audio is routed, you'll need to
-use Pulse tools (like `pavucontrol`).
+`vlc-server` should work without any specific audio configuration, if the host
+system as a whole is set up properly. VLC will output to its default audio
+driver, which is probably Pulse or Pipewire on mainstream Linux installations.
+With Pulse, if you want to change how the audio is routed, you'll need to use
+Pulse tools (like `pavucontrol`).
 
 However, `vlc-server` is capable of using whatever audio configuration is
-available to VLC, including controlling the audio output. You might want to
-do that if you're using high-quality audio hardware like an external DAC and
-amplifier, to avoid Pulse and the like fiddling with the audio. Although I
-believe Pulse has improved in this respect, it has a reputation for
+available to VLC, including directing to a specific audio channel. You might
+want to do that if you're using high-quality audio hardware like an external
+DAC and amplifier, to avoid Pulse and the like fiddling with the audio.
+Although I believe Pulse has improved in this respect, it has a reputation for
 unnecessary modification (e.g., resampling) of the audio stream. 
 
 Sending the audio output directly to ALSA avoids this kind of silliness,
 although Linux distributions vary in the extent to which they will allow
-applications to do so. If you're building a customer Linux for an
+applications to do so. If you're building a custom Linux for an
 embedded audio player, you probably won't be including Pulse or Pipewire
 or such-like, and the problem won't arise. For mainstream desktop
 systems, however, you may have a bit of fight.

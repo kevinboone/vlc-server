@@ -52,7 +52,7 @@ void gui_composers_composer_cell (VSString *body, const char *composer,
 
   char *album_href;
     asprintf (&album_href, 
-      "<a href=\"/gui/albums?where=%s&covers=%d\">[albums]</a>", where, 
+      "<a href=\"/gui/albums2?where=%s&covers=%d\">[albums]</a>", where, 
 	covers);
 
   free (where);

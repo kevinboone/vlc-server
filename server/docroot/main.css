@@ -95,11 +95,14 @@ header
   float: left;
   padding: 2px;
   padding-right: 10px;
+  margin-top: -1em;
   }
 
 #messagecell
   {
   color: blue;
+  float: right;
+  padding-right: 1em; 
   }
 
 #menu-icon 
@@ -134,7 +137,7 @@ nav
 
 section 
   {
-  margin: 72px auto 40px;
+  margin: 145px auto 40px;
   position: relative;
   padding: 0;
   }
@@ -203,7 +206,7 @@ section
   }
 
 /*MEDIA QUERY*/
-@media only screen and (max-width : 900px) 
+@media only screen and (max-width : 1100px) 
   {
   .indexcolumn
     {
@@ -215,9 +218,15 @@ section
      position: absolute;
      }
 
+  .main_menu_item 
+    {
+    margin-top: 0;
+    }
+
   #menu-icon 
     {
     display: inline-block;
+    float: right;
     }
 
   nav ul, nav:active ul 
@@ -229,7 +238,7 @@ section
     border: 5px solid #444;
     right: 10px;
     top: 10px;
-    width: 30%;
+    width: 100px;
     border-radius: 4px 0 4px 4px;
     }
 

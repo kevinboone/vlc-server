@@ -111,10 +111,17 @@ extern VSList *api_list_albums (MediaDatabase *mdb,
          const VSSearchConstraints *mdc, VSApiError *e);
 extern char *api_list_albums_js (MediaDatabase *mdb, 
          const VSProps *arguments);
+extern char *api_list_albums2_js (MediaDatabase *mdb, 
+         const VSProps *arguments);
 
 extern VSList *api_list_artists (MediaDatabase *mdb,
          const VSSearchConstraints *mdc, VSApiError *e);
 extern char *api_list_artists_js (MediaDatabase *mdb, 
+         const VSProps *arguments);
+
+extern VSList *api_list_album_artists (MediaDatabase *mdb,
+         const VSSearchConstraints *mdc, VSApiError *e);
+extern char *api_list_album_artists_js (MediaDatabase *mdb, 
          const VSProps *arguments);
 
 extern VSList *api_list_genres (MediaDatabase *mdb,
@@ -130,6 +137,8 @@ extern char *api_list_composers_js (MediaDatabase *mdb,
 extern VSList *api_list_tracks (MediaDatabase *mdb,
          const VSSearchConstraints *mdc, VSApiError *e);
 extern char *api_list_tracks_js (MediaDatabase *mdb, 
+         const VSProps *arguments);
+extern char *api_list_tracks2_js (MediaDatabase *mdb, 
          const VSProps *arguments);
 
 extern VSList *api_list_streams (MediaDatabase *mdb,

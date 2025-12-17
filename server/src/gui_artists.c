@@ -50,7 +50,7 @@ void gui_artists_artist_cell (VSString *body, const char *artist,
 
   char *album_href;
     asprintf (&album_href, 
-      "<a href=\"/gui/albums?where=%s&covers=%d\">[albums]</a>", where, 
+      "<a href=\"/gui/albums2?where=%s&covers=%d\">[albums]</a>", where, 
         covers);
 
   free (where);

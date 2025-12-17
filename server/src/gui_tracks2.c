@@ -1,0 +1,256 @@
+/*======================================================================
+  
+  vlc-server
+
+  server/src/gui_tracks2.c
+
+  Copyright (c)2022 Kevin Boone, GPL v3.0
+
+======================================================================*/
+
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <microhttpd.h>
+#include <vlc-server/vs_log.h> 
+#include <vlc-server/vs_util.h> 
+#include "template_manager.h"
+#include "http_util.h"
+#include "gui.h"
+#include "gui_tracks2.h"
+#include "media_database.h"
+
+#define SAFE(x)((x) ? (x) : "")
+
+/*======================================================================
+  gui_tracks_track_cell
+======================================================================*/
+/*
+void gui_tracks_track_cell (VSString *body, const char *path, 
+       BOOL covers, MediaDatabase *mdb)
+  {
+  vs_string_append (body, "<tr>");
+
+  VSString *enc_path = http_util_encode_for_js (path); 
+  vs_string_append (body, "<td>");
+  vs_string_append (body, "<a href=\"javascript:cmd_play('");
+  vs_string_append (body, vs_string_cstr (enc_path)); 
+  vs_string_append (body, "')\">[play]</a> ");
+  vs_string_append (body, "<a href=\"javascript:cmd_add('");
+  vs_string_append (body, vs_string_cstr (enc_path)); 
+  vs_string_append (body, "')\">[add]</a> ");
+  vs_string_append (body, "</td>");
+  vs_string_destroy (enc_path);
+  
+
+  VSMetadata *amd = media_database_get_amd (mdb, path);
+
+  if (amd)
+    {
+    // Path
+    vs_string_append (body, "<td>");
+    const char *title = SAFE(vs_metadata_get_title (amd));
+    if (title && title[0])
+      vs_string_append (body, title);
+    else
+      vs_string_append (body, path);
+    vs_string_append (body, "</td>");
+    vs_string_append (body, "<td>");
+    vs_string_append (body, SAFE(vs_metadata_get_track (amd)));
+    vs_string_append (body, "</td>");
+
+    // Album
+    
+    vs_string_append (body, "<td>");
+
+    const char *album = SAFE (vs_metadata_get_album (amd));
+    //char *enc2 = media_database_escape_sql (album);
+    char *enc2 = strdup (album);
+    VSString *enc_album = http_util_encode_for_js (enc2); 
+    char *where;
+    asprintf (&where, "album='%s'", vs_string_cstr(enc_album));
+    vs_string_destroy (enc_album);
+    free (enc2);
+
+    char *album_href;
+    asprintf (&album_href, 
+      "<a href=\"/gui/albums?where=%s&covers=%d\">%s</a>", where, 
+        covers, album);
+
+    free (where);
+
+    vs_string_append (body, album_href);
+    free (album_href);
+
+    vs_string_append (body, "</td>");
+
+    // Artist
+    
+    vs_string_append (body, "<td>");
+
+    const char *artist = SAFE (vs_metadata_get_artist (amd));
+
+    //enc2 = media_database_escape_sql (artist);
+    enc2 = strdup (artist);
+    VSString *enc_artist = http_util_encode_for_js (enc2); 
+    asprintf (&where, "artist='%s'", vs_string_cstr(enc_artist));
+    vs_string_destroy (enc_artist);
+    free (enc2);
+
+    asprintf (&album_href, 
+      "<a href=\"/gui/albums?where=%s&covers=%d\">%s</a>", where, 
+        covers, artist);
+
+    free (where);
+
+    vs_string_append (body, album_href);
+    free (album_href);
+
+    vs_string_append (body, "</td>");
+
+    // Album artist
+    
+    vs_string_append (body, "<td>");
+
+    const char *album_artist = SAFE (vs_metadata_get_album_artist (amd));
+
+    enc2 = media_database_escape_sql (album_artist);
+    VSString *enc_album_artist = http_util_encode_for_js (enc2); 
+    asprintf (&where, "album_artist='%s'", vs_string_cstr(enc_album_artist));
+    vs_string_destroy (enc_album_artist);
+    free (enc2);
+
+    asprintf (&album_href, 
+      "<a href=\"/gui/albums?where=%s&covers=%d\">%s</a>", where, 
+        covers, artist);
+
+    free (where);
+
+    vs_string_append (body, album_href);
+    free (album_href);
+
+    vs_string_append (body, "</td>");
+
+    // Composer
+
+    vs_string_append (body, "<td>");
+
+    const char *composer = SAFE (vs_metadata_get_composer (amd));
+
+    enc2 = media_database_escape_sql (composer);
+    VSString *enc_composer = http_util_encode_for_js (enc2); 
+    asprintf (&where, "composer='%s'", vs_string_cstr(enc_composer));
+    vs_string_destroy (enc_composer);
+    free (enc2);
+
+    char *composer_href;
+    asprintf (&composer_href, 
+      "<a href=\"/gui/albums?where=%s&covers=%d\">%s</a>", where, 
+        covers, composer);
+
+    free (where);
+
+    vs_string_append (body, composer_href);
+    vs_string_append (body, "</td>");
+    free (composer_href);
+
+    // Genre
+
+    vs_string_append (body, "<td>");
+
+    const char *genre = SAFE (vs_metadata_get_genre (amd));
+
+    enc2 = media_database_escape_sql (genre);
+    VSString *enc_genre = http_util_encode_for_js (enc2); 
+    asprintf (&where, "genre='%s'", vs_string_cstr(enc_genre));
+    vs_string_destroy (enc_genre);
+    free (enc2);
+
+    char *genre_href;
+    asprintf (&genre_href, 
+      "<a href=\"/gui/albums?where=%s&covers=%d\">%s</a>", where, 
+        covers, genre);
+
+    free (where);
+
+    vs_string_append (body, genre_href);
+    free (genre_href);
+
+    vs_string_append (body, "</td>");
+
+
+    vs_metadata_destroy (amd);
+    }
+  else
+    {
+    vs_string_append (body, "<td>");
+    vs_string_append (body, path);
+    vs_string_append (body, "</td>");
+    vs_string_append (body, "<td></td>");
+    vs_string_append (body, "<td></td>");
+    vs_string_append (body, "<td></td>");
+    vs_string_append (body, "<td></td>");
+    vs_string_append (body, "<td></td>");
+    }
+
+  vs_string_append (body, "</tr>\n");
+  }
+*/
+
+/*======================================================================
+  gui_tracks2_get_body
+======================================================================*/
+VSString *gui_tracks2_get_body (const char *path, 
+            const VSProps *arguments, int count, MediaDatabase *mdb)
+  {
+  (void)path;
+  (void)count;
+  (void)mdb;
+  const char *s_covers = vs_props_get (arguments, "covers"); 
+  const char *s_start = vs_props_get (arguments, "start"); 
+  const char *s_where = vs_props_get (arguments, "where"); 
+
+  VSString *body = vs_string_create_empty();
+  vs_string_append (body, "<h2>Tracks</h2>\n");
+  if (s_where)
+    {
+    vs_string_append (body, "<h3>");
+    vs_string_append (body, s_where); 
+    vs_string_append (body, "</h3>\n");
+    }
+
+  vs_string_append (body, "<div id=\"trackslist\"></div>\n");
+  vs_string_append (body, "<script src=\"/file/populate_tracks.js\"></script>\n");
+
+  vs_string_append (body, "<script type=\"text/javascript\">populate_tracks(");
+
+  if (s_where)
+    {
+    vs_string_append (body, "\""); 
+    vs_string_append (body, s_where); 
+    vs_string_append (body, "\""); 
+    }
+  else
+    vs_string_append (body, "\"\""); 
+
+  vs_string_append (body, ",");
+
+  if (s_start)
+    vs_string_append (body, s_start); 
+  else
+    vs_string_append (body, "0"); 
+
+  vs_string_append (body, ",");
+
+  if (s_covers)
+    vs_string_append (body, s_covers); 
+  else
+    vs_string_append (body, "0"); 
+
+  vs_string_append (body, ")</script>\n");
+
+  return body;
+  }
+
+

@@ -1188,6 +1188,80 @@ VSList *api_list_albums (MediaDatabase *mdb,
 
 /*======================================================================
 
+  api_list_albums2_js
+
+======================================================================*/
+char *api_list_albums2_js (MediaDatabase *mdb, 
+        const VSProps *arguments)
+  {
+  IN
+  char *ret; 
+  VSApiError e;
+  VSSearchConstraints *mdc = vs_search_constraints_new();
+  const char *s_start = vs_props_get (arguments, "start");
+  if (s_start)
+    mdc->start = atoi (s_start);
+  else
+    mdc->start = 0;
+  const char *s_count = vs_props_get (arguments, "count");
+  if (s_count)
+    mdc->count = atoi (s_count);
+  else
+    mdc->count = -1;
+  const char *where = vs_props_get (arguments, "where");
+  if (where)
+    vs_search_constraints_set_where (mdc, where);
+  VSList *list = api_list_albums (mdb, mdc, &e);
+  vs_search_constraints_destroy (mdc);
+  if (list)
+    {
+    VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      vs_string_append (s, "{\"name\":");
+      const char *album = vs_list_get (list, i);
+      char *j_file = api_escape_json (album);
+      vs_string_append (s, "\"");
+      vs_string_append (s, j_file);
+      vs_string_append (s, "\"");
+      vs_string_append (s, ",\"cover\":");
+      char *dir = api_get_dir_for_album (mdb, album); 
+      if (dir)
+        {
+        char *j_dir = api_escape_json (dir);
+        vs_string_append (s, "\"");
+        vs_string_append (s, j_dir);
+        vs_string_append (s, "\"");
+        free (j_dir);
+        free (dir);
+        }
+      else
+        vs_string_append (s, "\"unknown\"");
+      free (j_file);
+      vs_string_append (s, "}");
+      if (i != l - 1) 
+        vs_string_append (s, ",");
+      }
+
+    vs_list_destroy (list);
+    vs_string_append (s, "]}\r\n");
+    ret = strdup (vs_string_cstr (s));
+    vs_string_destroy (s);
+    }
+  else
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
   api_list_albums_js
 
 ======================================================================*/
@@ -1198,8 +1272,16 @@ char *api_list_albums_js (MediaDatabase *mdb,
   char *ret; 
   VSApiError e;
   VSSearchConstraints *mdc = vs_search_constraints_new();
-  mdc->start = 0;
-  mdc->count = -1;
+  const char *s_start = vs_props_get (arguments, "start");
+  if (s_start)
+    mdc->start = atoi (s_start);
+  else
+    mdc->start = 0;
+  const char *s_count = vs_props_get (arguments, "count");
+  if (s_count)
+    mdc->count = atoi (s_count);
+  else
+    mdc->count = -1;
   const char *where = vs_props_get (arguments, "where");
   if (where)
     vs_search_constraints_set_where (mdc, where);
@@ -1344,6 +1426,16 @@ char *api_list_genres_js (MediaDatabase *mdb,
   VSSearchConstraints *mdc = vs_search_constraints_new();
   mdc->start = 0;
   mdc->count = -1;
+  const char *s_start = vs_props_get (arguments, "start");
+  if (s_start)
+    mdc->start = atoi (s_start);
+  else
+    mdc->start = 0;
+  const char *s_count = vs_props_get (arguments, "count");
+  if (s_count)
+    mdc->count = atoi (s_count);
+  else
+    mdc->count = -1;
   const char *where = vs_props_get (arguments, "where");
   if (where)
     vs_search_constraints_set_where (mdc, where);
@@ -1416,6 +1508,16 @@ char *api_list_composers_js (MediaDatabase *mdb,
   VSSearchConstraints *mdc = vs_search_constraints_new();
   mdc->start = 0;
   mdc->count = -1;
+  const char *s_start = vs_props_get (arguments, "start");
+  if (s_start)
+    mdc->start = atoi (s_start);
+  else
+    mdc->start = 0;
+  const char *s_count = vs_props_get (arguments, "count");
+  if (s_count)
+    mdc->count = atoi (s_count);
+  else
+    mdc->count = -1;
   const char *where = vs_props_get (arguments, "where");
   if (where)
     vs_search_constraints_set_where (mdc, where);
@@ -1476,6 +1578,27 @@ VSList *api_list_artists (MediaDatabase *mdb,
 
 /*======================================================================
 
+  api_list_album_artists
+
+======================================================================*/
+VSList *api_list_album_artists (MediaDatabase *mdb, 
+     const VSSearchConstraints *mdc, VSApiError *e)
+  {
+  VSList *ret = NULL;
+  if (media_database_is_init (mdb))
+    {
+    VSList *artists = vs_list_create (free);
+    char *error = NULL;
+    media_database_search (mdb, MDB_COL_ALBUM_ARTIST, artists, mdc, &error);
+    ret = artists;
+    }
+  else
+   *e = VSAPI_ERR_INIT_DB;
+  return ret;
+  }
+
+/*======================================================================
+
   api_list_artists_js
 
 ======================================================================*/
@@ -1488,10 +1611,80 @@ char *api_list_artists_js (MediaDatabase *mdb,
   VSSearchConstraints *mdc = vs_search_constraints_new();
   mdc->start = 0;
   mdc->count = -1;
+  const char *s_start = vs_props_get (arguments, "start");
+  if (s_start)
+    mdc->start = atoi (s_start);
+  else
+    mdc->start = 0;
+  const char *s_count = vs_props_get (arguments, "count");
+  if (s_count)
+    mdc->count = atoi (s_count);
+  else
+    mdc->count = -1;
   const char *where = vs_props_get (arguments, "where");
   if (where)
     vs_search_constraints_set_where (mdc, where);
   VSList *list = api_list_artists (mdb, mdc, &e);
+  vs_search_constraints_destroy (mdc);
+  if (list)
+    {
+    VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      char *j_file = api_escape_json (vs_list_get (list, i));
+      vs_string_append (s, "\"");
+      vs_string_append (s, j_file);
+      vs_string_append (s, "\"");
+      free (j_file);
+      if (i != l - 1) 
+        vs_string_append (s, ",");
+      }
+
+    vs_list_destroy (list);
+    vs_string_append (s, "]}\r\n");
+    ret = strdup (vs_string_cstr (s));
+    vs_string_destroy (s);
+    }
+  else
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+  api_list_album_artists_js
+
+======================================================================*/
+char *api_list_album_artists_js (MediaDatabase *mdb, 
+        const VSProps *arguments)
+  {
+  IN
+  char *ret; 
+  VSApiError e;
+  VSSearchConstraints *mdc = vs_search_constraints_new();
+  mdc->start = 0;
+  mdc->count = -1;
+  const char *s_start = vs_props_get (arguments, "start");
+  if (s_start)
+    mdc->start = atoi (s_start);
+  else
+    mdc->start = 0;
+  const char *s_count = vs_props_get (arguments, "count");
+  if (s_count)
+    mdc->count = atoi (s_count);
+  else
+    mdc->count = -1;
+  const char *where = vs_props_get (arguments, "where");
+  if (where)
+    vs_search_constraints_set_where (mdc, where);
+  VSList *list = api_list_album_artists (mdb, mdc, &e);
   vs_search_constraints_destroy (mdc);
   if (list)
     {
@@ -1545,7 +1738,6 @@ VSList *api_list_tracks (MediaDatabase *mdb,
   return ret;
   }
 
-
 /*======================================================================
 
   api_list_tracks_js
@@ -1560,6 +1752,16 @@ char *api_list_tracks_js (MediaDatabase *mdb,
   VSSearchConstraints *mdc = vs_search_constraints_new();
   mdc->start = 0;
   mdc->count = -1;
+  const char *s_start = vs_props_get (arguments, "start");
+  if (s_start)
+    mdc->start = atoi (s_start);
+  else
+    mdc->start = 0;
+  const char *s_count = vs_props_get (arguments, "count");
+  if (s_count)
+    mdc->count = atoi (s_count);
+  else
+    mdc->count = -1;
   const char *where = vs_props_get (arguments, "where");
   if (where)
     vs_search_constraints_set_where (mdc, where);
@@ -1576,6 +1778,129 @@ char *api_list_tracks_js (MediaDatabase *mdb,
       vs_string_append (s, j_file);
       vs_string_append (s, "\"");
       free (j_file);
+      if (i != l - 1) 
+        vs_string_append (s, ",");
+      }
+
+    vs_list_destroy (list);
+    vs_string_append (s, "]}\r\n");
+    ret = strdup (vs_string_cstr (s));
+    vs_string_destroy (s);
+    }
+  else
+    {
+    char *j_error = api_escape_json (vs_util_strerror (e));
+    asprintf (&ret, "{\"status\": %d, \"message\": \"%s\"}\r\n", 
+      e, j_error);
+    free (j_error);
+    }
+  OUT
+  return ret;
+  }
+
+/*======================================================================
+
+  api_list_tracks2_js
+
+======================================================================*/
+char *api_list_tracks2_js (MediaDatabase *mdb, 
+        const VSProps *arguments)
+  {
+  IN
+  char *ret; 
+  VSApiError e;
+  VSSearchConstraints *mdc = vs_search_constraints_new();
+  mdc->start = 0;
+  mdc->count = -1;
+  const char *s_start = vs_props_get (arguments, "start");
+  if (s_start)
+    mdc->start = atoi (s_start);
+  else
+    mdc->start = 0;
+  const char *s_count = vs_props_get (arguments, "count");
+  if (s_count)
+    mdc->count = atoi (s_count);
+  else
+    mdc->count = -1;
+  const char *where = vs_props_get (arguments, "where");
+  if (where)
+    vs_search_constraints_set_where (mdc, where);
+  VSList *list = api_list_tracks (mdb, mdc, &e);
+  vs_search_constraints_destroy (mdc);
+  if (list)
+    {
+    VSString *s = vs_string_create ("{\"status\": 0, \"list\": [");
+    int l = vs_list_length (list);
+    for (int i = 0; i < l; i++)
+      {
+      vs_string_append (s, "{");
+      vs_string_append (s, "\"path\":");
+      const char *path = vs_list_get (list, i);
+      char *j_file = api_escape_json (path);
+      vs_string_append (s, "\"");
+      vs_string_append (s, j_file);
+      vs_string_append (s, "\"");
+      vs_string_append (s, ",");
+
+      VSMetadata *amd = media_database_get_amd (mdb, path);
+      if (amd)
+        {
+        vs_string_append (s, "\"name\":");
+        vs_string_append (s, "\"");
+        char *j_title = api_escape_json (SAFE(vs_metadata_get_title (amd)));
+        vs_string_append (s, j_title);
+        free (j_title);
+        vs_string_append (s, "\",");
+
+        vs_string_append (s, "\"album\":");
+        vs_string_append (s, "\"");
+        char *j_album = api_escape_json (SAFE(vs_metadata_get_album (amd)));
+        vs_string_append (s, j_album);
+        free (j_album);
+        vs_string_append (s, "\",");
+
+        vs_string_append (s, "\"artist\":");
+        vs_string_append (s, "\"");
+        char *j_artist = api_escape_json (SAFE(vs_metadata_get_artist (amd)));
+        vs_string_append (s, j_artist);
+        free (j_artist);
+        vs_string_append (s, "\",");
+
+        vs_string_append (s, "\"composer\":");
+        vs_string_append (s, "\"");
+        char *j_composer = api_escape_json (SAFE(vs_metadata_get_composer (amd)));
+        vs_string_append (s, j_composer);
+        free (j_composer);
+        vs_string_append (s, "\",");
+
+        vs_string_append (s, "\"genre\":");
+        vs_string_append (s, "\"");
+        char *j_genre = api_escape_json (SAFE(vs_metadata_get_genre (amd)));
+        vs_string_append (s, j_genre);
+        free (j_genre);
+        vs_string_append (s, "\"");
+
+        vs_metadata_destroy (amd);
+        }
+      else
+        {
+        vs_string_append (s, "\"name\":");
+        vs_string_append (s, "\"");
+        vs_string_append (s, j_file);
+        vs_string_append (s, "\",");
+
+        vs_string_append (s, "\"album\":");
+        vs_string_append (s, "\"\",");
+        vs_string_append (s, "\"artist\":");
+        vs_string_append (s, "\"\",");
+        vs_string_append (s, "\"composer\":");
+        vs_string_append (s, "\"\",");
+        vs_string_append (s, "\"genre\":");
+        vs_string_append (s, "\"\"");
+        }
+
+      free (j_file);
+      vs_string_append (s, "}");
       if (i != l - 1) 
         vs_string_append (s, ",");
       }

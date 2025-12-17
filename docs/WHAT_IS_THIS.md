@@ -1,7 +1,7 @@
 # What is this?
 
 `vlc-server` is a Linux application that wraps the VLC media player, with the
-goal of providing an HTTP-based interface for Music playback, and searching
+goal of providing an HTTP-based interface for music playback, and searching
 music metadata (tags).  The Web interface can be used by a desktop web browser,
 or by a cellphone or tablet. There is also a REST-like HTTP interface that can
 be used by other software.

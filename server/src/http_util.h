@@ -23,6 +23,7 @@
 #define TYPE_PNG "image/png"
 #define TYPE_JAVASCRIPT "application/javascript"
 #define TYPE_ICON "image/x-icon"
+#define TYPE_CSS "text/css"
 
 struct _HttpServer;
 

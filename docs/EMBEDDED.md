@@ -2,7 +2,7 @@
 
 My Raspberry Pi set-up uses a custom Linux, that starts a minimum of
 services and then does an auto-login for a specific user -- the only user
-that has an account. That user gets a session on psueo-terminal
+that has an account. That user gets a session on pseudo-terminal
 `/dev/tty2`, for reasons that are not important here.
 
 The (only) user's `.bashrc` file starts the server and the ncurses client.

@@ -310,6 +310,10 @@ the server to the browser takes longer.
 
 ## Revision history
 
+0.2e December 2025  
+- Moved to an 'infinite scrolling' display for long pages
+  of search results
+
 0.2d January 2025
 - Fixed a bug with the live status display in the web interface
 

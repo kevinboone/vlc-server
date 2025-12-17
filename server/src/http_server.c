@@ -212,6 +212,12 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }
+  else if (strncmp (url, "list-albums2", 12) == 0)
+    {
+    char *aret = api_list_albums2_js (self->mdb, arguments);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
   else if (strncmp (url, "list-albums", 11) == 0)
     {
     char *aret = api_list_albums_js (self->mdb, arguments);
@@ -230,6 +236,12 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }
+  else if (strncmp (url, "list-album-artists", 18) == 0)
+    {
+    char *aret = api_list_album_artists_js (self->mdb, arguments);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
   else if (strncmp (url, "list-composers", 12) == 0)
     {
     char *aret = api_list_composers_js (self->mdb, arguments);
@@ -239,6 +251,12 @@ static enum MHD_Result http_server_handle_api (const HttpServer *self,
   else if (strncmp (url, "list-genres", 12) == 0)
     {
     char *aret = api_list_genres_js (self->mdb, arguments);
+    ret = http_server_make_response 
+        (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
+    }
+  else if (strncmp (url, "list-tracks2", 12) == 0)
+    {
+    char *aret = api_list_tracks2_js (self->mdb, arguments);
     ret = http_server_make_response 
         (connection, MHD_HTTP_OK, aret, 0, TYPE_JSON);
     }

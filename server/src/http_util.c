@@ -83,6 +83,7 @@ const char *http_util_mime_from_path (const char *url)
     else if (strcasecmp (e, "js") == 0) mime = TYPE_JAVASCRIPT; 
     else if (strcasecmp (e, "png") == 0) mime = TYPE_PNG; 
     else if (strcasecmp (e, "ico") == 0) mime = TYPE_ICON; 
+    else if (strcasecmp (e, "css") == 0) mime = TYPE_CSS; 
     }
   OUT
   vs_log_debug ("MIME type for %s is %s", url, mime);

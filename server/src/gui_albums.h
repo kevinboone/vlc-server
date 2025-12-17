@@ -2,7 +2,7 @@
 
   vlc-server 
 
-  server/src/gui_files.h
+  server/src/gui_albums.h
 
   See gui_modules.md for more information.
 

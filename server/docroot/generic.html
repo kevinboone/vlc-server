@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
   <head>
     <title>%%TITLE%%</title>
@@ -10,8 +11,6 @@
 
     <header>
       <div id="captionmenu">
-	<!--img src="/file/caption_logo.png"/-->
-        
         <div id="transport_buttons">
 	<a href="javascript:cmd_prev()"><img class="transportbuttonimage" src="/file/prevbutton.png" alt="Prev"/></a>
 	<a href="javascript:cmd_stop()"><img class="transportbuttonimage" src="/file/stopbutton.png" alt="Stop"/></a>
@@ -37,10 +36,12 @@
 	<li class="main_menu_item"><a href="/gui/help">Help</a></li>
 	<li class="main_menu_item"><a href="/gui/home">Home</a></li>
 	<li class="main_menu_item"><a href="/gui/files?covers=1">Files</a></li>
-	<li class="main_menu_item"><a href="/gui/albums?covers=1">Albums</a></li>
+	<li class="main_menu_item"><a href="/gui/albums2?covers=1">Albums</a></li>
 	<li class="main_menu_item"><a href="/gui/playlist">Playlist</a></li>
 	<li class="main_menu_item"><a href="javascript:url_form_open()">URL...</a></li>
 	</ul>
+        <br clear="all"/>
+        <span id="messagecell"></span>
 	</nav>
       </div>
     </header>
@@ -62,8 +63,6 @@
     </div>
 
     <section>
-      <p>&nbsp;</p>
-      <span id="messagecell"/></span><br/>
       %%BODY%% 
     </section>
   </body>

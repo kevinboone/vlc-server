@@ -4,6 +4,9 @@ This document describes the `vlc-server` REST API. All functions of
 the API can be exercised using simple `curl` operations, or the
 command-line client `vlc-server-client`.
 
+>*Note*  
+>Sorry -- this document is not complete :/
+
 ## Background 
 
 The VLC server supports a REST-type HTTP interface. Please note that it is
@@ -117,7 +120,7 @@ only files in the specific, selected directory are added.
 
 If the server is started with a list of accepted file patterns
 (using the `--patterns` switch), then files are only added if they
-match one of the specified pathnames. This is particulary important
+match one of the specified pathnames. This is particularly important
 feature if the client application is adding whole directories --
 there could well be unplayable files in a directory (cover art, for
 example), so indiscriminate adding of a directory's contents should
@@ -135,7 +138,7 @@ media root has been scanned.
 
     /api/clear
 
-Clear the playlist. If something is playing, it will contine to play
+Clear the playlist. If something is playing, it will continue to play
 until the end. The playback will continue from the start of any
 new playlist items.
 
@@ -151,21 +154,57 @@ exist.
 
 ## list-albums
 
-    /api/list-albums?where=[where clause]
+    /api/list-albums?where=[where clause]&start=M&count=N
 
-List all albums in the database that match the where clause. If there is
-no where clause, return a list of all albums.
+List albums in the database that match the where clause. If there is
+no where clause, return an unconstrained list of albums. Listing starts at
+position M, and includes at most N results. It should be safe to supply
+invalid values of M and N -- an empty list will be returned.
+
+## list-albums2
+
+    /api/list-albums2?where=[where clause]&start=M&count=N
+
+List albums starting at position M and continuing for count N. The format is a list
+of JSON objects of this form:
+
+    {"name":"album name","cover":"cover directory"}
+
+The cover directory is a string suitable for forming into a request that retrieves 
+a cover image. The request is of this form:
+
+    http://host:port/cover/[cover directory]
+
+Some care is needed with escaping spaces in the directory name, if any.
+
+The purpose of the list-albums2 API is to provide the information needed to make 
+an HTML page listing albums, one page at a time. At present, we only use the album
+name and cover image, but it's conceivable that other information might be
+added in future.
+
+The difference between list-albums and list-albums2 is that the latter includes
+cover art folder information, and may include more information in future. list-albums
+includes only album names, and is potentially faster.
+
+## list-album-artists
+
+    /api/list-album-artists?where=[where clause]&start=M&count=N
+
+List up to N album artists in the database that match the where clause, starting at
+position M. If there is no `where` clause, match any artist.
+
 
 ## list-artists
 
-    /api/list-artists?where=[where clause]
+    /api/list-artists?where=[where clause]&start=M&count=N
 
-List all artists in the database that match the where clause. If there is
-no where clause, return a list of all artists.
+List up to N artists in the database that match the where clause, starting at
+position M. If there is no `where` clause, match any artist.
+
 
 ## list-composers
 
-    /api/list-composers?where=[where clause]
+    /api/list-composers?where=[where clause]&start=M&count=N
 
 List all composers in the database that match the where clause. If there is
 no where clause, return a list of all composers.
@@ -202,14 +241,14 @@ The format of the JSON response is:
 
 ## list-genres
 
-    /api/list-genres?where=[where clause]
+    /api/list-genres?where=[where clause]&start=M&count=N
 
 List all genres in the database that match the where clause. If there is
 no where clause, return a list of all genres.
 
 ## list-tracks
 
-    /api/list-tracks?where=[where clause]
+    /api/list-tracks?where=[where clause]&start=M&count=N
 
 List all tracks in the database that match the where clause. If there is
 no where clause, return a list of all tracks.
